@@ -17,4 +17,5 @@ for course in courses:
         assignmentDueDate = ConvertToDateTime(assignment.due_at)
         assignmentUnlockDate = ConvertToDateTime(assignment.unlock_at)
         currentDate = datetime.datetime.now().strftime('%Y-%m-%d %I:%M:%S %p')
-        if currentDate <= assignmentUnlockDate:
+        if currentDate >= assignmentUnlockDate:
+            print(assignment.name)
