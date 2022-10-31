@@ -1,11 +1,9 @@
 from datetime import datetime, timedelta
 from winotify import Notification
 from threading import Thread
-
-import time
-
 from constants import *
 
+import time
 import core
 
 # Only Stores Assignments that Will Be Due Within the Next Day
@@ -15,6 +13,7 @@ upcomingAssignments = []
 shownComingNextDay = False
 
 def main():
+    # Starts Independent Threads
     Thread(target=upcomingAssignmentsUpdate).start()
     Thread(target=assignmentDueReminderUpdate).start()
 
@@ -57,6 +56,7 @@ def updateUpcomingAssignments():
                     return
 
             tomorrow = currentDate + timedelta(days=1)
+
             tomorrowLastPossibleSecond = tomorrow.replace(hour=11, minute=59, second=59)
 
             # Checks to See If The Assignment is Due Within the Next Day Up to 11:59:59 PM
