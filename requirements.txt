@@ -1,0 +1,4 @@
+canvasapi==3.0.0
+winotify==1.1.0
+tzlocal==4.2
+dearpygui~=1.8.0
