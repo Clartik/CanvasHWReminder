@@ -1,21 +1,21 @@
 from datetime import datetime, timedelta
+
+import canvasapi.course
 from winotify import Notification
 from threading import Thread
 from constants import *
 
 import time
 import core
-
-# Only Stores Assignments that Will Be Due Within the Next Day
-upcomingAssignments = []
+import gui
 
 # TODO: RESET EVERY DAY
 shownComingNextDay = False
 
-def appendAndUpdateGUI(assignments):
-    global upcomingAssignments
+upcomingAssignments = []
 
-    upcomingAssignments.append(assignments)
+def updateGUI(courseAssignments: list):
+    gui.updateCourses(courseAssignments)
 
 def startCanvasScan():
     # Starts Independent Threads
@@ -32,10 +32,12 @@ def upcomingAssignmentsUpdate():
 def updateUpcomingAssignments():
     global upcomingAssignments
 
+    # Connects to Canvas
     canvas = core.connectToCanvas()
 
     # Couldn't Connect to Canvas
     if not canvas:
+        # TODO: Add GUi
         return
 
     # Only Get Courses That Are Happening Right Now
@@ -47,26 +49,40 @@ def updateUpcomingAssignments():
         return
 
     for course in courses:
+        specificCourseAssignments = []
+
+        # Converts Obj for Intellisense
+        course: canvasapi.course.Course = course
+
         for assignment in course.get_assignments(bucket='upcoming', order_by='due_at'):
+            # Converts Obj for Intellisense
+            assignment: canvasapi.assignment.Assignment = assignment
+
+            # Creates an Assignment Object
             assignmentFormated = core.Assignment(assignment, canvas)
 
             currentDate = datetime.now()
             currentDate = core.ConvertToLocalTime(currentDate)
 
             # Checks if There is An Unlock Date
-            # Should Skip if There isn't
+            # Should Skip if There Isn't As Not All Teachers Will Put Those (JAPN PROF)
             if assignmentFormated.unlockDate:
                 # If the Assignment Hasn't Been Unlocked Yet
                 if currentDate <= assignmentFormated.unlockDate:
                     return
 
+            # Gets Tomorrow's Date
             tomorrow = currentDate + timedelta(days=1)
 
+            # Gets Tomorrow's Date at the Last Second
             tomorrowLastPossibleSecond = tomorrow.replace(hour=11, minute=59, second=59)
 
             # Checks to See If The Assignment is Due Within the Next Day Up to 11:59:59 PM
             if assignmentFormated.dueDate <= tomorrowLastPossibleSecond:
                 upcomingAssignments.append(assignmentFormated)
+                specificCourseAssignments.append(assignmentFormated)
+
+        updateGUI(specificCourseAssignments)
 
 # endregion
 
@@ -139,7 +155,7 @@ def assignmentDueReminder():
 
     assignmentsDueInNextHours = []
     assignmentsDueInDay = []
-    for assignment in upcomingAssignments:
+    for assignment in upcomingAssignments['assignments']:
         if assignment.dueDate <= dueInNextHours:
             assignmentsDueInNextHours.append(assignment)
         elif assignment.dueDate <= dueInDay and not shownComingNextDay:

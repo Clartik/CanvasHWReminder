@@ -25,7 +25,7 @@ class Assignment(object):
         self.name = assignment.name
 
         # Convert Course ID to Course Object
-        self.course = canvas.get_course(int(assignment.course_id))
+        self.course: canvasapi.course.Course = canvas.get_course(int(assignment.course_id))
 
         self.url = assignment.html_url
 
