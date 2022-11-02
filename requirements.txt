@@ -2,3 +2,5 @@ canvasapi==3.0.0
 winotify==1.1.0
 tzlocal==4.2
 dearpygui~=1.8.0
+pystray==0.19.4
+Pillow~=9.3.0
