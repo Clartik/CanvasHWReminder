@@ -5,7 +5,7 @@ import sysTray
 import canvas
 
 def main():
-    sysTray.startSysTray()
+    # sysTray.startSysTray()
     canvas.startCanvasScan()
     window = gui.startGUI()
 

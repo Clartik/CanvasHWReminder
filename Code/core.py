@@ -42,3 +42,15 @@ class Assignment(object):
     # Sets How the Class is Printed
     def __str__(self):
         return f'Assignment: {self.name} | Course: {self.course} | Due: {self.dueDate} | Unlocked: {self.unlockDate} | URL: {self.url}'
+
+class Course:
+    def __init__(self, courseName: str, courseId: int):
+        self.name = courseName
+        self.id = courseId
+        self.assignments = []
+
+    def add_assignment(self, assignment: Assignment):
+        self.assignments.append(assignment)
+
+    def remove_assignment(self, assignment: Assignment):
+        self.assignments.remove(assignment)
