@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 
 import canvasapi.course
-from winotify import Notification
 from threading import Thread
 from constants import *
 
 import time
 import core
 import gui
+import notifier
 
 # TODO: RESET EVERY DAY
 shownComingNextDay = False
@@ -35,7 +35,7 @@ def upcomingAssignmentsUpdate():
         time.sleep(UPCOMING_UPDATE_TIME)
 
 def updateUpcomingAssignments():
-    global upcomingAssignments
+    global allCourses
     global allCourses
 
     # Connects to Canvas
@@ -92,65 +92,19 @@ def updateUpcomingAssignments():
                     return
 
             # Gets Tomorrow's Date
-            tomorrow = currentDate + timedelta(days=1)
+            tomorrow = currentDate.replace(hour=0, minute=0, second=0) + timedelta(days=1)
 
             # Gets Tomorrow's Date at the Last Second
-            tomorrowLastPossibleSecond = tomorrow.replace(hour=11, minute=59, second=59)
+            tomorrowLastPossibleSecond = tomorrow.replace(hour=23, minute=59, second=59)
 
             # Checks to See If The Assignment is Due Within the Next Day Up to 11:59:59 PM
-            # if assignmentFormated.dueDate > tomorrowLastPossibleSecond:
-            courseObj.add_assignment(assignmentFormated)
-            updateGUI(courseObj)
+            if assignmentFormated.dueDate <= tomorrowLastPossibleSecond:
+                courseObj.add_assignment(assignmentFormated)
+                updateGUI(courseObj)
 
 # endregion
 
 # region Assignment Due Reminder
-
-def dueSoonReminder(assignmentDueSoon):
-    # No Assignment Due Soon
-    if not assignmentDueSoon:
-        return
-
-    # Summary Reminder (Reminds About More Than One Assignment)
-    if len(assignmentDueSoon) > 1:
-        assignmentFormat = ''
-        for assignment in assignmentDueSoon:
-            assignmentCourse = assignment.course.name
-            assignmentCourse = assignmentCourse[:8]     # Removing the Course Number From Name
-
-            if assignmentCourse not in assignmentFormat:
-                assignmentFormat += HW_DUE_TMR_DETAILS.format(course=assignmentCourse)
-
-        toast = Notification(app_id=APP_NAME,
-                             title=HW_DUE_TMR_TITLE,
-                             msg=assignmentFormat,
-                             duration='short')
-
-        # TODO: Create File that Has All Assignments Due
-        # toast.add_actions(label='See All Assignments Due',
-        #                   launch=assignment.url)
-    # Reminds About One Assignment
-    else:
-        # Assigns the First Element Since Only One Assignment is Due Soon
-        assignmentDue = assignmentDueSoon[0]
-        assignmentDueDate = assignmentDue.dueDate
-        # Converts Date Time to A Easy-to-Understand Time Format (7:06 PM)
-        assignmentDueDate = assignmentDueDate.strftime('%#I:%M %p')
-
-        assignmentCourse = assignmentDue.course.name
-        assignmentCourse = assignmentCourse[:8]  # Removing the Course Number From Name
-
-        toast = Notification(app_id=APP_NAME,
-                             title=HW_DUE_HOURS_TITLE,
-                             msg=HW_DUE_HOURS_DETAILS.format(assignment=assignmentDue,
-                                                             course=assignmentCourse,
-                                                             dueDate=assignmentDueDate),
-                             duration='short')
-
-        toast.add_actions(label=HW_DUE_HOURS_ACTION,
-                          launch=assignmentDue.url)
-
-    toast.show()
 
 def assignmentDueReminderUpdate():
     while True:
@@ -158,10 +112,10 @@ def assignmentDueReminderUpdate():
         time.sleep(UPDATE_REMIND_TIME)
 
 def assignmentDueReminder():
-    global upcomingAssignments
+    global allCourses
     global shownComingNextDay
 
-    if not upcomingAssignments:
+    if not allCourses:
         print(NO_ASSIGNMENT_DUE)
         return
 
@@ -169,19 +123,20 @@ def assignmentDueReminder():
     currentDate = core.ConvertToLocalTime(currentDate)
 
     dueInNextHours = currentDate + timedelta(hours=4)
-    dueInDay = (currentDate + timedelta(days=1)).replace(hour=11, minute=59, second=59)
+    dueInDay = (currentDate + timedelta(days=1)).replace(hour=23, minute=59, second=59)
 
     assignmentsDueInNextHours = []
     assignmentsDueInDay = []
-    for assignment in upcomingAssignments['assignments']:
-        if assignment.dueDate <= dueInNextHours:
-            assignmentsDueInNextHours.append(assignment)
-        elif assignment.dueDate <= dueInDay and not shownComingNextDay:
-            assignmentsDueInDay.append(assignment)
+    for course in allCourses:
+        for assignment in course.assignments:
+            if assignment.dueDate <= dueInNextHours:
+                assignmentsDueInNextHours.append(assignment)
+            elif assignment.dueDate <= dueInDay and not shownComingNextDay:
+                assignmentsDueInDay.append(assignment)
 
     # Sends Notification
-    dueSoonReminder(assignmentsDueInNextHours)
-    dueSoonReminder(assignmentsDueInDay)
+    notifier.dueSoonReminder(assignmentsDueInNextHours)
+    notifier.dueSoonReminder(assignmentsDueInDay)
 
     if assignmentsDueInDay and not shownComingNextDay:
         shownComingNextDay = True

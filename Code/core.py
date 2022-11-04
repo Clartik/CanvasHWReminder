@@ -24,8 +24,8 @@ class Assignment(object):
     def __init__(self, assignment: canvasapi.paginated_list.PaginatedList, canvas: canvasapi.canvas.Canvas):
         self.name = assignment.name
 
-        # Convert Course ID to Course Object
-        self.course: canvasapi.course.Course = canvas.get_course(int(assignment.course_id))
+        # # Convert Course ID to Course Object
+        # self.course: canvasapi.course.Course = canvas.get_course(int(assignment.course_id))
 
         self.url = assignment.html_url
 

@@ -13,6 +13,6 @@ HW_DUE_HOURS_DETAILS = '{assignment.name} From {course} is Due at {dueDate}'
 HW_DUE_HOURS_ACTION = 'Open Assignment Page'
 HW_DUE_TMR_TITLE = 'HW Due By the End of Tomorrow For:'
 HW_DUE_TMR_DETAILS = '{course}\n'
-# HW_DUE_TMR_ACTION = 'HW Due By the End of Tomorrow For:'
+HW_DUE_TMR_ACTION = 'See All Assignments Due'
 
 # endregion
