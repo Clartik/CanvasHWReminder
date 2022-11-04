@@ -12,15 +12,20 @@ import gui
 # TODO: RESET EVERY DAY
 shownComingNextDay = False
 
-upcomingAssignments = []
+allCourses = []
 
-def updateGUI(courseAssignments: list):
-    gui.updateCourses(courseAssignments)
+def updateGUI(course: core.Course):
+    gui.updateCourse(course)
+
+def configGUI():
+    global allCourses
+
+    gui.configCourse(allCourses)
 
 def startCanvasScan():
     # Starts Independent Threads
     Thread(target=upcomingAssignmentsUpdate).start()
-    Thread(target=assignmentDueReminderUpdate).start()
+    # Thread(target=assignmentDueReminderUpdate).start()
 
 # region Upcoming Assignments
 
@@ -31,6 +36,7 @@ def upcomingAssignmentsUpdate():
 
 def updateUpcomingAssignments():
     global upcomingAssignments
+    global allCourses
 
     # Connects to Canvas
     canvas = core.connectToCanvas()
@@ -46,13 +52,27 @@ def updateUpcomingAssignments():
     # No Courses
     if not courses:
         print(NO_COURSES)
+        # ADD GUI
         return
 
-    for course in courses:
-        specificCourseAssignments = []
+    if not allCourses:
+        for course in courses:
+            cObj = core.Course(course.name, course.id)
+            allCourses.append(cObj)
 
+        configGUI()
+
+    for course in courses:
         # Converts Obj for Intellisense
         course: canvasapi.course.Course = course
+
+        courseObj = core.Course(course.name, course.id)
+
+        # Later
+        # # Checks If Current Course Exists in All Courses
+        # if courseObj.name not in (c.name for c in allCourses):
+        #     allCourses.append(courseObj)
+        #     configGUI()
 
         for assignment in course.get_assignments(bucket='upcoming', order_by='due_at'):
             # Converts Obj for Intellisense
@@ -78,11 +98,9 @@ def updateUpcomingAssignments():
             tomorrowLastPossibleSecond = tomorrow.replace(hour=11, minute=59, second=59)
 
             # Checks to See If The Assignment is Due Within the Next Day Up to 11:59:59 PM
-            if assignmentFormated.dueDate <= tomorrowLastPossibleSecond:
-                upcomingAssignments.append(assignmentFormated)
-                specificCourseAssignments.append(assignmentFormated)
-
-        updateGUI(specificCourseAssignments)
+            # if assignmentFormated.dueDate > tomorrowLastPossibleSecond:
+            courseObj.add_assignment(assignmentFormated)
+            updateGUI(courseObj)
 
 # endregion
 
@@ -169,3 +187,6 @@ def assignmentDueReminder():
         shownComingNextDay = True
 
 # endregion
+
+if __name__ == '__main__':
+    startCanvasScan()
