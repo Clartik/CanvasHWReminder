@@ -1,4 +1,5 @@
 from constants import *
+from datetime import datetime
 
 import canvasapi.assignment
 import core
@@ -15,20 +16,33 @@ class CoursePanel:
         self.amountOfAssignments = len(assignments)
         self.assignmentsList = []
 
-        with dpg.tree_node(label=self.name[:-7], default_open=True if self.amountOfAssignments > 0 else False,
+        with dpg.tree_node(label=self.name[:-8], default_open=True if self.amountOfAssignments > 0 else False,
                            parent=self.root) as self.courseNameText:
             self.noAssigmentText = dpg.add_text('No Assignments Are Due As Of the Moment', show=True)
             self.add_assignments(assignments)
 
     class AssignmentText:
-        def __init__(self, assignmentText: str, htmlLink: str, parent):
-            self.name = assignmentText
-            self.launchLink = htmlLink
-            self.assignmentText = dpg.add_text(assignmentText, parent=parent,
+        def __init__(self, assignmentObj: core.Assignment, parent):
+            self.name = assignmentObj.name
+            self.dueDate: str = assignmentObj.dueDate.strftime('%#I:%M %p')
+            self.launchLink = assignmentObj.url
+
+            currentDate = datetime.now()
+            currentDate = core.ConvertToLocalTime(currentDate)
+
+            dueToday = currentDate.date() == assignmentObj.dueDate.date()
+
+            self.assignmentText = dpg.add_text(self.name,
+                                               parent=parent,
                                                wrap=(dpg.get_viewport_width() * 2) / 2.15
                                                # wrap=dpg.get_viewport_width() / 2.25
                                                )
-            self.launchButton = dpg.add_button(label='Launch Canvas', show=True, parent=parent, callback=lambda e: self.launch_canvas())
+            if dueToday:
+                self.dueDateText = dpg.add_text(f'Due at {self.dueDate}', parent=parent)
+            else:
+                self.dueDateText = dpg.add_text(f'Due Tomorrow at {self.dueDate}', parent=parent)
+
+            self.launchButton = dpg.add_button(label='Launch Canvas', show=True, parent=parent, callback=self.launch_canvas)
 
         def launch_canvas(self):
             webbrowser.open(self.launchLink)
@@ -42,7 +56,7 @@ class CoursePanel:
 
             assignment: core.Assignment = assignment
 
-            assignmentObj = self.AssignmentText(assignment.name, assignment.url, self.courseNameText)
+            assignmentObj = self.AssignmentText(assignment, self.courseNameText)
             self.assignmentsList.append(assignmentObj)
 
         if self.amountOfAssignments > 0:
@@ -57,6 +71,8 @@ dpg.create_viewport(title=APP_NAME, width=800, height=500)
 dpg.setup_dearpygui()
 dpg.show_viewport()
 
+# region Fonts
+
 # add a font registry
 with dpg.font_registry():
     # first argument ids the path to the .ttf or .otf file
@@ -65,17 +81,20 @@ with dpg.font_registry():
 # Sets Default Font
 dpg.bind_font(default_font)
 
+# endregion
+
 def vpResizeUpdate():
-    dpg.set_item_width(c1, dpg.get_viewport_width() / 2)
-    # dpg.set_item_width(c2, (dpg.get_viewport_width() / 2) + dpg.get_viewport_width())
+    for coursePanel in coursePanels:
+        for assignmentText in coursePanel.assignmentsList:
+            dpg.configure_item(assignmentText.assignmentText, wrap=(dpg.get_viewport_width() * 2) / 2.15)
 
 def exitCall():
     dpg.stop_dearpygui()
     dpg.destroy_context()
     exit()
 
-dpg.set_viewport_resize_callback(lambda e: vpResizeUpdate)
-dpg.set_exit_callback(lambda e: exitCall())
+dpg.set_viewport_resize_callback(vpResizeUpdate)
+dpg.set_exit_callback(exitCall)
 
 with dpg.window(tag="Main Page", horizontal_scrollbar=True) as mainPage:
     with dpg.group(horizontal=True):
