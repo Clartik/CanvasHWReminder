@@ -3,6 +3,12 @@ from winotify import Notification
 
 import gui
 
+def launchGUI():
+    if gui.is_running():
+        return
+
+    gui.startGUI()
+
 def dueSoonReminder(assignmentDueSoon):
     # No Assignment Due Soon
     if not assignmentDueSoon:
@@ -23,7 +29,7 @@ def dueSoonReminder(assignmentDueSoon):
                              duration='long')
 
         toast.add_actions(label=HW_DUE_TMR_ACTION,
-                          launch=gui.startGUI())
+                          launch=launchGUI)
     # Reminds About One Assignment
     else:
         # Assigns the First Element Since Only One Assignment is Due Soon

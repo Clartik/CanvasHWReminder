@@ -15,12 +15,22 @@ shownComingNextDay = False
 allCourses = []
 
 def updateGUI(course: core.Course):
-    gui.updateCourse(course)
+    app = gui.getGUI()
+
+    if not app:
+        return
+
+    app.updateCourse(course)
 
 def configGUI():
     global allCourses
 
-    gui.configCourse(allCourses)
+    app = gui.getGUI()
+
+    if not app:
+        return
+
+    app.configCourse(allCourses)
 
 def startCanvasScan():
     # Starts Independent Threads
@@ -142,6 +152,3 @@ def assignmentDueReminder():
         shownComingNextDay = True
 
 # endregion
-
-if __name__ == '__main__':
-    startCanvasScan()
