@@ -4,10 +4,9 @@ import gui
 import sysTray
 import canvas
 
-def main():
-    sysTray.startSysTray()
-    canvas.startCanvasScan()
-    # window = gui.startGUI()
+from threading import Thread
 
 if __name__ == "__main__":
-    main()
+    Thread(sysTray.startSysTray()).start()
+    Thread(canvas.startCanvasScan()).start()
+    Thread(gui.createGUI(APP_NAME, 800, 500)).start()
