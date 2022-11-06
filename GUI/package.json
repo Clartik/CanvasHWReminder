@@ -1,0 +1,14 @@
+{
+  "name": "canvas_reminder",
+  "version": "1.0.0",
+  "description": "An app that reminds you about doing your HW for Canvas",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Clartik",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^21.2.2"
+  }
+}
