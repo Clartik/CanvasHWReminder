@@ -3,23 +3,136 @@
   <head>
     <meta charset="UTF-8" />
     <title>Canvas HW Reminder</title>
+    <link rel="stylesheet" href="./mainPage.css">
   </head>
   <body>
-    <ul>
-      <li><span class="caret">Beverages</span>
-        <ul class="nested">
-          <li>Water</li>
-          <l1>Coffee</l1>
-          <li><span class="caret">Green Tea</span>
-            <ul class="nested">
-              <li>Senchara</li>
-              <li>Senchara</li>
-              <li>Senchara</li>
-              <li>Senchara</li>
-            </ul>
-          </li>
-        </ul>
+    <ul id="tutorial">
+      <li><span class="gfg">Tutorials</span>
+          <ol class="cover" type="i">
+              <li><span class="gfg">Algorithms</span>
+                  <ol class="cover" type="a">
+                      <li>
+                      <span class="gfg">
+                          Analysis of Algorithms
+                      </span>
+                       
+                      <ol class="cover">
+                          <li>Asymptotic Analysis</li>
+                          <li>Worst, Average and Best Cases</li>
+                          <li>Asymptotic Notations</li>
+                          <li>Little o and little omega notations</li>
+                          <li>Lower and Upper Bound Theory</li>
+                          <li>Analysis of Loops</li>
+                          <li>Solving Recurrences</li>
+                          <li>Amortized Analysis</li>
+                          <li>What does ‘Space Complexity’ mean?</li>
+                          <li>Pseudo-polynomial Algorithms</li>
+                          <li>Polynomial Time Approximation Scheme</li>
+                          <li>A Time Complexity Question</li>
+                      </ol>
+                      </li>
+                      <li>Searching Algorithms</li>
+                      <li>Sorting Algorithms</li>
+                      <li>Graph Algorithms</li>
+                      <li>Pattern Searching</li>
+                      <li>Geometric Algorithms</li>
+                      <li>Mathematical</li>
+                      <li>Randomized Algorithms</li>
+                      <li>Greedy Algorithms</li>
+                      <li>Dynamic Programming</li>
+                      <li>Divide and Conquer</li>
+                      <li>Backtracking</li>
+                      <li>Branch and Bound</li>
+                      <li>All Algorithms</li>
+                  </ol>
+              </li>
+              <li>
+                  <spna class="gfg">
+                      Data Structures
+                  </span>
+                  <ol class="cover" type="a">
+                      <li>Arrays</li>
+                      <li>Linked List</li>
+                      <li>Stack</li>
+                      <li>Queue</li>
+                      <li>Binary Tree</li>
+                      <li>Binary Search Tree</li>
+                      <li>Heap</li>
+                      <li>Hashing</li>
+                      <li>Graph</li>
+                      <li>Advanced Data Structure</li>
+                      <li>Matrix</li>
+                      <li>Strings</li>
+                      <li>All Data Structures</li>
+                  </ol>
+              </li>
+              <li>
+                  <spna class="gfg">Languages</span>
+                  <ol class="cover" type="a">
+                      <li>C</li>
+                      <li>C++</li>
+                      <li>Java</li>
+                      <li>Python</li>
+                      <li>C#</li>
+                      <li>Javascript</li>
+                      <li>JQuery</li>
+                      <li>SQL</li>
+                      <li>PHP</li>
+                      <li>Scala</li>
+                      <li>Perl</li>
+                      <li>Go Language</li>
+                      <li>HTML</li>
+                      <li>CSS</li>
+                      <li>Kotlin</li>
+                  </ol>
+              </li>
+              <li>
+                  <span class="gfg">Interview Corner</span>
+                  <ol class="cover" type="a">
+                      <li>Company Preparation</li>
+                      <li>Top Topics</li>
+                      <li>Practice Company Questions</li>
+                      <li>Interview Experiences</li>
+                      <li>Experienced Interviews</li>
+                      <li>Internship Interviews</li>
+                      <li>Competitive Programming</li>
+                      <li>Design Patterns</li>
+                      <li>Multiple Choice Quizzes</li>
+                  </ol>
+                  <li>
+                      <spna class="gfg">GATE</span>
+                  </li>
+                  <li>
+                      <spna class="gfg">ISRO CS</span>
+                  </li>
+                  <li>
+                      <spna class="gfg">UGC NET CS</span>
+                  </li>
+                  <li>
+                      <spna class="gfg">CS Subjects</span>
+                  </li>
+                  <li>
+                      <class="gfg">Web Technologies</span>
+                  </li>
+              </li>   
+          </ol>
       </li>
-    </ul>
+  </ul>
+
+  <script>
+    var toggler = document.getElementsByClassName("gfg");
+    var i;
+
+    for (i = 0; i < toggler.length; i++) {
+        toggler[i].addEventListener("click",
+            function() {
+                this.parentElement.querySelector(".cover")
+                    .classList.toggle("active");
+                this.classList.toggle("gfg-down");
+            }
+        );
+    }
+  </script>
+
   </body>
 </html>

@@ -1,6 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 
-const {PythonShell} = require('python-shell');
+// const {PythonShell} = require('python-shell');
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -8,22 +8,13 @@ const createWindow = () => {
     height: 600
   });
 
-  var toggler = document.getElementsByClassName("caret");
-  var i;
-
-  for (i = 0; i < toggler.length; i++) {
-    toggler[i].addEventListener("click", function() {
-      this.parentElement.querySelector(".nested").classList.toggle("active");
-      this.classList.toggle("caret-down");
-    });
-  }
-
   win.loadFile('mainPage.html');
 
   // PythonShell.run('test.py', null, function(err) {
   //   if (err) throw err;
   //   console.log('UH OH');
   // })
+
 }
 
 app.whenReady().then(() => {
