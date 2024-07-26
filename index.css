@@ -1,0 +1,28 @@
+ .dropdown-header {
+    cursor: pointer;
+}
+
+ul {
+    list-style-type: none;
+}
+  
+.dropdown-header::before {
+    content: "\25B6";
+    color: black;
+    display: inline-block;
+    margin-right: 8px;
+}
+  
+.box {
+    list-style-type: disc;
+    display: none;
+}
+  
+.expand {
+    display: block;
+}
+
+div {
+    display: grid;
+    grid-template-columns: auto auto;
+}
