@@ -5,6 +5,11 @@
 ul {
     list-style-type: none;
 }
+
+.class-item {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
   
 .dropdown-header::before {
     color: black;
@@ -27,13 +32,13 @@ ul {
     transform: rotate(180deg);
 }
   
-.box {
+.dropdown-box {
     list-style-type: disc;
-    display: none;
+    display: block;
 }
 
-.expand {
-    display: block;   
+.hide {
+    display: none;
 }
 
 #class-container {
