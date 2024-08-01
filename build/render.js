@@ -12,9 +12,6 @@ let classColumns = document.getElementsByClassName('class-column');
 let dropdownHeaders;
 let dropdownHeadersLabel;
 let dropdownBoxes;
-function isInt(n) {
-    return n % 1 === 0;
-}
 const DROPDOWN_HEADER_TEMPLATE = `
     <span class='dropdown-header'>
         <div class='dropdown-header-arrow'></div>
@@ -26,8 +23,21 @@ const DROPDOWN_BOX_TEMPLATE = `
 `;
 const ASSIGNMENT_ITEM_TEMPLATE = `
     <p class='assignment-label'>Assignment Name</p>
-    <button class='assignment-btn hide'>Launch Canvas</button>
+    <button class='assignment-btn'>Launch Canvas</button>
 `;
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    const classData = yield window.api.getJSONData('../classes.json');
+    const classes = classData.classes;
+    generateDropdownElements(classes);
+    dropdownHeaders = document.getElementsByClassName("dropdown-header");
+    dropdownHeadersLabel = document.getElementsByClassName('dropdown-header-label');
+    dropdownBoxes = document.getElementsByClassName("dropdown-box");
+    populateDropdownElementsWithData(classes);
+    addDropdownEventListeners();
+}))();
+function isInt(n) {
+    return n % 1 === 0;
+}
 function createClassElement() {
     let classElement = document.createElement('li');
     classElement.classList.add('class-item');
@@ -53,16 +63,59 @@ function generateDropdownElements(classes) {
         classColumns[0].appendChild(classElement);
     }
 }
+function getTimeTillAssignmentDueDate(assignment) {
+    let currentDate = new Date();
+    let assignmentDueDate = new Date(assignment.due_date);
+    if (currentDate > assignmentDueDate)
+        return 'Overdue';
+    let dayDiff = assignmentDueDate.getDay() - currentDate.getDay();
+    let hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
+    let minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
+    let secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();
+    let timeTillDueDate = new Date(currentDate);
+    timeTillDueDate.setDate(currentDate.getDate() + dayDiff);
+    timeTillDueDate.setHours(currentDate.getHours() + hourDiff);
+    timeTillDueDate.setMinutes(currentDate.getMinutes() + minDiff);
+    timeTillDueDate.setSeconds(currentDate.getSeconds() + secDiff);
+    if (dayDiff > 0) {
+        if (dayDiff > 1)
+            return `Due in ${dayDiff} Days`;
+        else
+            return `Due in a Day`;
+    }
+    if (hourDiff > 0) {
+        if (hourDiff > 1)
+            return `Due in ${hourDiff} Hours`;
+        else
+            return `Due in an Hour`;
+    }
+    if (minDiff > 0) {
+        if (minDiff > 1)
+            return `Due in ${minDiff} Minutes`;
+        else
+            return `Due in a Minute`;
+    }
+    if (secDiff > 0) {
+        if (secDiff > 1)
+            return `Due in ${secDiff} Seconds`;
+        else
+            return `Due in a Second`;
+    }
+    return 'Overdue';
+}
 function populateDropdownElementsWithData(classes) {
-    for (let i = 0; i < classes.length; i++) {
-        if (dropdownHeadersLabel[i].innerHTML !== null)
-            dropdownHeadersLabel[i].innerHTML = classes[i].name;
-        for (let assignmentIndex = 0; assignmentIndex < classes[i].assignments.length; assignmentIndex++) {
+    for (let classIndex = 0; classIndex < classes.length; classIndex++) {
+        if (dropdownHeadersLabel[classIndex].innerHTML !== null)
+            dropdownHeadersLabel[classIndex].innerHTML = classes[classIndex].name;
+        for (let assignmentIndex = 0; assignmentIndex < classes[classIndex].assignments.length; assignmentIndex++) {
             let assignmentElement = createAssignmentElement();
-            dropdownBoxes[i].append(assignmentElement);
+            dropdownBoxes[classIndex].append(assignmentElement);
             let assignmentLabel = assignmentElement.querySelector('.assignment-label');
-            if (assignmentLabel !== null)
-                assignmentLabel.innerHTML = classes[i].assignments[assignmentIndex].name;
+            if (assignmentLabel !== null) {
+                assignmentLabel.innerHTML = classes[classIndex].assignments[assignmentIndex].name;
+                let timeTillDueDate = getTimeTillAssignmentDueDate(classes[classIndex].assignments[assignmentIndex]);
+                assignmentLabel.innerHTML += ` - ${timeTillDueDate}`;
+            }
         }
     }
 }
@@ -76,13 +129,3 @@ function addDropdownEventListeners() {
         });
     }
 }
-(() => __awaiter(void 0, void 0, void 0, function* () {
-    const classData = yield window.api.getJSONData('../classes.json');
-    const classes = classData.classes;
-    generateDropdownElements(classes);
-    dropdownHeaders = document.getElementsByClassName("dropdown-header");
-    dropdownHeadersLabel = document.getElementsByClassName('dropdown-header-label');
-    dropdownBoxes = document.getElementsByClassName("dropdown-box");
-    populateDropdownElementsWithData(classes);
-    addDropdownEventListeners();
-}))();
