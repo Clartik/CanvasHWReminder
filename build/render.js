@@ -23,7 +23,7 @@ const DROPDOWN_BOX_TEMPLATE = `
 `;
 const ASSIGNMENT_ITEM_TEMPLATE = `
     <p class='assignment-label'>Assignment Name</p>
-    <button class='assignment-btn'>Launch Canvas</button>
+    <button class='assignment-btn hide'>Launch Canvas</button>
 `;
 (() => __awaiter(void 0, void 0, void 0, function* () {
     const classData = yield window.api.getJSONData('../classes.json');
@@ -110,11 +110,19 @@ function populateDropdownElementsWithData(classes) {
         for (let assignmentIndex = 0; assignmentIndex < classes[classIndex].assignments.length; assignmentIndex++) {
             let assignmentElement = createAssignmentElement();
             dropdownBoxes[classIndex].append(assignmentElement);
+            let timeTillDueDate = getTimeTillAssignmentDueDate(classes[classIndex].assignments[assignmentIndex]);
             let assignmentLabel = assignmentElement.querySelector('.assignment-label');
             if (assignmentLabel !== null) {
                 assignmentLabel.innerHTML = classes[classIndex].assignments[assignmentIndex].name;
-                let timeTillDueDate = getTimeTillAssignmentDueDate(classes[classIndex].assignments[assignmentIndex]);
                 assignmentLabel.innerHTML += ` - ${timeTillDueDate}`;
+            }
+            let assignmentButton = assignmentElement.querySelector('.assignment-btn');
+            if (assignmentButton !== null) {
+                assignmentButton.addEventListener('click', () => {
+                    window.api.openLink(classes[classIndex].assignments[assignmentIndex].posting);
+                });
+                if (timeTillDueDate !== 'Overdue')
+                    assignmentButton.classList.remove('hide');
             }
         }
     }
@@ -123,7 +131,6 @@ function addDropdownEventListeners() {
     for (let i = 0; i < dropdownHeaders.length; i++) {
         dropdownHeaders[i].addEventListener("click", () => {
             var _a, _b;
-            console.log(dropdownHeaders[i]);
             dropdownHeaders[i].classList.toggle('active');
             (_b = (_a = dropdownHeaders[i].parentElement) === null || _a === void 0 ? void 0 : _a.querySelector(".dropdown-box")) === null || _b === void 0 ? void 0 : _b.classList.toggle("hide");
         });

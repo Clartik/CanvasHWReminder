@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, shell, BrowserWindow, ipcMain, dialog } = require('electron');
 
 const fs = require('fs');
 const path = require('path');
@@ -40,4 +40,12 @@ ipcMain.handle('json:getData', (event: any, filename: string) => {
 	const data = fs.readFileSync(filePath, 'utf-8');
 	const jsonData = JSON.parse(data);
 	return jsonData;
+});
+
+ipcMain.on('openLink', (event: any, url: string) => {
+	try {
+		shell.openExternal(url);
+	} catch {
+		dialog.showErrorBox('Could Not Open Assignment Post!', 'An Error Occured While Trying to Open the Assignment Post')
+	}
 });
