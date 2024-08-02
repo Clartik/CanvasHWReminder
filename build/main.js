@@ -1,5 +1,5 @@
 "use strict";
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, shell, BrowserWindow, ipcMain, dialog } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const createWindow = () => {
@@ -33,4 +33,13 @@ ipcMain.handle('json:getData', (event, filename) => {
     const data = fs.readFileSync(filePath, 'utf-8');
     const jsonData = JSON.parse(data);
     return jsonData;
+});
+ipcMain.on('openLink', (event, url) => {
+    try {
+        shell.openExternal(url);
+        throw Error;
+    }
+    catch (_a) {
+        dialog.showErrorBox('Could Not Open Post!', 'An Error Occured While Trying to Open the Assignment Post');
+    }
 });
