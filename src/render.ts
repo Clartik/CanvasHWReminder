@@ -91,7 +91,7 @@ function getTimeTillAssignmentDueDate(assignment: Assignment): string {
     if (currentDate > assignmentDueDate)
         return 'Overdue';
 
-    let dayDiff = assignmentDueDate.getDay() - currentDate.getDay();
+    let dayDiff = assignmentDueDate.getDate() - currentDate.getDate();
     let hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
     let minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
     let secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();

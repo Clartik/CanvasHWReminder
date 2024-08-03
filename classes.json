@@ -7,19 +7,19 @@
                 {
                     "name": "6.2 Classwork",
                     "points": 20,
-                    "due_date": "2024-08-02T23:59:59-07:00",
+                    "due_date": "2024-08-03T23:59:59-07:00",
                     "posting": "https://www.netflix.com"
                 },
                 {
                     "name": "6.2 Homework",
                     "points": 100,
-                    "due_date": "2024-08-02T23:59:59-07:00",
+                    "due_date": "2024-08-04T23:59:59-07:00",
                     "posting": "https://www.amazon.com"
                 },
                 {
                     "name": "Test",
                     "points": 500,
-                    "due_date": "2024-08-02T17:59:59-07:00",
+                    "due_date": "2024-08-04T17:59:59-07:00",
                     "posting": "https://www.apple.com"
                 }
             ]
@@ -32,13 +32,13 @@
                     "name": "Loops HW",
                     "points": 20,
                     "due_date": "2024-07-28T11:59:59-07:00",
-                    "posting": ""
+                    "posting": "https://www.minecraft.net"
                 },
                 {
                     "name": "Assembly HW",
                     "points": 20,
                     "due_date": "2024-07-29T11:59:59-07:00",
-                    "posting": ""
+                    "posting": "https://www.minecraft.net"
                 }
             ]
         },
@@ -50,31 +50,31 @@
                     "name": "Book 2 HW",
                     "points": 20,
                     "due_date": "2024-07-28T11:59:59-07:00",
-                    "posting": ""
+                    "posting": "https://www.minecraft.net"
                 },
                 {
                     "name": "Book 2 Dicussion Board",
                     "points": 20,
                     "due_date": "2024-07-30T11:59:59-07:00",
-                    "posting": ""
+                    "posting": "https://www.minecraft.net"
                 },
                 {
                     "name": "Book 1 Test",
                     "points": 20,
                     "due_date": "2024-07-27T11:59:59-07:00",
-                    "posting": ""
+                    "posting": "https://www.minecraft.net"
                 },
                 {
                     "name": "Book 3 HW",
                     "points": 20,
                     "due_date": "2024-07-28T11:59:59-07:00",
-                    "posting": ""
+                    "posting": "https://www.minecraft.net"
                 },
                 {
                     "name": "Book 3 Test",
                     "points": 20,
                     "due_date": "2024-07-28T11:59:59-07:00",
-                    "posting": ""
+                    "posting": "https://www.minecraft.net"
                 }
             ]
         }

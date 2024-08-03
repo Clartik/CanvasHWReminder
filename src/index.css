@@ -55,3 +55,9 @@ p {
     padding-top: 5px;
     padding-bottom: 5px;
 }
+
+.assignment-btn {
+    text-align: center;
+    padding: 3px 6px;
+    border-radius: 5px;
+}
