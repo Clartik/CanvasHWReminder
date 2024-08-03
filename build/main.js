@@ -37,9 +37,8 @@ ipcMain.handle('json:getData', (event, filename) => {
 ipcMain.on('openLink', (event, url) => {
     try {
         shell.openExternal(url);
-        throw Error;
     }
     catch (_a) {
-        dialog.showErrorBox('Could Not Open Post!', 'An Error Occured While Trying to Open the Assignment Post');
+        dialog.showErrorBox('Could Not Open Assignment Post!', 'An Error Occured While Trying to Open the Assignment Post');
     }
 });

@@ -68,7 +68,7 @@ function getTimeTillAssignmentDueDate(assignment) {
     let assignmentDueDate = new Date(assignment.due_date);
     if (currentDate > assignmentDueDate)
         return 'Overdue';
-    let dayDiff = assignmentDueDate.getDay() - currentDate.getDay();
+    let dayDiff = assignmentDueDate.getDate() - currentDate.getDate();
     let hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
     let minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
     let secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();
@@ -77,6 +77,8 @@ function getTimeTillAssignmentDueDate(assignment) {
     timeTillDueDate.setHours(currentDate.getHours() + hourDiff);
     timeTillDueDate.setMinutes(currentDate.getMinutes() + minDiff);
     timeTillDueDate.setSeconds(currentDate.getSeconds() + secDiff);
+    console.log(assignment.name);
+    console.log("Day Diff: " + dayDiff);
     if (dayDiff > 0) {
         if (dayDiff > 1)
             return `Due in ${dayDiff} Days`;
