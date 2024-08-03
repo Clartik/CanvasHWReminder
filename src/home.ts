@@ -157,8 +157,10 @@ function populateDropdownElementsWithData(classes: Array<Class>): void {
                     window.api.openLink(classes[classIndex].assignments[assignmentIndex].posting);
                 })
 
-                if (timeTillDueDate !== 'Overdue')
+                if (timeTillDueDate !== 'Overdue') {
                     assignmentButton.classList.remove('hide');
+                    dropdownBoxes[classIndex].classList.remove('hide');
+                }
             }
         }
     }
