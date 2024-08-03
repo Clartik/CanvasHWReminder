@@ -6,11 +6,19 @@ ul {
     list-style-type: none;
 }
 
+a {
+    color: inherit;
+}
+
 #top-bar {
     display: flex;
     align-items: center;
     justify-items: center;
-    place-content: space-between;
+    padding: 0px 5px;
+}
+
+#page-title {
+    flex-grow: 2;
 }
 
 .class-column {
