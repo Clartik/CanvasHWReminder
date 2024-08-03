@@ -6,6 +6,17 @@ ul {
     list-style-type: none;
 }
 
+#top-bar {
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    place-content: space-between;
+}
+
+.class-column {
+    margin: 0;
+}
+
 .class-item {
     padding-top: 10px;
     padding-bottom: 10px;

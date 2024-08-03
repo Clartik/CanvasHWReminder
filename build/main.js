@@ -1,16 +1,17 @@
 "use strict";
-const { app, shell, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, shell, BrowserWindow, remote, ipcMain, dialog } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const createWindow = () => {
     const win = new BrowserWindow({
         width: 800,
         height: 600,
+        autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
     });
-    win.loadFile('./src/index.html');
+    win.loadFile('./pages/home.html');
 };
 app.whenReady().then(() => {
     createWindow();
