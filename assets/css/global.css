@@ -1,4 +1,8 @@
- .dropdown-header {
+body {
+    overflow-x: hidden;
+}
+
+.dropdown-header {
     cursor: pointer;
 }
 
@@ -13,12 +17,14 @@ a {
 #top-bar {
     display: flex;
     align-items: center;
-    justify-items: center;
+    justify-content: space-between;
+    /* width: 100%; */
     padding: 0px 5px;
 }
 
 #page-title {
-    flex-grow: 2;
+    text-align: center;
+    flex-grow: 1;
 }
 
 .class-column {
@@ -79,4 +85,12 @@ p {
     text-align: center;
     padding: 3px 6px;
     border-radius: 5px;
+}
+
+.assignment-btn:hover {
+    background-color: rgb(255, 103, 89);
+}
+
+.assignment-btn:focus {
+    background-color: rgb(227, 60, 46);
 }
