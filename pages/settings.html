@@ -14,6 +14,24 @@
             <i class="fa-solid fa-arrow-left fa-2xl"></i>
         </a>
         <h1 id="page-title">Settings</h1>
+        <!-- The First i tag is purely to center the h1! -->
+        <i class="fa-solid fa-arrow-left fa-2xl" style="color: transparent;"></i>
     </div>
+
+    <label for="canvasAPI-input">Your Canvas API</label>
+    <input type="text" id="canvasAPI-input" disabled value="123">
+    <button id="canvasAPI-btn">Edit</button>
+    <br>
+
+    <label for="time-dropdown">When To Remind Me?:</label>
+    <select id="time-dropdown"></select>
+    <select id="time-format-dropdown">
+        <option value="day">Days</option>
+        <option value="hour">Hours</option>
+        <option value="minute">Mins</option>
+    </select>
+    <br>
+    
+    <button>Save</button>
 </body>
 </html>
