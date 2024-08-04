@@ -123,6 +123,7 @@ function populateDropdownElementsWithData(classes) {
                 });
                 if (timeTillDueDate !== 'Overdue') {
                     assignmentButton.classList.remove('hide');
+                    dropdownHeaders[classIndex].classList.add('active');
                     dropdownBoxes[classIndex].classList.remove('hide');
                 }
             }
