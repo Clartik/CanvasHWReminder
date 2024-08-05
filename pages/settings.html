@@ -10,7 +10,7 @@
 </head>
 <body>
     <div id="top-bar">
-        <a href="home.html" id="home-link">
+        <a href="home.html" id="home-link" class="link-btn">
             <i class="fa-solid fa-arrow-left fa-2xl"></i>
         </a>
         <h1 id="page-title">Settings</h1>
@@ -18,20 +18,29 @@
         <i class="fa-solid fa-arrow-left fa-2xl" style="color: transparent;"></i>
     </div>
 
-    <label for="canvasAPI-input">Your Canvas API</label>
-    <input type="text" id="canvasAPI-input" disabled value="123">
-    <button id="canvasAPI-btn">Edit</button>
-    <br>
-
-    <label for="time-dropdown">When To Remind Me?:</label>
-    <select id="time-dropdown"></select>
-    <select id="time-format-dropdown">
-        <option value="day">Days</option>
-        <option value="hour">Hours</option>
-        <option value="minute">Mins</option>
-    </select>
-    <br>
+    <div id="settings-container">
+        <div class="settings-option">
+            <label for="canvasAPI-input">Your Canvas API</label>
+            <input type="text" id="canvasAPI-input" class="changeable" disabled value="123">
+            <button id="canvasAPI-btn" class="changeable">Edit</button>
+        </div>
     
-    <button>Save</button>
+        <div class="settings-option">
+            <label for="time-dropdown">When To Remind Me?</label>
+            <select id="time-dropdown" class="changeable"></select>
+            <select id="time-format-dropdown" class="changeable">
+                <option value="day">Days</option>
+                <option value="hour">Hours</option>
+                <option value="minute">Mins</option>
+            </select>
+        </div>
+
+        <div class="settings-option" id="checkbox-container">
+            <label for="launch-on-start-check">Launch on Startup?</label>
+            <input type="checkbox" id="launch-on-start-check" class="checkbox changeable">
+            <label for="minimize-on-close-check">Minimize on Close?</label>
+            <input type="checkbox" id="minimize-on-close-check" class="checkbox changeable">
+        </div>
+    </div>
 </body>
 </html>
