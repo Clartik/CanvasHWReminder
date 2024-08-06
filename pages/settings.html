@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canvas HW Reminder</title>
     <link rel="stylesheet" href="../assets/css/global.css">
-    <script src="https://kit.fontawesome.com/d7a8d229c2.js" crossorigin="anonymous"></script>
+    <!-- <script src="https://kit.fontawesome.com/d7a8d229c2.js" crossorigin="anonymous"></script> -->
     <script src="../build/settings.js" defer></script>
 </head>
 <body>
@@ -20,9 +20,15 @@
 
     <div id="settings-container">
         <div class="settings-option">
-            <label for="canvasAPI-input">Your Canvas API</label>
-            <input type="text" id="canvasAPI-input" class="changeable" disabled value="123">
-            <button id="canvasAPI-btn" class="changeable">Edit</button>
+            <label for="canvas-url-input">Your Canvas Base URL:</label>
+            <input type="text" id="canvas-url-input" class="changeable" disabled value="111">
+            <button id="canvas-url-btn" class="changeable">Edit</button>
+        </div>
+
+        <div class="settings-option">
+            <label for="canvas-api-input">Your Canvas API Access Token:</label>
+            <input type="text" id="canvas-api-input" class="changeable" disabled value="123">
+            <button id="canvas-api-btn" class="changeable">Edit</button>
         </div>
     
         <div class="settings-option">
