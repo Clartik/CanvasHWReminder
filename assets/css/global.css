@@ -107,7 +107,7 @@ p {
     width: 15px;
     height: 15px;
     vertical-align: middle;
-    margin-left: 20px;
+    margin-left: 10px;
 }
 
 #checkbox-container {
@@ -118,4 +118,8 @@ p {
 
 #settings-container {
     margin: 10px 20px;
+}
+
+label {
+    margin-right: 5px;
 }

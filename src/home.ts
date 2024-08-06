@@ -1,7 +1,7 @@
-let classColumns = document.getElementsByClassName('class-column');
-let dropdownHeaders: HTMLCollectionOf<Element>;
-let dropdownHeadersLabel: HTMLCollectionOf<Element>;
-let dropdownBoxes: HTMLCollectionOf<Element>;
+let classColumns = document.getElementsByClassName('class-column') as HTMLCollectionOf<HTMLUListElement>;
+let dropdownHeaders: HTMLCollectionOf<HTMLSpanElement>;
+let dropdownHeadersLabel: HTMLCollectionOf<HTMLSpanElement>;
+let dropdownBoxes: HTMLCollectionOf<HTMLUListElement>;
 
 const DROPDOWN_HEADER_TEMPLATE: string = `
     <span class='dropdown-header'>
@@ -42,9 +42,9 @@ interface ClassData {
 
     generateDropdownElements(classes);
 
-    dropdownHeaders = document.getElementsByClassName("dropdown-header");
-    dropdownHeadersLabel = document.getElementsByClassName('dropdown-header-label');
-    dropdownBoxes = document.getElementsByClassName("dropdown-box");
+    dropdownHeaders = document.getElementsByClassName("dropdown-header") as HTMLCollectionOf<HTMLSpanElement>;
+    dropdownHeadersLabel = document.getElementsByClassName('dropdown-header-label') as HTMLCollectionOf<HTMLSpanElement>;
+    dropdownBoxes = document.getElementsByClassName("dropdown-box") as HTMLCollectionOf<HTMLUListElement>;
 
     populateDropdownElementsWithData(classes);
     addDropdownEventListeners();

@@ -1,5 +1,6 @@
 {
   "name": "canvas-hw-reminder",
+  "productName": "CanvasHWReminder",
   "version": "1.0.0",
   "description": "An app that reminds you about doing your HW for Canvas",
   "main": "./build/main.js",
