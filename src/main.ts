@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, Notification } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as electronReload from 'electron-reload'
@@ -25,7 +25,10 @@ const createWindow = () => {
 	})
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+	app.setAppUserModelId('Canvas HW Reminder');
+	createWindow();
+});
 
 app.on('activate', () => {
 	if (BrowserWindow.getAllWindows().length === 0) {
@@ -97,3 +100,18 @@ ipcMain.handle('readData', async (event: any, filename: string) => {
 		return null;
 	}
 });
+
+const sleep = promisify(setTimeout);
+
+checkForAssignments();
+
+async function checkForAssignments() {
+	await sleep(1000);
+	new Notification({
+		title: 'Test Title',
+		body: 'Test Body',
+		icon: './assets/images/4k.png'
+	}).addListener('click', () => {
+		console.log('Notification Clicked!')
+	}).show();
+};
