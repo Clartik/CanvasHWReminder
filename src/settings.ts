@@ -23,12 +23,12 @@ let canvasBaseURLEditMode = false;
 let hasSettingsChanged = false;
 
 interface SettingsData {
-    canvasBaseURL: string;
-    canvasAPIToken: string;
-    whenToRemindTimeIndex: number;
-    whenToRemindFormatIndex: number;
-    launchOnStart: boolean;
-    minimizeOnClose: boolean;
+    readonly canvasBaseURL: string;
+    readonly canvasAPIToken: string;
+    readonly whenToRemindTimeIndex: number;
+    readonly whenToRemindFormatIndex: number;
+    readonly launchOnStart: boolean;
+    readonly minimizeOnClose: boolean;
 }
 
 populateTimeOptions();
@@ -36,7 +36,9 @@ populateTimeDropdownWithCorrectFormatOptions();
 
 addEventsToCheckIfSettingsChanged();
 
-(async () => {
+loadSettingsData();
+
+async function loadSettingsData() {
     const settingsData: SettingsData | null = await window.api.readData('settings-data.json') as SettingsData | null;
 
     if (settingsData === null) {
@@ -52,7 +54,7 @@ addEventsToCheckIfSettingsChanged();
     whenToRemindFormatDropdown.selectedIndex = settingsData.whenToRemindFormatIndex;
     populateTimeDropdownWithCorrectFormatOptions();
     whenToRemindTimeDropdown.selectedIndex = settingsData.whenToRemindTimeIndex;
-})();
+};
 
 canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
     if (!canvasBaseURLEditMode) {
@@ -105,6 +107,11 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
         if (messageResponse.response === 0) {
             const settingsData = getSettingsData();
             const success = await window.api.saveData("settings-data.json", settingsData);
+
+            if (success)
+                console.log('Settings Data Saved Successfully!')
+            else
+                console.log('Failed to Save Settings Data!')
         }
     }
 

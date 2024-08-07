@@ -37,7 +37,9 @@ interface ClassData {
     readonly classes: Array<Class>;
 }
 
-(async () => {
+loadClassData();
+
+async function loadClassData() {
     const classData: ClassData | null = await window.api.getLocalData('../classes.json') as ClassData | null;
 
     if (classData === null) {
@@ -55,7 +57,7 @@ interface ClassData {
 
     populateDropdownElementsWithData(classes);
     addDropdownEventListeners();
-})();
+};
 
 function isInt(n: number): boolean {
     return n % 1 === 0;
