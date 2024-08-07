@@ -1,4 +1,5 @@
-let classColumns = document.getElementsByClassName('class-column') as HTMLCollectionOf<HTMLUListElement>;
+const classColumns = document.getElementsByClassName('class-column') as HTMLCollectionOf<HTMLUListElement>;
+
 let dropdownHeaders: HTMLCollectionOf<HTMLSpanElement>;
 let dropdownHeadersLabel: HTMLCollectionOf<HTMLSpanElement>;
 let dropdownBoxes: HTMLCollectionOf<HTMLUListElement>;
@@ -37,7 +38,13 @@ interface ClassData {
 }
 
 (async () => {
-    const classData: ClassData = await window.api.getJSONData('../classes.json');
+    const classData: ClassData | null = await window.api.getLocalData('../classes.json') as ClassData | null;
+
+    if (classData === null) {
+        console.error('Class Data is Null!')
+        return;
+    }
+
     const classes = classData.classes;
 
     generateDropdownElements(classes);

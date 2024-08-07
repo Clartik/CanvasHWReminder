@@ -1,18 +1,18 @@
-let backBtnAnchor = document.getElementById('home-link') as HTMLAnchorElement | null;
+const backBtnAnchor = document.getElementById('home-link')! as HTMLAnchorElement;
 
-let canvasURLBtn = document.getElementById('canvas-url-btn') as HTMLButtonElement | null;
-let canvasURLInput = document.getElementById('canvas-url-input') as HTMLInputElement | null;
+const canvasBaseURLBtn = document.getElementById('canvas-base-url-btn')! as HTMLButtonElement;
+const canvasBaseURLInput = document.getElementById('canvas-base-url-input')! as HTMLInputElement;
 
-let canvasAPIBtn = document.getElementById('canvas-api-btn') as HTMLButtonElement | null;
-let canvasAPIInput = document.getElementById('canvas-api-input') as HTMLInputElement | null;
+const canvasAPITokenBtn = document.getElementById('canvas-api-token-btn')! as HTMLButtonElement;
+const canvasAPITokenInput = document.getElementById('canvas-api-token-input')! as HTMLInputElement;
 
-let timeDropdown = document.getElementById('time-dropdown') as HTMLSelectElement | null;
-let timeFormatDropdown = document.getElementById('time-format-dropdown') as HTMLSelectElement | null;
+const whenToRemindTimeDropdown = document.getElementById('time-dropdown')! as HTMLSelectElement;
+const whenToRemindFormatDropdown = document.getElementById('time-format-dropdown')! as HTMLSelectElement;
 
-const launchOnStartCheckbox = document.getElementById('launch-on-start-check') as HTMLInputElement | null;
-const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-check') as HTMLInputElement | null;
+const launchOnStartCheckbox = document.getElementById('launch-on-start-checkbox')! as HTMLInputElement;
+const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-checkbox')! as HTMLInputElement;
 
-let changeableElements = document.getElementsByClassName('changeable');
+const changeableElements = document.getElementsByClassName('changeable');
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
@@ -22,58 +22,73 @@ let canvasAPITokenEditMode = false;
 let canvasBaseURLEditMode = false;
 let hasSettingsChanged = false;
 
+interface SettingsData {
+    canvasBaseURL: string;
+    canvasAPIToken: string;
+    whenToRemindTimeIndex: number;
+    whenToRemindFormatIndex: number;
+    launchOnStart: boolean;
+    minimizeOnClose: boolean;
+}
+
 populateTimeOptions();
 populateTimeDropdownWithCorrectFormatOptions();
 
 addEventsToCheckIfSettingsChanged();
 
-canvasURLBtn?.addEventListener('click', (event: MouseEvent) => {
+(async () => {
+    const settingsData: SettingsData | null = await window.api.readData('settings-data.json') as SettingsData | null;
+
+    if (settingsData === null) {
+        console.error('SettingsData is Null!')
+        return;
+    }
+    
+    canvasBaseURLInput.value = settingsData.canvasBaseURL;
+    canvasAPITokenInput.value = settingsData.canvasAPIToken;
+    launchOnStartCheckbox.checked = settingsData.launchOnStart;
+    minimizeOnCloseCheckbox.checked = settingsData.minimizeOnClose;
+
+    whenToRemindFormatDropdown.selectedIndex = settingsData.whenToRemindFormatIndex;
+    populateTimeDropdownWithCorrectFormatOptions();
+    whenToRemindTimeDropdown.selectedIndex = settingsData.whenToRemindTimeIndex;
+})();
+
+canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
     if (!canvasBaseURLEditMode) {
         canvasBaseURLEditMode = true;
 
-        if (canvasURLInput !== null)
-            canvasURLInput.disabled = false;
-        
-        if (canvasURLInput !== null)
-            canvasURLInput.innerText = 'Done'
+        canvasBaseURLInput.disabled = false;
+        canvasBaseURLBtn.innerText = 'Done'
     }
     else {
         canvasBaseURLEditMode = false;
 
-        if (canvasURLInput !== null)
-            canvasURLInput.disabled = true;
-        
-        if (canvasURLInput !== null)
-            canvasURLInput.innerText = 'Edit'
+        canvasBaseURLInput.disabled = true;
+        canvasBaseURLBtn.innerText = 'Edit'
     }
 });
 
-canvasAPIBtn?.addEventListener('click', (event: MouseEvent) => {
+canvasAPITokenBtn.addEventListener('click', (event: MouseEvent) => {
     if (!canvasAPITokenEditMode) {
         canvasAPITokenEditMode = true;
 
-        if (canvasAPIInput !== null)
-            canvasAPIInput.disabled = false;
-        
-        if (canvasAPIBtn !== null)
-            canvasAPIBtn.innerText = 'Done'
+        canvasAPITokenInput.disabled = false;
+        canvasAPITokenBtn.innerText = 'Done'
     }
     else {
         canvasAPITokenEditMode = false;
 
-        if (canvasAPIInput !== null)
-            canvasAPIInput.disabled = true;
-        
-        if (canvasAPIBtn !== null)
-            canvasAPIBtn.innerText = 'Edit'
+        canvasAPITokenInput.disabled = true;
+        canvasAPITokenBtn.innerText = 'Edit'
     }
 });
 
-timeFormatDropdown?.addEventListener('change', (event: Event) => {
+whenToRemindFormatDropdown.addEventListener('change', (event: Event) => {
     populateTimeDropdownWithCorrectFormatOptions();
 });
 
-backBtnAnchor?.addEventListener('click', async (event: MouseEvent) => {
+backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
     event.preventDefault();
 
     if (hasSettingsChanged) {
@@ -94,8 +109,7 @@ backBtnAnchor?.addEventListener('click', async (event: MouseEvent) => {
     }
 
     // Tells it to load the other page
-    if (backBtnAnchor !== null)
-        window.location.href = backBtnAnchor.href;
+    window.location.href = backBtnAnchor.href;
 });
 
 function populateTimeOptions() {
@@ -119,26 +133,25 @@ function addTimeOptionAndPopulateValue(timeElement: string) {
     let timeOption = document.createElement('option');
     timeOption.value = timeElement;
     timeOption.innerText = timeElement;
-    timeDropdown?.appendChild(timeOption);
+    whenToRemindTimeDropdown.appendChild(timeOption);
 }
 
 function populateTimeDropdownWithCorrectFormatOptions() {
-    if (timeDropdown !== null)
-            timeDropdown.innerHTML = ''
+    whenToRemindTimeDropdown.innerHTML = ''            // Clear InnerHTML
 
-    if (timeFormatDropdown?.value === 'day') {
+    if (whenToRemindFormatDropdown.value === 'day') {
         for (let i = 0; i < DAY_TIME_OPTIONS.length; i++) {
             const timeElement = DAY_TIME_OPTIONS[i];
             addTimeOptionAndPopulateValue(timeElement);            
         }
     }
-    else if (timeFormatDropdown?.value === 'hour') {    
+    else if (whenToRemindFormatDropdown.value === 'hour') {    
         for (let i = 0; i < HOUR_TIME_OPTIONS.length; i++) {
             const timeElement = HOUR_TIME_OPTIONS[i];
             addTimeOptionAndPopulateValue(timeElement);            
         }
     }
-    else if (timeFormatDropdown?.value === 'minute') {    
+    else if (whenToRemindFormatDropdown.value === 'minute') {    
         for (let i = 0; i < MINUTE_TIME_OPTIONS.length; i++) {
             const timeElement = MINUTE_TIME_OPTIONS[i];
             addTimeOptionAndPopulateValue(timeElement);            
@@ -157,20 +170,13 @@ function addEventsToCheckIfSettingsChanged() {
     };
 }
 
-function getSettingsData(): Object {
-    const canvasBaseURL: string = canvasURLInput !== null ? canvasURLInput.value : "";
-    const canvasAPIToken: string = canvasAPIInput !== null ? canvasAPIInput.value : "";
-    const whenToRemindTimeIndex: number = timeDropdown !== null ? timeDropdown.selectedIndex : -1;
-    const whenToRemindFormatIndex: number = timeFormatDropdown !== null ? timeFormatDropdown.selectedIndex : -1;
-    const launchOnStart: boolean = launchOnStartCheckbox !== null ? launchOnStartCheckbox.checked : true;
-    const minimizeOnClose: boolean = minimizeOnCloseCheckbox !== null ? minimizeOnCloseCheckbox.checked : true;
-
+function getSettingsData(): SettingsData {
     return {
-        "canvas_base_url": canvasBaseURL,
-        "canvas_api_token": canvasAPIToken,
-        "when_to_remind_time_index": whenToRemindTimeIndex,
-        "when_to_remind_format_index": whenToRemindFormatIndex,
-        "launch_on_start": launchOnStart,
-        "minimize_on_close": minimizeOnClose
+        canvasBaseURL: canvasBaseURLInput !== null ? canvasBaseURLInput.value : "",
+        canvasAPIToken: canvasAPITokenInput !== null ? canvasAPITokenInput.value : "",
+        whenToRemindTimeIndex: whenToRemindTimeDropdown !== null ? whenToRemindTimeDropdown.selectedIndex : -1,
+        whenToRemindFormatIndex: whenToRemindFormatDropdown !== null ? whenToRemindFormatDropdown.selectedIndex : -1,
+        launchOnStart: launchOnStartCheckbox !== null ? launchOnStartCheckbox.checked : true,
+        minimizeOnClose: minimizeOnCloseCheckbox !== null ? minimizeOnCloseCheckbox.checked : true
     };
 }

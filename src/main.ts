@@ -3,30 +3,16 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as electronReload from 'electron-reload'
 import { promisify } from 'util'
-import { readFile } from 'original-fs'
 
 const writeFileAsync = promisify(fs.writeFile);
 const readFileAsync = promisify(fs.readFile);
 
 const createWindow = () => {
-	// const loadingWindow = new BrowserWindow({
-	// 	width: 200,
-	// 	height: 200,
-	// 	transparent: true,
-	// 	resizable: false,
-	// 	frame: false,
-	// 	alwaysOnTop: true,
-	// 	hasShadow: false,
-	// 	title: "Loading"
-	// });
-
-	// loadingWindow.loadFile("./assets/images/Loading.gif");
 
 	const mainWindow = new BrowserWindow({
 		width: 800,
 		height: 600,
 		autoHideMenuBar: true,
-		// show: false,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js')
 		}
@@ -55,12 +41,17 @@ app.on('window-all-closed', () => {
 	}
 });
 
-ipcMain.handle('json:getData', (event: any, filename: string) => {
+ipcMain.handle('getLocalData', async (event: any, filename: string) => {
 	const filePath = path.join(__dirname, filename);
 
-	const data = fs.readFileSync(filePath, 'utf-8');
-	const jsonData = JSON.parse(data);
-	return jsonData;
+	try {
+		const data = await readFileAsync(filePath, 'utf-8');
+		return JSON.parse(data);
+	}
+	catch (error) {
+		console.error(error);
+		return null;
+	}
 });
 
 ipcMain.on('openLink', (event: any, url: string) => {
@@ -75,33 +66,34 @@ ipcMain.handle('showMessageDialog', (event: any, options: Electron.MessageBoxOpt
 	return dialog.showMessageBox(options);
 });
 
-ipcMain.handle('saveData', async (event: any, filename: string, data: Object) => {
+function getSavePath(filename: string): string {
 	const userDataPath: string = app.getPath("userData");
-	const savePath: string = `${userDataPath}/${filename}`;
+	return `${userDataPath}/${filename}`;
+}
 
+ipcMain.handle('saveData', async (event: any, filename: string, data: Object) => {
+	const savePath: string = getSavePath(filename);
     const formattedData = JSON.stringify(data, null, 2);
 
-	fs.writeFile(savePath, formattedData, (error) => {
-		if (error) {
-			console.error(error);
-			return false;
-		}
-		else
-			return true;
-	});
+	try {
+		await writeFileAsync(savePath, formattedData, 'utf-8');
+	} catch (error) {
+		console.error(error);
+		return false;
+	}
+
+	return true;
 })
 
 ipcMain.handle('readData', async (event: any, filename: string) => {
-	const userDataPath: string = app.getPath("userData");
-	const savePath: string = `${userDataPath}/${filename}`;
+	const savePath: string = getSavePath(filename);
 
 	try {
-		const data = fs.readFileSync(savePath, 'utf-8');	
+		const data = await readFileAsync(savePath, 'utf-8');
 		return JSON.parse(data);
 	}
 	catch (error) {
 		console.error(error);
 		return null;
 	}
-
 });
