@@ -39,7 +39,7 @@ addEventsToCheckIfSettingsChanged();
 loadSettingsData();
 
 async function loadSettingsData() {
-    const settingsData: SettingsData | null = await window.api.readData('settings-data.json') as SettingsData | null;
+    const settingsData = await window.api.getSavedData('settings-data.json') as SettingsData | null;
 
     if (settingsData === null) {
         console.error('SettingsData is Null!')
@@ -106,7 +106,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
     
         if (messageResponse.response === 0) {
             const settingsData = getSettingsData();
-            const success = await window.api.saveData("settings-data.json", settingsData);
+            const success = await window.api.writeSavedData("settings-data.json", settingsData);
 
             if (success)
                 console.log('Settings Data Saved Successfully!')

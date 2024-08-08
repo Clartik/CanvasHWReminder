@@ -1,11 +1,10 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, Notification } from 'electron'
-import * as fs from 'fs'
 import * as path from 'path'
 import * as electronReload from 'electron-reload'
 import { promisify } from 'util'
+import SaveManager from './save-manager'
 
-const writeFileAsync = promisify(fs.writeFile);
-const readFileAsync = promisify(fs.readFile);
+const sleep = promisify(setTimeout);
 
 const createWindow = () => {
 
@@ -26,7 +25,7 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
-	app.setAppUserModelId('Canvas HW Reminder');
+	app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
 	createWindow();
 });
 
@@ -41,19 +40,6 @@ app.on('window-all-closed', () => {
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (process.platform !== 'darwin') {
 		app.quit()
-	}
-});
-
-ipcMain.handle('getLocalData', async (event: any, filename: string) => {
-	const filePath = path.join(__dirname, filename);
-
-	try {
-		const data = await readFileAsync(filePath, 'utf-8');
-		return JSON.parse(data);
-	}
-	catch (error) {
-		console.error(error);
-		return null;
 	}
 });
 
@@ -74,44 +60,30 @@ function getSavePath(filename: string): string {
 	return `${userDataPath}/${filename}`;
 }
 
-ipcMain.handle('saveData', async (event: any, filename: string, data: Object) => {
-	const savePath: string = getSavePath(filename);
-    const formattedData = JSON.stringify(data, null, 2);
-
-	try {
-		await writeFileAsync(savePath, formattedData, 'utf-8');
-	} catch (error) {
-		console.error(error);
-		return false;
-	}
-
-	return true;
-})
-
-ipcMain.handle('readData', async (event: any, filename: string) => {
-	const savePath: string = getSavePath(filename);
-
-	try {
-		const data = await readFileAsync(savePath, 'utf-8');
-		return JSON.parse(data);
-	}
-	catch (error) {
-		console.error(error);
-		return null;
-	}
+ipcMain.handle('getLocalData', async (event: any, filename: string) => {
+	const filepath = path.join(__dirname, filename);
+	return await SaveManager.getData(filepath);
 });
 
-const sleep = promisify(setTimeout);
+ipcMain.handle('writeSavedData', async (event: any, filename: string, data: Object) => {
+	const savePath: string = getSavePath(filename);
+    return await SaveManager.writeData(savePath, data);
+})
+
+ipcMain.handle('getSavedData', async (event: any, filename: string) => {
+	const savePath: string = getSavePath(filename);
+	return await SaveManager.getData(savePath);
+});
 
 checkForAssignments();
 
 async function checkForAssignments() {
-	await sleep(1000);
-	new Notification({
-		title: 'Test Title',
-		body: 'Test Body',
-		icon: './assets/images/4k.png'
-	}).addListener('click', () => {
-		console.log('Notification Clicked!')
-	}).show();
+	// await sleep(1000);
+	// new Notification({
+	// 	title: 'Test Title',
+	// 	body: 'Test Body',
+	// 	icon: './assets/images/4k.png'
+	// }).addListener('click', () => {
+	// 	console.log('Notification Clicked!')
+	// }).show();
 };
