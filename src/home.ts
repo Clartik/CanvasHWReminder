@@ -1,3 +1,24 @@
+//#region class-data.ts
+
+interface ClassData {
+    readonly classes: Array<Class>;
+}
+
+interface Class {
+    readonly name: string;
+    readonly professor: string;
+    readonly assignments: Array<Assignment>;
+}
+
+interface Assignment {
+    readonly name: string;
+    readonly points: Number;
+    readonly due_date: string;
+    readonly posting: string;
+}
+
+//#endregion
+
 const classColumns = document.getElementsByClassName('class-column') as HTMLCollectionOf<HTMLUListElement>;
 
 let dropdownHeaders: HTMLCollectionOf<HTMLSpanElement>;
@@ -19,23 +40,6 @@ const ASSIGNMENT_ITEM_TEMPLATE: string = `
     <p class='assignment-label'>Assignment Name</p>
     <button class='assignment-btn hide'>Launch Canvas</button>
 `;
-
-interface Assignment {
-    readonly name: string;
-    readonly points: Number;
-    readonly due_date: string;
-    readonly posting: string;
-}
-
-interface Class {
-    readonly name: string;
-    readonly professor: string;
-    readonly assignments: Array<Assignment>;
-}
-
-interface ClassData {
-    readonly classes: Array<Class>;
-}
 
 loadClassData();
 

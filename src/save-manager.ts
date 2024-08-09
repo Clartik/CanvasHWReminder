@@ -28,6 +28,29 @@ class SaveManager {
             return null;
         }
     }
+
+    static writeDataSync(filepath: string, data: Object): boolean {
+        const formattedData = JSON.stringify(data, null, 2);
+
+        try {
+            fs.writeFileSync(filepath, formattedData, 'utf-8');
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+
+        return true;
+    }
+
+    static getDataSync(filepath: string): Object | null {
+        try {
+            const data = fs.readFileSync(filepath, 'utf-8');
+            return JSON.parse(data);    
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
 }
 
 export default SaveManager;
