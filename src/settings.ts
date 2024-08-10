@@ -6,11 +6,15 @@ const canvasBaseURLInput = document.getElementById('canvas-base-url-input')! as 
 const canvasAPITokenBtn = document.getElementById('canvas-api-token-btn')! as HTMLButtonElement;
 const canvasAPITokenInput = document.getElementById('canvas-api-token-input')! as HTMLInputElement;
 
-const whenToRemindTimeDropdown = document.getElementById('time-dropdown')! as HTMLSelectElement;
-const whenToRemindFormatDropdown = document.getElementById('time-format-dropdown')! as HTMLSelectElement;
+const whenToRemindTimeDropdown = document.getElementById('when-to-remind-time-dropdown')! as HTMLSelectElement;
+const whenToRemindFormatDropdown = document.getElementById('when-to-remind-format-dropdown')! as HTMLSelectElement;
 
 const launchOnStartCheckbox = document.getElementById('launch-on-start-checkbox')! as HTMLInputElement;
 const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-checkbox')! as HTMLInputElement;
+const neverOverdueAssignmentCheckbox = document.getElementById('never-overdue-assignment-checkbox')! as HTMLInputElement;
+
+const howLongPastDueTimeDropdown = document.getElementById('how-long-past-due-time-dropdown')! as HTMLSelectElement;
+const howLongPastDueFormatDropdown = document.getElementById('how-long-past-due-format-dropdown')! as HTMLSelectElement;
 
 const changeableElements = document.getElementsByClassName('changeable');
 
@@ -29,32 +33,19 @@ interface SettingsData {
     readonly whenToRemindFormatIndex: number;
     readonly launchOnStart: boolean;
     readonly minimizeOnClose: boolean;
+    readonly howLongPastDueTimeIndex: number;
+    readonly howLongPastDueFormatIndex: number;
 }
 
-populateTimeOptions();
-populateTimeDropdownWithCorrectFormatOptions();
+populateWhenToRemindTimeOptions();
+populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
+populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
 
 addEventsToCheckIfSettingsChanged();
 
 loadSettingsData();
 
-async function loadSettingsData() {
-    const settingsData = await window.api.getSavedData('settings-data.json') as SettingsData | null;
-
-    if (settingsData === null) {
-        console.error('SettingsData is Null!')
-        return;
-    }
-    
-    canvasBaseURLInput.value = settingsData.canvasBaseURL;
-    canvasAPITokenInput.value = settingsData.canvasAPIToken;
-    launchOnStartCheckbox.checked = settingsData.launchOnStart;
-    minimizeOnCloseCheckbox.checked = settingsData.minimizeOnClose;
-
-    whenToRemindFormatDropdown.selectedIndex = settingsData.whenToRemindFormatIndex;
-    populateTimeDropdownWithCorrectFormatOptions();
-    whenToRemindTimeDropdown.selectedIndex = settingsData.whenToRemindTimeIndex;
-};
+//#region Event Handlers
 
 canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
     if (!canvasBaseURLEditMode) {
@@ -87,7 +78,12 @@ canvasAPITokenBtn.addEventListener('click', (event: MouseEvent) => {
 });
 
 whenToRemindFormatDropdown.addEventListener('change', (event: Event) => {
-    populateTimeDropdownWithCorrectFormatOptions();
+    populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
+});
+
+howLongPastDueFormatDropdown.addEventListener('change', (event: Event) => {
+    populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
+    checkIfTimeDropdownShouldBeHidden(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
 });
 
 backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
@@ -119,7 +115,46 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
     window.location.href = backBtnAnchor.href;
 });
 
-function populateTimeOptions() {
+//#endregion
+
+//#region Functions
+
+async function loadSettingsData() {
+    const settingsData = await window.api.getSavedData('settings-data.json') as SettingsData | null;
+
+    if (settingsData === null) {
+        console.error('SettingsData is Null!')
+        return;
+    }
+    
+    canvasBaseURLInput.value = settingsData.canvasBaseURL;
+    canvasAPITokenInput.value = settingsData.canvasAPIToken;
+    launchOnStartCheckbox.checked = settingsData.launchOnStart;
+    minimizeOnCloseCheckbox.checked = settingsData.minimizeOnClose;
+
+    whenToRemindFormatDropdown.selectedIndex = settingsData.whenToRemindFormatIndex;
+    populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
+    whenToRemindTimeDropdown.selectedIndex = settingsData.whenToRemindTimeIndex;
+
+    howLongPastDueFormatDropdown.selectedIndex = settingsData.howLongPastDueFormatIndex;
+    populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
+    howLongPastDueTimeDropdown.selectedIndex = settingsData.howLongPastDueTimeIndex;
+};
+
+function getSettingsData(): SettingsData {
+    return {
+        canvasBaseURL: canvasBaseURLInput.value,
+        canvasAPIToken: canvasAPITokenInput.value,
+        whenToRemindTimeIndex: whenToRemindTimeDropdown.selectedIndex,
+        whenToRemindFormatIndex: whenToRemindFormatDropdown.selectedIndex,
+        launchOnStart: launchOnStartCheckbox.checked,
+        minimizeOnClose: minimizeOnCloseCheckbox.checked,
+        howLongPastDueTimeIndex: howLongPastDueTimeDropdown.selectedIndex,
+        howLongPastDueFormatIndex: howLongPastDueFormatDropdown.selectedIndex
+    };
+}
+
+function populateWhenToRemindTimeOptions() {
     // Includes 1 to 7
     for (let i = 1; i <= 7; i++) {
         DAY_TIME_OPTIONS.push('' + i);
@@ -136,34 +171,43 @@ function populateTimeOptions() {
     }
 }
 
-function addTimeOptionAndPopulateValue(timeElement: string) {
+function addTimeOptionToDropdownAndPopulateValue(dropdown: HTMLSelectElement,timeElement: string) {
     let timeOption = document.createElement('option');
     timeOption.value = timeElement;
     timeOption.innerText = timeElement;
-    whenToRemindTimeDropdown.appendChild(timeOption);
+    dropdown.appendChild(timeOption);
 }
 
-function populateTimeDropdownWithCorrectFormatOptions() {
-    whenToRemindTimeDropdown.innerHTML = ''            // Clear InnerHTML
+function populateTimeDropdownWithCorrectOptions(timeDropdown: HTMLSelectElement, formatDropdown: HTMLSelectElement) {
+    timeDropdown.innerHTML = ''            // Clear InnerHTML
 
-    if (whenToRemindFormatDropdown.value === 'day') {
+    if (formatDropdown.value === 'day') {
         for (let i = 0; i < DAY_TIME_OPTIONS.length; i++) {
             const timeElement = DAY_TIME_OPTIONS[i];
-            addTimeOptionAndPopulateValue(timeElement);            
+            addTimeOptionToDropdownAndPopulateValue(timeDropdown, timeElement);            
         }
     }
-    else if (whenToRemindFormatDropdown.value === 'hour') {    
+    else if (formatDropdown.value === 'hour') {    
         for (let i = 0; i < HOUR_TIME_OPTIONS.length; i++) {
             const timeElement = HOUR_TIME_OPTIONS[i];
-            addTimeOptionAndPopulateValue(timeElement);            
+            addTimeOptionToDropdownAndPopulateValue(timeDropdown, timeElement);            
         }
     }
-    else if (whenToRemindFormatDropdown.value === 'minute') {    
+    else if (formatDropdown.value === 'minute') {    
         for (let i = 0; i < MINUTE_TIME_OPTIONS.length; i++) {
             const timeElement = MINUTE_TIME_OPTIONS[i];
-            addTimeOptionAndPopulateValue(timeElement);            
+            addTimeOptionToDropdownAndPopulateValue(timeDropdown, timeElement);            
         }
     }
+}
+
+function checkIfTimeDropdownShouldBeHidden(timeDropdown: HTMLSelectElement, formatDropdown: HTMLSelectElement) {
+    if (formatDropdown.value !== 'never') {
+        timeDropdown.classList.remove('hide');
+        return;
+    }
+
+    timeDropdown.classList.add('hide');
 }
 
 function addEventsToCheckIfSettingsChanged() {
@@ -177,13 +221,4 @@ function addEventsToCheckIfSettingsChanged() {
     };
 }
 
-function getSettingsData(): SettingsData {
-    return {
-        canvasBaseURL: canvasBaseURLInput !== null ? canvasBaseURLInput.value : "",
-        canvasAPIToken: canvasAPITokenInput !== null ? canvasAPITokenInput.value : "",
-        whenToRemindTimeIndex: whenToRemindTimeDropdown !== null ? whenToRemindTimeDropdown.selectedIndex : -1,
-        whenToRemindFormatIndex: whenToRemindFormatDropdown !== null ? whenToRemindFormatDropdown.selectedIndex : -1,
-        launchOnStart: launchOnStartCheckbox !== null ? launchOnStartCheckbox.checked : true,
-        minimizeOnClose: minimizeOnCloseCheckbox !== null ? minimizeOnCloseCheckbox.checked : true
-    };
-}
+//#endregion
