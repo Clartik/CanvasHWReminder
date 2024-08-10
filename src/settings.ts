@@ -29,12 +29,12 @@ let hasSettingsChanged = false;
 interface SettingsData {
     readonly canvasBaseURL: string;
     readonly canvasAPIToken: string;
-    readonly whenToRemindTimeIndex: number;
-    readonly whenToRemindFormatIndex: number;
+    readonly whenToRemindTimeValue: string;
+    readonly whenToRemindFormatValue: string;
     readonly launchOnStart: boolean;
     readonly minimizeOnClose: boolean;
-    readonly howLongPastDueTimeIndex: number;
-    readonly howLongPastDueFormatIndex: number;
+    readonly howLongPastDueTimeValue: string;
+    readonly howLongPastDueFormatValue: string;
 }
 
 populateWhenToRemindTimeOptions();
@@ -48,33 +48,11 @@ loadSettingsData();
 //#region Event Handlers
 
 canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
-    if (!canvasBaseURLEditMode) {
-        canvasBaseURLEditMode = true;
-
-        canvasBaseURLInput.disabled = false;
-        canvasBaseURLBtn.innerText = 'Done'
-    }
-    else {
-        canvasBaseURLEditMode = false;
-
-        canvasBaseURLInput.disabled = true;
-        canvasBaseURLBtn.innerText = 'Edit'
-    }
+    toggleBetweenEditModeInputButtons(canvasBaseURLEditMode, canvasBaseURLInput, canvasBaseURLBtn);
 });
 
 canvasAPITokenBtn.addEventListener('click', (event: MouseEvent) => {
-    if (!canvasAPITokenEditMode) {
-        canvasAPITokenEditMode = true;
-
-        canvasAPITokenInput.disabled = false;
-        canvasAPITokenBtn.innerText = 'Done'
-    }
-    else {
-        canvasAPITokenEditMode = false;
-
-        canvasAPITokenInput.disabled = true;
-        canvasAPITokenBtn.innerText = 'Edit'
-    }
+    toggleBetweenEditModeInputButtons(canvasAPITokenEditMode, canvasAPITokenInput, canvasAPITokenBtn);
 });
 
 whenToRemindFormatDropdown.addEventListener('change', (event: Event) => {
@@ -132,25 +110,26 @@ async function loadSettingsData() {
     launchOnStartCheckbox.checked = settingsData.launchOnStart;
     minimizeOnCloseCheckbox.checked = settingsData.minimizeOnClose;
 
-    whenToRemindFormatDropdown.selectedIndex = settingsData.whenToRemindFormatIndex;
+    whenToRemindFormatDropdown.value = settingsData.whenToRemindFormatValue;
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
-    whenToRemindTimeDropdown.selectedIndex = settingsData.whenToRemindTimeIndex;
+    whenToRemindTimeDropdown.value = settingsData.whenToRemindTimeValue;
 
-    howLongPastDueFormatDropdown.selectedIndex = settingsData.howLongPastDueFormatIndex;
+    howLongPastDueFormatDropdown.value = settingsData.howLongPastDueFormatValue;
     populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
-    howLongPastDueTimeDropdown.selectedIndex = settingsData.howLongPastDueTimeIndex;
+    checkIfTimeDropdownShouldBeHidden(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
+    howLongPastDueTimeDropdown.value = settingsData.howLongPastDueTimeValue;
 };
 
 function getSettingsData(): SettingsData {
     return {
         canvasBaseURL: canvasBaseURLInput.value,
         canvasAPIToken: canvasAPITokenInput.value,
-        whenToRemindTimeIndex: whenToRemindTimeDropdown.selectedIndex,
-        whenToRemindFormatIndex: whenToRemindFormatDropdown.selectedIndex,
+        whenToRemindTimeValue: whenToRemindTimeDropdown.value,
+        whenToRemindFormatValue: whenToRemindFormatDropdown.value,
         launchOnStart: launchOnStartCheckbox.checked,
         minimizeOnClose: minimizeOnCloseCheckbox.checked,
-        howLongPastDueTimeIndex: howLongPastDueTimeDropdown.selectedIndex,
-        howLongPastDueFormatIndex: howLongPastDueFormatDropdown.selectedIndex
+        howLongPastDueTimeValue: howLongPastDueTimeDropdown.value,
+        howLongPastDueFormatValue: howLongPastDueFormatDropdown.value
     };
 }
 
@@ -171,7 +150,7 @@ function populateWhenToRemindTimeOptions() {
     }
 }
 
-function addTimeOptionToDropdownAndPopulateValue(dropdown: HTMLSelectElement,timeElement: string) {
+function addTimeOptionToDropdownAndPopulateValue(dropdown: HTMLSelectElement, timeElement: string) {
     let timeOption = document.createElement('option');
     timeOption.value = timeElement;
     timeOption.innerText = timeElement;
@@ -219,6 +198,21 @@ function addEventsToCheckIfSettingsChanged() {
                 hasSettingsChanged = true;
         });
     };
+}
+
+function toggleBetweenEditModeInputButtons(editMode: boolean, input: HTMLInputElement, button: HTMLButtonElement) {
+    if (!editMode) {
+        editMode = true;
+
+        input.disabled = false;
+        button.innerText = 'Done'
+    }
+    else {
+        editMode = false;
+
+        input.disabled = true;
+        button.innerText = 'Edit'
+    }
 }
 
 //#endregion

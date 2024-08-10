@@ -1,11 +1,12 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 const API = {
-    getLocalData: (filename: string) => ipcRenderer.invoke('getLocalData', filename),
     openLink: (url: string) => ipcRenderer.send('openLink', url),
     showMessageDialog: (options: Electron.MessageBoxOptions) => ipcRenderer.invoke('showMessageDialog', options),
     writeSavedData: (filename: string, data: Object) => ipcRenderer.invoke('writeSavedData', filename, data),
-    getSavedData: (filename: string) => ipcRenderer.invoke('getSavedData', filename)
+    getSavedData: (filename: string) => ipcRenderer.invoke('getSavedData', filename),
+    getLocalData: (filename: string) => ipcRenderer.invoke('getLocalData', filename),
+    savedSettings: () => ipcRenderer.send('savedSettings')
 }
 
 contextBridge.exposeInMainWorld("api", API);

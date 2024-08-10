@@ -1,0 +1,10 @@
+{
+  "canvasBaseURL": "111",
+  "canvasAPIToken": "123",
+  "whenToRemindTimeValue": "6",
+  "whenToRemindFormatValue": "hour",
+  "launchOnStart": true,
+  "minimizeOnClose": true,
+  "howLongPastDueTimeValue": "30",
+  "howLongPastDueFormatValue": "minute"
+}
