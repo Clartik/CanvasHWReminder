@@ -1,4 +1,4 @@
-//#region class-data.ts
+//#region Interfaces
 
 interface ClassData {
     readonly classes: Array<Class>;
@@ -25,6 +25,8 @@ let dropdownHeaders: HTMLCollectionOf<HTMLSpanElement>;
 let dropdownHeadersLabel: HTMLCollectionOf<HTMLSpanElement>;
 let dropdownBoxes: HTMLCollectionOf<HTMLUListElement>;
 
+//#region Templates
+
 const DROPDOWN_HEADER_TEMPLATE: string = `
     <span class='dropdown-header'>
         <div class='dropdown-header-arrow'></div>
@@ -41,9 +43,11 @@ const ASSIGNMENT_ITEM_TEMPLATE: string = `
     <button class='assignment-btn hide'>Launch Canvas</button>
 `;
 
-loadClassData();
+//#endregion
 
-async function loadClassData() {
+loadClassDataAndPopulateElements();
+
+async function loadClassDataAndPopulateElements() {
     const classData: ClassData | null = await window.api.getLocalData('../classes.json') as ClassData | null;
 
     if (classData === null) {
@@ -97,22 +101,36 @@ function generateDropdownElements(classes: Array<Class>): void {
     }
 }
 
+function getTimeDiffInSeconds(date1: Date, date2: Date): number {
+	if (date1 > date2)
+		return 0;
+
+	const yearDiff = date2.getFullYear() - date1.getFullYear();
+	const monthDiff = date2.getMonth() - date1.getMonth();
+	const dateDiff = date2.getDate() - date1.getDate();
+    const hourDiff = date2.getHours() - date1.getHours();
+    const minDiff = date2.getMinutes() - date1.getMinutes();
+    const secDiff = date2.getSeconds() - date1.getSeconds();
+
+	return secDiff + (minDiff * 60) + (hourDiff * 3600) + (dateDiff * 3600 * 24) + (monthDiff * 3600 * 24 * 7) + (yearDiff * 3600 * 24 * 7 * 365);
+}
+
 function getTimeTillAssignmentDueDate(assignment: Assignment): string {
     let currentDate = new Date();
     let assignmentDueDate = new Date(assignment.due_date);
     
     if (currentDate > assignmentDueDate) {
-        if (currentDate.getHours() > assignmentDueDate.getHours())
-            return 'Overdue';
+        const timeDiffInMin: number = getTimeDiffInSeconds(assignmentDueDate, currentDate) / 60;
 
-        const minDiff = currentDate.getMinutes() - assignmentDueDate.getMinutes();
-        if (minDiff <= 30 && minDiff > 0) {
-            let dueDateFormatted: string = '';
-
-            if (assignmentDueDate.getHours() <= 12)
-                dueDateFormatted += `${assignmentDueDate.getHours()}:${assignmentDueDate.getMinutes()} AM`
-            else
-                dueDateFormatted += `${(assignmentDueDate.getHours() - 12)}:${assignmentDueDate.getMinutes()} PM`;
+        if (timeDiffInMin > 0 && timeDiffInMin <= 30) {
+            const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: true
+            });
+            
+            const dueDateFormatted: string = dateTimeFormatter.format(assignmentDueDate);
 
             return `Due at ${dueDateFormatted}`
         }
@@ -120,7 +138,9 @@ function getTimeTillAssignmentDueDate(assignment: Assignment): string {
         return 'Overdue';
     }
 
-    const dayDiff = assignmentDueDate.getDate() - currentDate.getDate();
+    console.log(assignment.name);
+
+    const dayDiff: number = assignmentDueDate.getDate() - currentDate.getDate();
     const hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
     const minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
     const secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();
@@ -130,6 +150,8 @@ function getTimeTillAssignmentDueDate(assignment: Assignment): string {
     timeTillDueDate.setHours(currentDate.getHours() + hourDiff);
     timeTillDueDate.setMinutes(currentDate.getMinutes() + minDiff);
     timeTillDueDate.setSeconds(currentDate.getSeconds() + secDiff);
+
+    console.log(dayDiff);
 
     if (dayDiff > 0) {
         if (dayDiff > 1)

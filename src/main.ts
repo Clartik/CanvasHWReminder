@@ -4,12 +4,31 @@ import * as electronReload from 'electron-reload'
 import { promisify } from 'util'
 
 import SaveManager from './save-manager'
-import { ClassData, Class, Assignment } from './primitives/class-data'
 
 const sleep = promisify(setTimeout);
 
 let appIsRunning = true;
 let mainWindow: BrowserWindow;
+let appIsReady = false;
+
+let classes: Array<Class> = getClasses();
+let upcomingAssignments: Array<Assignment> = getUpcomingAssignments();
+let nextAssignment: Assignment | null;
+
+let settingsData: SettingsData | null = loadSettingsData();
+
+(async () => {
+	while (appIsRunning) {
+		nextAssignment = getNextUpcomingAssignment();
+	
+		if (nextAssignment === null) {
+			await sleep(1);
+			continue;
+		}
+	
+		await waitTillNextAssigment();
+	}
+})();
 
 //#region App Setup
 
@@ -33,6 +52,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
 	app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
+	appIsReady = true;
 	createWindow();
 });
 
@@ -87,6 +107,11 @@ ipcMain.handle('getSavedData', async (event: any, filename: string) => {
 	return await SaveManager.getData(savePath);
 });
 
+ipcMain.on('savedSettings', (event: Event) => {
+	// Update Settings Data to be Latest!
+	settingsData = loadSettingsData();
+});
+
 //#endregion
 
 function openLink(url: string) {
@@ -96,12 +121,6 @@ function openLink(url: string) {
 		dialog.showErrorBox('Could Not Open Assignment Post!', 'An Error Occured While Trying to Open the Assignment Post')
 	}
 }
-
-const classes: Array<Class> = getClasses();
-const upcomingAssignments: Array<Assignment> = getUpcomingAssignments();
-const nextAssignment: Assignment | null = getNextUpcomingAssignment();
-
-waitTillNextAssigment();
 
 function getClasses(): Array<Class> {
 	const filepath = path.join(__dirname, '../classes.json');
@@ -116,6 +135,9 @@ function getClasses(): Array<Class> {
 }
 
 function getUpcomingAssignments(): Array<Assignment> {
+	if (classes.length <= 0)
+		return [];
+
 	let _upcomingAssignments: Array<Assignment> = [];
 
 	for (let classIndex = 0; classIndex < classes.length; classIndex++) {
@@ -154,13 +176,14 @@ function getNextUpcomingAssignment(): Assignment | null {
 		}
 	}
 	
+	// Check to Ensure that the Closest Due Date is Not Overdue!
 	if (currentDate > closestDueDate)
 		return null;
 
 	return _nextAssignment;
 }
 
-function getSecondsDiff(date1: Date, date2: Date): number {
+function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 	if (date1 > date2)
 		return 0;
 
@@ -174,6 +197,42 @@ function getSecondsDiff(date1: Date, date2: Date): number {
 	return secDiff + (minDiff * 60) + (hourDiff * 3600) + (dateDiff * 3600 * 24) + (monthDiff * 3600 * 24 * 7) + (yearDiff * 3600 * 24 * 7 * 365);
 }
 
+function getWhenToRemindInSeconds(): number {
+	if (settingsData === null)
+		return 0;
+
+	const whenToRemindTime: number = Number(settingsData.whenToRemindTimeValue);
+
+	if (settingsData.whenToRemindFormatValue === 'day') {
+		return whenToRemindTime * 3600 * 24;
+	}
+	else if (settingsData.whenToRemindFormatValue === 'hour') {
+		return whenToRemindTime * 3600;
+	}
+	else if (settingsData.whenToRemindFormatValue === 'minute') {
+		return whenToRemindTime * 60;
+	}
+
+	return 0;
+}
+
+function loadSettingsData(): SettingsData | null {
+	const savedFilepath: string = getSavePath('settings-data.json');
+	let settingsData = SaveManager.getDataSync(savedFilepath) as SettingsData | null;
+
+    if (settingsData === null) {
+        console.error('Saved SettingsData is Null! Using Default Settings Data!')
+
+		const localFilePath = path.join(__dirname, '../assets/data/default-settings-data.json');
+		settingsData = SaveManager.getDataSync(localFilePath) as SettingsData | null;
+
+		if (settingsData === null)
+			return null;
+    }
+
+	return settingsData;
+}
+
 async function waitTillNextAssigment() {
 	if (nextAssignment === null)
 		return;
@@ -181,16 +240,27 @@ async function waitTillNextAssigment() {
 	const currentDate = new Date();
 	const nextAssignmentDueDate = new Date(nextAssignment.due_date);
 
-	const secondsToWait: number = getSecondsDiff(currentDate, nextAssignmentDueDate);
+	const timeDiffInSeconds: number = getTimeDiffInSeconds(currentDate, nextAssignmentDueDate);
+	const whenToRemindInSeconds: number = getWhenToRemindInSeconds();
 
-	console.log(`Sleeping for ${secondsToWait}`);
+	let secondsToWait = timeDiffInSeconds - whenToRemindInSeconds;
+
+	if (secondsToWait < 0)
+		secondsToWait = 0;
+
+	console.log(`Sleeping for ${secondsToWait} Seconds`);
 	await sleep(secondsToWait * 1000);
+
+	while (!appIsReady) {
+		await sleep(1);
+	}
 	
 	new Notification({
 		title: `${nextAssignment.name} is Due Now!`,
 		body: 'Click on the Notification to Head to the Posting',
 		icon: './assets/images/4k.png'
 	}).addListener('click', () => {
-		openLink(nextAssignment.posting);
+		if (nextAssignment !== null)
+			openLink(nextAssignment.posting);
 	}).show();
 };
