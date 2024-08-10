@@ -7,12 +7,14 @@ import SaveManager from './save-manager'
 import { ClassData, Class, Assignment } from './primitives/class-data'
 
 const sleep = promisify(setTimeout);
+
 let appIsRunning = true;
+let mainWindow: BrowserWindow;
 
 //#region App Setup
 
 function createWindow() {
-	const mainWindow = new BrowserWindow({
+	mainWindow = new BrowserWindow({
 		width: 800,
 		height: 600,
 		autoHideMenuBar: true,
@@ -86,6 +88,14 @@ ipcMain.handle('getSavedData', async (event: any, filename: string) => {
 });
 
 //#endregion
+
+function openLink(url: string) {
+	try {
+		shell.openExternal(url);
+	} catch {
+		dialog.showErrorBox('Could Not Open Assignment Post!', 'An Error Occured While Trying to Open the Assignment Post')
+	}
+}
 
 const classes: Array<Class> = getClasses();
 const upcomingAssignments: Array<Assignment> = getUpcomingAssignments();
@@ -177,10 +187,10 @@ async function waitTillNextAssigment() {
 	await sleep(secondsToWait * 1000);
 	
 	new Notification({
-		title: 'Test Title',
-		body: 'Test Body',
+		title: `${nextAssignment.name} is Due Now!`,
+		body: 'Click on the Notification to Head to the Posting',
 		icon: './assets/images/4k.png'
 	}).addListener('click', () => {
-		console.log('Notification Clicked!')
+		openLink(nextAssignment.posting);
 	}).show();
 };

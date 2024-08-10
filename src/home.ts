@@ -101,13 +101,29 @@ function getTimeTillAssignmentDueDate(assignment: Assignment): string {
     let currentDate = new Date();
     let assignmentDueDate = new Date(assignment.due_date);
     
-    if (currentDate > assignmentDueDate)
-        return 'Overdue';
+    if (currentDate > assignmentDueDate) {
+        if (currentDate.getHours() > assignmentDueDate.getHours())
+            return 'Overdue';
 
-    let dayDiff = assignmentDueDate.getDate() - currentDate.getDate();
-    let hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
-    let minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
-    let secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();
+        const minDiff = currentDate.getMinutes() - assignmentDueDate.getMinutes();
+        if (minDiff <= 30 && minDiff > 0) {
+            let dueDateFormatted: string = '';
+
+            if (assignmentDueDate.getHours() <= 12)
+                dueDateFormatted += `${assignmentDueDate.getHours()}:${assignmentDueDate.getMinutes()} AM`
+            else
+                dueDateFormatted += `${(assignmentDueDate.getHours() - 12)}:${assignmentDueDate.getMinutes()} PM`;
+
+            return `Due at ${dueDateFormatted}`
+        }
+
+        return 'Overdue';
+    }
+
+    const dayDiff = assignmentDueDate.getDate() - currentDate.getDate();
+    const hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
+    const minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
+    const secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();
 
     let timeTillDueDate = new Date(currentDate);
     timeTillDueDate.setDate(currentDate.getDate() + dayDiff);
