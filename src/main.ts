@@ -7,26 +7,34 @@ import SaveManager from './save-manager'
 
 const sleep = promisify(setTimeout);
 
-let appIsRunning = true;
+let isAppRunning = true;
+let isAppReady = false;
 let mainWindow: BrowserWindow;
-let appIsReady = false;
 
-let classes: Array<Class> = getClasses();
-let upcomingAssignments: Array<Assignment> = getUpcomingAssignments();
-let nextAssignment: Assignment | null;
+let classes: Array<Class> = [];
+let upcomingAssignments: Array<Assignment> = [];
+let nextAssignment: Assignment | null = null;
+let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
 
 let settingsData: SettingsData | null = loadSettingsData();
 
 (async () => {
-	while (appIsRunning) {
+	for (let i = 0; i < 10; i++) {
+		console.log('Checking!!!');
+		classes = getClasses();
+		upcomingAssignments = getUpcomingAssignments();
+
+		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments();
+
 		nextAssignment = getNextUpcomingAssignment();
-	
+
 		if (nextAssignment === null) {
-			await sleep(1);
+			await sleep(10 * 1000);
 			continue;
 		}
-	
+
 		await waitTillNextAssigment();
+		await sleep(6 * 1000);
 	}
 })();
 
@@ -46,13 +54,14 @@ function createWindow() {
 	mainWindow.loadFile('./pages/loading.html');
 
 	mainWindow.webContents.once('did-finish-load', () => {
-		mainWindow.loadFile('./pages/home.html');
+		mainWindow.loadFile('./pages/home.html').then(async () => {
+			isAppReady = true;
+		});
 	})
 }
 
 app.whenReady().then(() => {
 	app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
-	appIsReady = true;
 	createWindow();
 });
 
@@ -66,7 +75,7 @@ app.on('window-all-closed', () => {
 	// On macOS it is common for applications and their menu bar
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (process.platform !== 'darwin') {
-		appIsRunning = false;
+		isAppRunning = false;
 		app.quit()
 	}
 });
@@ -233,6 +242,21 @@ function loadSettingsData(): SettingsData | null {
 	return settingsData;
 }
 
+ function removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments() {
+	for (const assignmentThatHasBeenReminded of assignmentsThatHaveBeenReminded) {
+		for (const upcomingAssignment of upcomingAssignments) {
+			
+			if (upcomingAssignment.name !== assignmentThatHasBeenReminded.name)
+				continue;
+
+			const indexToRemove: number = upcomingAssignments.indexOf(upcomingAssignment);
+
+			if (indexToRemove > -1)
+				upcomingAssignments.splice(indexToRemove, 1);
+		}	
+	}
+ }
+
 async function waitTillNextAssigment() {
 	if (nextAssignment === null)
 		return;
@@ -251,16 +275,20 @@ async function waitTillNextAssigment() {
 	console.log(`Sleeping for ${secondsToWait} Seconds`);
 	await sleep(secondsToWait * 1000);
 
-	while (!appIsReady) {
+	while (!isAppReady) {
 		await sleep(1);
 	}
+
+	let assignment = nextAssignment;
 	
 	new Notification({
-		title: `${nextAssignment.name} is Due Now!`,
+		title: `${assignment.name} is Due Now!`,
 		body: 'Click on the Notification to Head to the Posting',
-		icon: './assets/images/4k.png'
+		icon: './assets/images/4k.png',
 	}).addListener('click', () => {
-		if (nextAssignment !== null)
-			openLink(nextAssignment.posting);
+		openLink(assignment.posting);
 	}).show();
+
+	assignmentsThatHaveBeenReminded.push(nextAssignment);
+	console.log(`Removing ${nextAssignment.name} From Upcoming Assignmnets!`);
 };

@@ -19,7 +19,13 @@
                 {
                     "name": "Test",
                     "points": 500,
-                    "due_date": "2024-08-08T17:59:59-07:00",
+                    "due_date": "2024-08-10T17:59:59-07:00",
+                    "posting": "https://www.apple.com"
+                },
+                {
+                    "name": "Test 2",
+                    "points": 500,
+                    "due_date": "2024-08-09T17:59:59-07:00",
                     "posting": "https://www.apple.com"
                 }
             ]
