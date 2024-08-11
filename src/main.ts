@@ -9,7 +9,7 @@ const sleep = promisify(setTimeout);
 
 let isAppRunning = true;
 let isAppReady = false;
-let mainWindow: BrowserWindow;
+let mainWindow: BrowserWindow | null = null;
 
 let classes: Array<Class> = [];
 let upcomingAssignments: Array<Assignment> = [];
@@ -18,9 +18,11 @@ let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
 
 let settingsData: SettingsData | null = loadSettingsData();
 
+// Main Function
 (async () => {
-	for (let i = 0; i < 10; i++) {
+	while (isAppRunning) {
 		console.log('Checking!!!');
+
 		classes = getClasses();
 		upcomingAssignments = getUpcomingAssignments();
 
@@ -36,6 +38,19 @@ let settingsData: SettingsData | null = loadSettingsData();
 		await waitTillNextAssigment();
 		await sleep(6 * 1000);
 	}
+
+	// for (let i = 0; i < 10; i++) {
+	// 	const newClasses = getClasses();
+
+	// 	if (JSON.stringify(newClasses) === JSON.stringify(classes))
+	// 		console.log('The Data is the Same')
+	// 	else {
+	// 		console.log('Data Has Changed!')
+	// 		classes = newClasses;
+	// 	}
+
+	// 	await sleep(5 * 1000);
+	// }
 })();
 
 //#region App Setup
@@ -54,6 +69,9 @@ function createWindow() {
 	mainWindow.loadFile('./pages/loading.html');
 
 	mainWindow.webContents.once('did-finish-load', () => {
+		if (mainWindow === null)
+			return;
+
 		mainWindow.loadFile('./pages/home.html').then(async () => {
 			isAppReady = true;
 		});
@@ -129,7 +147,9 @@ ipcMain.handle('getCachedData', (event: any, filename: string) => {
 ipcMain.on('savedSettingsData', (event: Event) => {
 	// Update Settings Data to be Latest!
 	settingsData = loadSettingsData();
-	mainWindow.webContents.send('updateSettingsData', settingsData);
+
+	if (mainWindow !== null)
+		mainWindow.webContents.send('updateSettingsData', settingsData);
 });
 
 //#endregion
@@ -169,7 +189,7 @@ function getUpcomingAssignments(): Array<Assignment> {
 			const currentAssignment = currentClass.assignments[assignmentIndex];
 			
 			const currentDate = new Date();
-			const assignmentDueDate = new Date(currentAssignment.due_date);
+			const assignmentDueDate = new Date(currentAssignment.dueDate);
 
 			if (assignmentDueDate > currentDate)
 				_upcomingAssignments.push(currentAssignment);
@@ -184,13 +204,13 @@ function getNextUpcomingAssignment(): Assignment | null {
 		return null;
 
 	let _nextAssignment: Assignment = upcomingAssignments[0];
-	let closestDueDate = new Date(_nextAssignment.due_date);
+	let closestDueDate = new Date(_nextAssignment.dueDate);
 
 	const currentDate = new Date();
 	
 	for (let i = 0; i < upcomingAssignments.length; i++) {
 		const currentAssignment = upcomingAssignments[i];
-		const assignmentDueDate = new Date(currentAssignment.due_date);
+		const assignmentDueDate = new Date(currentAssignment.dueDate);
 
 		if (assignmentDueDate < closestDueDate) {
 			closestDueDate = assignmentDueDate;
@@ -275,7 +295,7 @@ async function waitTillNextAssigment() {
 		return;
 
 	const currentDate = new Date();
-	const nextAssignmentDueDate = new Date(nextAssignment.due_date);
+	const nextAssignmentDueDate = new Date(nextAssignment.dueDate);
 
 	const timeDiffInSeconds: number = getTimeDiffInSeconds(currentDate, nextAssignmentDueDate);
 	const whenToRemindInSeconds: number = getWhenToRemindInSeconds();
@@ -288,9 +308,8 @@ async function waitTillNextAssigment() {
 	console.log(`Sleeping for ${secondsToWait} Seconds`);
 	await sleep(secondsToWait * 1000);
 
-	while (!isAppReady) {
+	while (!isAppReady)
 		await sleep(1);
-	}
 
 	let assignment = nextAssignment;
 	
