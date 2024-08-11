@@ -13,31 +13,31 @@ interface Class {
 interface Assignment {
     readonly name: string;
     readonly points: Number;
-    readonly due_date: string;
+    readonly dueDate: string;
     readonly posting: string;
 }
 
 //#endregion
 
-const classColumns = document.getElementsByClassName('class-column') as HTMLCollectionOf<HTMLUListElement>;
+const containerColumns = document.getElementsByClassName('container-column') as HTMLCollectionOf<HTMLUListElement>;
 
-let dropdownHeaders: HTMLCollectionOf<HTMLSpanElement>;
-let dropdownHeadersLabel: HTMLCollectionOf<HTMLSpanElement>;
-let dropdownBoxes: HTMLCollectionOf<HTMLUListElement>;
+let classHeaders: HTMLCollectionOf<HTMLSpanElement>;
+let classHeadersLabels: HTMLCollectionOf<HTMLSpanElement>;
+let classBoxes: HTMLCollectionOf<HTMLUListElement>;
 
 let settingsData: SettingsData | null;
 
 //#region Templates
 
 const DROPDOWN_HEADER_TEMPLATE: string = `
-    <span class='dropdown-header'>
-        <div class='dropdown-header-arrow'></div>
-        <span class='dropdown-header-label'>Class Name</span>
+    <span class='class-header'>
+        <div class='class-header-arrow'></div>
+        <span class='class-header-label'>Class Name</span>
     </span>
 `;
 
 const DROPDOWN_BOX_TEMPLATE: string = `
-    <ul class='dropdown-box hide'></ul>
+    <ul class='class-box hide'></ul>
 `;
 
 const ASSIGNMENT_ITEM_TEMPLATE: string = `
@@ -47,47 +47,19 @@ const ASSIGNMENT_ITEM_TEMPLATE: string = `
 
 //#endregion
 
-loadClassDataAndPopulateElements();
-loadCachedSettingsData();
-
-async function loadClassDataAndPopulateElements() {
-    const classData: ClassData | null = await window.api.getLocalData('../classes.json') as ClassData | null;
-
-    if (classData === null) {
-        console.error('Class Data is Null!')
-        return;
-    }
-
-    const classes = classData.classes;
-
-    generateDropdownElements(classes);
-
-    dropdownHeaders = document.getElementsByClassName("dropdown-header") as HTMLCollectionOf<HTMLSpanElement>;
-    dropdownHeadersLabel = document.getElementsByClassName('dropdown-header-label') as HTMLCollectionOf<HTMLSpanElement>;
-    dropdownBoxes = document.getElementsByClassName("dropdown-box") as HTMLCollectionOf<HTMLUListElement>;
-
-    populateDropdownElementsWithData(classes);
-    addDropdownEventListeners();
-};
-
-async function loadCachedSettingsData() {
-    settingsData = await window.api.getCachedData('settings-data.json') as SettingsData | null;
-
-    if (settingsData === null) {
-        console.error('SettingsData is Null!')
-        return;
-    }
-}
+// Main Function
+(async () => {
+    settingsData = await getCachedSettingsData();
+    const classes: Class[] = await getClasses();
+    
+    loadElementsWithData(classes);
+})();
 
 window.api.onUpdateSettingsData((_settingsData: Object | null) => {
     settingsData = _settingsData as SettingsData | null;
 });
 
-function isInt(n: number): boolean {
-    return n % 1 === 0;
-}
-
-function createClassElement(): HTMLLIElement {
+function createClassItem(): HTMLLIElement {
     let classElement = document.createElement('li');
     classElement.classList.add('class-item');
     classElement.innerHTML = DROPDOWN_HEADER_TEMPLATE + DROPDOWN_BOX_TEMPLATE;
@@ -100,23 +72,104 @@ function createAssignmentElement(): HTMLLIElement {
     return assignmentElement;
 }
 
-function generateDropdownElements(classes: Array<Class>): void {
-    const amountOfChildrenInEachColumn = Math.floor(classes.length / 2);
-    const isAmountOfChildrenOdd = isInt(classes.length / 2) === false;
+function isInt(n: number): boolean {
+    return n % 1 === 0;
+}
 
-    for (let columnIndex = 0; columnIndex < classColumns.length; columnIndex++) {
-        for (let childIndex = 0; childIndex < amountOfChildrenInEachColumn; childIndex++) {
-            let classElement = createClassElement();
-            classColumns[columnIndex].appendChild(classElement);
+async function getClasses(): Promise<Class[]> {
+    const classData: ClassData | null = await window.api.getLocalData('../classes.json') as ClassData | null;
+
+    if (classData === null) {
+        console.error('Class Data is Null!')
+        return [];
+    }
+
+    return classData.classes;
+}
+
+async function getCachedSettingsData(): Promise<SettingsData | null> {
+    const cachedSettingsData = await window.api.getCachedData('settings-data.json') as SettingsData | null;
+
+    if (cachedSettingsData === null) {
+        console.error('SettingsData is Null!')
+        return null;
+    }
+
+    return cachedSettingsData;
+}
+
+function loadElementsWithData(classes: Class[]): void {
+    generateAllClassItems(classes.length);
+
+    // These Elements Are Not Generated Until After the Previous Function Runs
+    classHeaders = document.getElementsByClassName("class-header") as HTMLCollectionOf<HTMLSpanElement>;
+    classHeadersLabels = document.getElementsByClassName('class-header-label') as HTMLCollectionOf<HTMLSpanElement>;
+    classBoxes = document.getElementsByClassName("class-box") as HTMLCollectionOf<HTMLUListElement>;
+
+    populateClassItemWithData(classes);
+    addClickEventsToClassItem();
+};
+
+function generateAllClassItems(classAmount: number): void {
+    const amountOfClassesInEachColumn = Math.floor(classAmount / 2);        // Round Down Amount
+    const isAmountOfClassesOdd = isInt(classAmount / 2) === false;          // Accounts for the Extra
+
+    for (const column of containerColumns) {
+        for (let childIndex = 0; childIndex < amountOfClassesInEachColumn; childIndex++) {
+            const classItem = createClassItem();
+            column.appendChild(classItem);
         }
     }
     
-    if (isAmountOfChildrenOdd) {
-        let classElement = createClassElement();
-        classColumns[0].appendChild(classElement);
+    // If Odd, Add Extra Class to First Column
+    if (isAmountOfClassesOdd) {
+        const classItem = createClassItem();
+        containerColumns[0].appendChild(classItem);
     }
 }
 
+function populateClassItemWithData(classes: Array<Class>): void {
+    for (let classIndex = 0; classIndex < classes.length; classIndex++) {
+        const currentClass: Class = classes[classIndex];
+
+        classHeadersLabels[classIndex].innerHTML = currentClass.name;
+
+        for (const assignment of currentClass.assignments) {
+            const assignmentElement = createAssignmentElement();
+            classBoxes[classIndex].append(assignmentElement);
+
+            // Populating Assignment Element With Data
+            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.dueDate);
+
+            const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
+            assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
+
+            const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
+            assignmentButton.addEventListener('click', () => {
+                window.api.openLink(assignment.posting);
+            })
+
+            const isAssignmentOverdue = timeTillDueDate === 'Overdue';
+            if (!isAssignmentOverdue) {
+                assignmentButton.classList.remove('hide');
+                    
+                classHeaders[classIndex].classList.add('active');
+                classBoxes[classIndex].classList.remove('hide');
+            }
+        }
+    }
+}
+
+function addClickEventsToClassItem(): void {
+    for (let i = 0; i < classHeaders.length; i++) {
+        classHeaders[i].addEventListener("click", () => {
+            classHeaders[i].classList.toggle('active');
+            classHeaders[i].parentElement?.querySelector(".class-box")?.classList.toggle("hide");
+        });
+    }
+}
+
+// Date2 Must Be Larger than Date1!
 function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 	if (date1 > date2)
 		return 0;
@@ -131,9 +184,9 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 	return secDiff + (minDiff * 60) + (hourDiff * 3600) + (dateDiff * 3600 * 24) + (monthDiff * 3600 * 24 * 7) + (yearDiff * 3600 * 24 * 7 * 365);
 }
 
-function getHowLongPastDueInSeconds(): number | null {
+function getHowLongPastDueInSeconds(): number {
 	if (settingsData === null)
-		return 30 * 60;             // Default is 30 Mins
+		return 0;
 
 	const howLongPastDueTime: number = Number(settingsData.howLongPastDueTimeValue);
 
@@ -147,58 +200,13 @@ function getHowLongPastDueInSeconds(): number | null {
 		return howLongPastDueTime * 60;
 	}
     else if (settingsData.howLongPastDueFormatValue === 'never') 
-        return null;
+        return -1;
 
 	return 0;
 }
 
-function getFormattedDueDate(dueDate: Date): string {
-    const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    });
-    
-    const dueDateFormatted: string = dateTimeFormatter.format(dueDate);
-    return `Due at ${dueDateFormatted}`
-}
-
-function getTimeTillAssignmentDueDate(assignment: Assignment): string {
-    let currentDate = new Date();
-    let assignmentDueDate = new Date(assignment.due_date);
-    
-    if (currentDate > assignmentDueDate) {
-        const timeDiffInSec: number = getTimeDiffInSeconds(assignmentDueDate, currentDate);
-        const howLongPastDueInSec: number | null = getHowLongPastDueInSeconds();
-
-        if (howLongPastDueInSec === null) {
-            const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
-                month: 'short',
-                day: "numeric",
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            });
-            
-            const dueDateFormatted: string = dateTimeFormatter.format(assignmentDueDate);
-            return `Was Due on ${dueDateFormatted}`
-        }
-
-        if (timeDiffInSec > 0 && timeDiffInSec <= howLongPastDueInSec) {
-            const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            });
-            
-            const dueDateFormatted: string = dateTimeFormatter.format(assignmentDueDate);
-            return `Was Due at ${dueDateFormatted}`
-        }
-
-        return 'Overdue';
-    }
-
-    const dayDiff: number = assignmentDueDate.getDate() - currentDate.getDate();
+function getTimeTillDueDate(currentDate: Date, assignmentDueDate: Date): string {
+    const dayDiff = assignmentDueDate.getDate() - currentDate.getDate();
     const hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
     const minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
     const secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();
@@ -237,49 +245,52 @@ function getTimeTillAssignmentDueDate(assignment: Assignment): string {
             return `Due in a Second`
     }
 
-    return 'Overdue'
+    return 'Due Soon'
 }
 
-function populateDropdownElementsWithData(classes: Array<Class>): void {
-    for (let classIndex = 0; classIndex < classes.length; classIndex++) {
-        if (dropdownHeadersLabel[classIndex].innerHTML !== null)
-            dropdownHeadersLabel[classIndex].innerHTML = classes[classIndex].name;
+function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): string {
+    const timeDiffInSec: number = getTimeDiffInSeconds(assignmentDueDate, currentDate);
+    const howLongPastDueInSec: number | null = getHowLongPastDueInSeconds();
 
-        for (let assignmentIndex = 0; assignmentIndex < classes[classIndex].assignments.length; assignmentIndex++) {
-            let assignmentElement = createAssignmentElement();
-            dropdownBoxes[classIndex].append(assignmentElement);
+    const isHowLongPastDueNever: boolean = howLongPastDueInSec === -1;
 
-            let timeTillDueDate = getTimeTillAssignmentDueDate(classes[classIndex].assignments[assignmentIndex]);
-            
-            let assignmentLabel = assignmentElement.querySelector('.assignment-label');
-            if (assignmentLabel !== null) {
-                assignmentLabel.innerHTML = classes[classIndex].assignments[assignmentIndex].name;
-
-                assignmentLabel.innerHTML += ` - ${timeTillDueDate}`
-            }
-
-            let assignmentButton = assignmentElement.querySelector('.assignment-btn');
-            if (assignmentButton !== null) {
-                assignmentButton.addEventListener('click', () => {
-                    window.api.openLink(classes[classIndex].assignments[assignmentIndex].posting);
-                })
-
-                if (timeTillDueDate !== 'Overdue') {
-                    assignmentButton.classList.remove('hide');
-                    
-                    dropdownHeaders[classIndex].classList.add('active');
-                    dropdownBoxes[classIndex].classList.remove('hide');
-                }
-            }
-        }
-    }
-}
-
-function addDropdownEventListeners(): void {
-    for (let i = 0; i < dropdownHeaders.length; i++) {
-        dropdownHeaders[i].addEventListener("click", () => {
-            dropdownHeaders[i].classList.toggle('active');
-            dropdownHeaders[i].parentElement?.querySelector(".dropdown-box")?.classList.toggle("hide");
+    if (isHowLongPastDueNever) {
+        const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: "numeric",
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
         });
+        
+        const formattedDueDate: string = dateTimeFormatter.format(assignmentDueDate);
+        return `Was Due on ${formattedDueDate}`
     }
+
+    const isTimeDiffWithinHowLongPastDueRange: boolean = timeDiffInSec > 0 && timeDiffInSec <= howLongPastDueInSec;
+
+    if (isTimeDiffWithinHowLongPastDueRange) {
+        const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        });
+        
+        const formattedDueDate: string = dateTimeFormatter.format(assignmentDueDate);
+        return `Was Due at ${formattedDueDate}`
+    }
+
+    return 'Overdue';
+}
+
+function getTimeTillDueDateFromAssignment(dueDate: string): string {
+    const currentDate = new Date();
+    const assignmentDueDate = new Date(dueDate);
+    
+    const isAssignmentPastDue = currentDate > assignmentDueDate;
+
+    if (isAssignmentPastDue)
+        return getTimePastDueDate(currentDate, assignmentDueDate);
+    else
+        return getTimeTillDueDate(currentDate, assignmentDueDate);
 }
