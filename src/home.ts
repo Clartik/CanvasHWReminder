@@ -25,6 +25,8 @@ let dropdownHeaders: HTMLCollectionOf<HTMLSpanElement>;
 let dropdownHeadersLabel: HTMLCollectionOf<HTMLSpanElement>;
 let dropdownBoxes: HTMLCollectionOf<HTMLUListElement>;
 
+let settingsData: SettingsData | null;
+
 //#region Templates
 
 const DROPDOWN_HEADER_TEMPLATE: string = `
@@ -46,6 +48,7 @@ const ASSIGNMENT_ITEM_TEMPLATE: string = `
 //#endregion
 
 loadClassDataAndPopulateElements();
+loadCachedSettingsData();
 
 async function loadClassDataAndPopulateElements() {
     const classData: ClassData | null = await window.api.getLocalData('../classes.json') as ClassData | null;
@@ -66,6 +69,19 @@ async function loadClassDataAndPopulateElements() {
     populateDropdownElementsWithData(classes);
     addDropdownEventListeners();
 };
+
+async function loadCachedSettingsData() {
+    settingsData = await window.api.getCachedData('settings-data.json') as SettingsData | null;
+
+    if (settingsData === null) {
+        console.error('SettingsData is Null!')
+        return;
+    }
+}
+
+window.api.onUpdateSettingsData((_settingsData: Object | null) => {
+    settingsData = _settingsData as SettingsData | null;
+});
 
 function isInt(n: number): boolean {
     return n % 1 === 0;
@@ -115,30 +131,72 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 	return secDiff + (minDiff * 60) + (hourDiff * 3600) + (dateDiff * 3600 * 24) + (monthDiff * 3600 * 24 * 7) + (yearDiff * 3600 * 24 * 7 * 365);
 }
 
+function getHowLongPastDueInSeconds(): number | null {
+	if (settingsData === null)
+		return 30 * 60;             // Default is 30 Mins
+
+	const howLongPastDueTime: number = Number(settingsData.howLongPastDueTimeValue);
+
+	if (settingsData.howLongPastDueFormatValue === 'day') {
+		return howLongPastDueTime * 3600 * 24;
+	}
+	else if (settingsData.howLongPastDueFormatValue === 'hour') {
+		return howLongPastDueTime * 3600;
+	}
+	else if (settingsData.howLongPastDueFormatValue === 'minute') {
+		return howLongPastDueTime * 60;
+	}
+    else if (settingsData.howLongPastDueFormatValue === 'never') 
+        return null;
+
+	return 0;
+}
+
+function getFormattedDueDate(dueDate: Date): string {
+    const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
+    
+    const dueDateFormatted: string = dateTimeFormatter.format(dueDate);
+    return `Due at ${dueDateFormatted}`
+}
+
 function getTimeTillAssignmentDueDate(assignment: Assignment): string {
     let currentDate = new Date();
     let assignmentDueDate = new Date(assignment.due_date);
     
     if (currentDate > assignmentDueDate) {
-        const timeDiffInMin: number = getTimeDiffInSeconds(assignmentDueDate, currentDate) / 60;
+        const timeDiffInSec: number = getTimeDiffInSeconds(assignmentDueDate, currentDate);
+        const howLongPastDueInSec: number | null = getHowLongPastDueInSeconds();
 
-        if (timeDiffInMin > 0 && timeDiffInMin <= 30) {
+        if (howLongPastDueInSec === null) {
             const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+                month: 'short',
+                day: "numeric",
                 hour: 'numeric',
                 minute: 'numeric',
-                second: 'numeric',
                 hour12: true
             });
             
             const dueDateFormatted: string = dateTimeFormatter.format(assignmentDueDate);
+            return `Was Due on ${dueDateFormatted}`
+        }
 
-            return `Due at ${dueDateFormatted}`
+        if (timeDiffInSec > 0 && timeDiffInSec <= howLongPastDueInSec) {
+            const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            });
+            
+            const dueDateFormatted: string = dateTimeFormatter.format(assignmentDueDate);
+            return `Was Due at ${dueDateFormatted}`
         }
 
         return 'Overdue';
     }
-
-    console.log(assignment.name);
 
     const dayDiff: number = assignmentDueDate.getDate() - currentDate.getDate();
     const hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
@@ -150,8 +208,6 @@ function getTimeTillAssignmentDueDate(assignment: Assignment): string {
     timeTillDueDate.setHours(currentDate.getHours() + hourDiff);
     timeTillDueDate.setMinutes(currentDate.getMinutes() + minDiff);
     timeTillDueDate.setSeconds(currentDate.getSeconds() + secDiff);
-
-    console.log(dayDiff);
 
     if (dayDiff > 0) {
         if (dayDiff > 1)

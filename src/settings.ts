@@ -43,7 +43,7 @@ populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDu
 
 addEventsToCheckIfSettingsChanged();
 
-loadSettingsData();
+loadSettingsDataAndPopulateElements();
 
 //#region Event Handlers
 
@@ -82,8 +82,10 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
             const settingsData = getSettingsData();
             const success = await window.api.writeSavedData("settings-data.json", settingsData);
 
-            if (success)
+            if (success) {
                 console.log('Settings Data Saved Successfully!')
+                window.api.savedSettingsData();
+            }
             else
                 console.log('Failed to Save Settings Data!')
         }
@@ -97,7 +99,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
 
 //#region Functions
 
-async function loadSettingsData() {
+async function loadSettingsDataAndPopulateElements() {
     const settingsData = await window.api.getSavedData('settings-data.json') as SettingsData | null;
 
     if (settingsData === null) {

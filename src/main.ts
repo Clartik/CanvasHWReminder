@@ -116,12 +116,25 @@ ipcMain.handle('getSavedData', async (event: any, filename: string) => {
 	return await SaveManager.getData(savePath);
 });
 
-ipcMain.on('savedSettings', (event: Event) => {
+ipcMain.handle('getCachedData', (event: any, filename: string) => {
+	if (filename === 'classes.json')
+		return { classes: classes };
+
+	if (filename === 'settings-data.json')
+		return settingsData;
+
+	return null;
+});
+
+ipcMain.on('savedSettingsData', (event: Event) => {
 	// Update Settings Data to be Latest!
 	settingsData = loadSettingsData();
+	mainWindow.webContents.send('updateSettingsData', settingsData);
 });
 
 //#endregion
+
+//#region Functions
 
 function openLink(url: string) {
 	try {
@@ -292,3 +305,5 @@ async function waitTillNextAssigment() {
 	assignmentsThatHaveBeenReminded.push(nextAssignment);
 	console.log(`Removing ${nextAssignment.name} From Upcoming Assignmnets!`);
 };
+
+//#endregion
