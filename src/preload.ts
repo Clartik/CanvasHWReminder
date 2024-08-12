@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-type UpdateDataCallback = (data: Object | null) => void;
+type UpdateDataCallback = (type: string, data: Object | null) => void;
 
 const API = {
     openLink: (url: string) => ipcRenderer.send('openLink', url),
@@ -9,8 +9,8 @@ const API = {
     getSavedData: (filename: string) => ipcRenderer.invoke('getSavedData', filename),
     getLocalData: (filename: string) => ipcRenderer.invoke('getLocalData', filename),
     getCachedData: (filename: string) => ipcRenderer.invoke('getCachedData', filename),
-    savedSettingsData: () => ipcRenderer.send('savedSettingsData'),
-    onUpdateSettingsData: (callback: UpdateDataCallback) => ipcRenderer.on('updateSettingsData', (_event: Event, settingsData: Object | null) => callback(settingsData))
+    updateData: (type: string, data: Object | null) => ipcRenderer.send('updateData', data),
+    onUpdateData: (callback: UpdateDataCallback) => ipcRenderer.on('updateData', (_event: Event, type: string, data: Object | null) => callback(type, data))
 }
 
 contextBridge.exposeInMainWorld("api", API);

@@ -5,8 +5,8 @@ export interface IElectronAPI {
     getSavedData: (filename: string) => Promise<Object | null>,
     getLocalData: (filename: string) => Promise<Object | null>,
     getCachedData: (filename: string) => Promise<Object | null>,
-    savedSettingsData: () => void,
-    onUpdateSettingsData: (callback: UpdateDataCallback) => void
+    updateData: UpdateDataCallback,
+    onUpdateData: (callback: UpdateDataCallback) => void
 }
 
 declare global {

@@ -18,12 +18,23 @@ let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
 
 let settingsData: SettingsData | null = loadSettingsData();
 
+mainLoop();
+
 // Main Function
-(async () => {
+async function mainLoop() {
 	while (isAppRunning) {
 		console.log('Checking!!!');
 
-		classes = getClasses();
+		const newClasses = getClasses();
+
+		if (JSON.stringify(newClasses) !== JSON.stringify(classes)) {
+			console.log('ClassData Has Changed!')
+			classes = newClasses;
+
+			const classData: ClassData = { classes: classes };
+			mainWindow?.webContents.send('updateData', 'classes', classData);
+		}
+
 		upcomingAssignments = getUpcomingAssignments();
 
 		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments();
@@ -51,7 +62,7 @@ let settingsData: SettingsData | null = loadSettingsData();
 
 	// 	await sleep(5 * 1000);
 	// }
-})();
+};
 
 //#region App Setup
 
@@ -144,9 +155,11 @@ ipcMain.handle('getCachedData', (event: any, filename: string) => {
 	return null;
 });
 
-ipcMain.on('savedSettingsData', (event: Event) => {
-	// Update Settings Data to be Latest!
-	settingsData = loadSettingsData();
+ipcMain.on('updateData', (event: Event, type: string, data: Object | null) => {
+	if (type !== 'settings')
+		return;
+
+	settingsData = data as SettingsData | null;
 
 	if (mainWindow !== null)
 		mainWindow.webContents.send('updateSettingsData', settingsData);
@@ -290,6 +303,49 @@ function loadSettingsData(): SettingsData | null {
 	}
  }
 
+ function getTimeTillDueDate(currentDate: Date, assignmentDueDate: Date): string {
+    const dayDiff = assignmentDueDate.getDate() - currentDate.getDate();
+    const hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
+    const minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
+    const secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();
+
+    let timeTillDueDate = new Date(currentDate);
+    timeTillDueDate.setDate(currentDate.getDate() + dayDiff);
+    timeTillDueDate.setHours(currentDate.getHours() + hourDiff);
+    timeTillDueDate.setMinutes(currentDate.getMinutes() + minDiff);
+    timeTillDueDate.setSeconds(currentDate.getSeconds() + secDiff);
+
+    if (dayDiff > 0) {
+        if (dayDiff > 1)
+            return `Due in ${dayDiff} Days`
+        else
+            return `Due in a Day`
+    }
+
+    if (hourDiff > 0) {
+        if (hourDiff > 1)
+            return `Due in ${hourDiff} Hours`
+        else
+            return `Due in an Hour`
+    }
+
+    if (minDiff > 0) {
+        if (minDiff > 1)
+            return `Due in ${minDiff} Minutes`
+        else
+            return `Due in a Minute`
+    }
+
+    if (secDiff > 0) {
+        if (secDiff > 1)
+            return `Due in ${secDiff} Seconds`
+        else
+            return `Due in a Second`
+    }
+
+    return 'Due Soon'
+}
+
 async function waitTillNextAssigment() {
 	if (nextAssignment === null)
 		return;
@@ -311,10 +367,11 @@ async function waitTillNextAssigment() {
 	while (!isAppReady)
 		await sleep(1);
 
-	let assignment = nextAssignment;
-	
+	const assignment = nextAssignment;
+	const timeTilleDueDate: string = getTimeTillDueDate(currentDate, nextAssignmentDueDate);
+
 	new Notification({
-		title: `${assignment.name} is Due Now!`,
+		title: `${assignment.name} is ${timeTilleDueDate}!`,
 		body: 'Click on the Notification to Head to the Posting',
 		icon: './assets/images/4k.png',
 	}).addListener('click', () => {
