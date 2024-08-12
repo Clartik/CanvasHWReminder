@@ -19,6 +19,26 @@ interface Assignment {
 
 //#endregion
 
+//#region Templates
+
+const CLASS_HEADER_TEMPLATE: string = `
+    <span class='class-header'>
+        <div class='class-header-arrow'></div>
+        <span class='class-header-label'>Class Name</span>
+    </span>
+`;
+
+const CLASS_BOX_TEMPLATE: string = `
+    <ul class='class-box hide'></ul>
+`;
+
+const ASSIGNMENT_TEMPLATE: string = `
+    <p class='assignment-label'>Assignment Name</p>
+    <button class='assignment-btn hide'>Launch Canvas</button>
+`;
+
+//#endregion
+
 const containerColumns = document.getElementsByClassName('container-column') as HTMLCollectionOf<HTMLUListElement>;
 
 let classHeaders: HTMLCollectionOf<HTMLSpanElement>;
@@ -27,48 +47,46 @@ let classBoxes: HTMLCollectionOf<HTMLUListElement>;
 
 let settingsData: SettingsData | null;
 
-//#region Templates
-
-const DROPDOWN_HEADER_TEMPLATE: string = `
-    <span class='class-header'>
-        <div class='class-header-arrow'></div>
-        <span class='class-header-label'>Class Name</span>
-    </span>
-`;
-
-const DROPDOWN_BOX_TEMPLATE: string = `
-    <ul class='class-box hide'></ul>
-`;
-
-const ASSIGNMENT_ITEM_TEMPLATE: string = `
-    <p class='assignment-label'>Assignment Name</p>
-    <button class='assignment-btn hide'>Launch Canvas</button>
-`;
-
-//#endregion
+async function sleep(ms: number) {
+    await new Promise(resolve => setTimeout(resolve, ms));
+}
 
 // Main Function
 (async () => {
     settingsData = await getCachedSettingsData();
-    const classes: Class[] = await getClasses();
     
+    const classes = await getClasses();
     loadElementsWithData(classes);
 })();
 
-window.api.onUpdateSettingsData((_settingsData: Object | null) => {
-    settingsData = _settingsData as SettingsData | null;
+window.api.onUpdateData((type: string, data: Object | null) => {
+    if (type === 'classes') {
+        const classData = data as ClassData | null;
+
+        console.log('Received Updated ClassData!')
+
+        if (classData !== null) {
+            clearElementsFromData();
+            loadElementsWithData(classData.classes);
+        }
+    }
+
+    if (type === 'settings')
+        settingsData = data as SettingsData | null;
 });
+
+//#region Functions
 
 function createClassItem(): HTMLLIElement {
     let classElement = document.createElement('li');
     classElement.classList.add('class-item');
-    classElement.innerHTML = DROPDOWN_HEADER_TEMPLATE + DROPDOWN_BOX_TEMPLATE;
+    classElement.innerHTML = CLASS_HEADER_TEMPLATE + CLASS_BOX_TEMPLATE;
     return classElement;
 }
 
 function createAssignmentElement(): HTMLLIElement {
     let assignmentElement = document.createElement('li');
-    assignmentElement.innerHTML = ASSIGNMENT_ITEM_TEMPLATE;
+    assignmentElement.innerHTML = ASSIGNMENT_TEMPLATE;
     return assignmentElement;
 }
 
@@ -109,6 +127,12 @@ function loadElementsWithData(classes: Class[]): void {
     populateClassItemWithData(classes);
     addClickEventsToClassItem();
 };
+
+function clearElementsFromData(): void {
+    for (const column of containerColumns) {
+        column.innerHTML = ''
+    }
+}
 
 function generateAllClassItems(classAmount: number): void {
     const amountOfClassesInEachColumn = Math.floor(classAmount / 2);        // Round Down Amount
@@ -294,3 +318,5 @@ function getTimeTillDueDateFromAssignment(dueDate: string): string {
     else
         return getTimeTillDueDate(currentDate, assignmentDueDate);
 }
+
+//#endregion
