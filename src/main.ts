@@ -5,6 +5,10 @@ import { promisify } from 'util'
 
 import SaveManager from './save-manager'
 
+// import { api_get } from './Canvas-API/core'
+
+import { PythonShell } from 'python-shell'
+
 const sleep = promisify(setTimeout);
 
 let isAppRunning = true;
@@ -18,50 +22,46 @@ let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
 
 let settingsData: SettingsData | null = loadSettingsData();
 
+const pyshell =  new PythonShell('test.py');
+
+pyshell.on('message', function(message) {
+	console.log(message);
+})
+
 mainLoop();
 
 // Main Function
 async function mainLoop() {
-	while (isAppRunning) {
-		console.log('Checking!!!');
 
-		const newClasses = getClasses();
+	// while (isAppRunning) {
+	// 	console.log('Checking!!!');
 
-		if (JSON.stringify(newClasses) !== JSON.stringify(classes)) {
-			console.log('ClassData Has Changed!')
-			classes = newClasses;
-
-			const classData: ClassData = { classes: classes };
-			mainWindow?.webContents.send('updateData', 'classes', classData);
-		}
-
-		upcomingAssignments = getUpcomingAssignments();
-
-		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments();
-
-		nextAssignment = getNextUpcomingAssignment();
-
-		if (nextAssignment === null) {
-			await sleep(10 * 1000);
-			continue;
-		}
-
-		await waitTillNextAssigment();
-		await sleep(6 * 1000);
-	}
-
-	// for (let i = 0; i < 10; i++) {
 	// 	const newClasses = getClasses();
 
-	// 	if (JSON.stringify(newClasses) === JSON.stringify(classes))
-	// 		console.log('The Data is the Same')
-	// 	else {
-	// 		console.log('Data Has Changed!')
+	// 	if (JSON.stringify(newClasses) !== JSON.stringify(classes)) {
+	// 		console.log('ClassData Has Changed!')
 	// 		classes = newClasses;
+
+	// 		const classData: ClassData = { classes: classes };
+	// 		mainWindow?.webContents.send('updateData', 'classes', classData);
 	// 	}
 
-	// 	await sleep(5 * 1000);
+	// 	upcomingAssignments = getUpcomingAssignments();
+
+	// 	removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments();
+
+	// 	nextAssignment = getNextUpcomingAssignment();
+
+	// 	if (nextAssignment === null) {
+	// 		await sleep(10 * 1000);
+	// 		continue;
+	// 	}
+
+	// 	await waitTillNextAssigment();
+	// 	await sleep(6 * 1000);
 	// }
+
+
 };
 
 //#region App Setup
