@@ -49,10 +49,12 @@ loadSettingsDataAndPopulateElements();
 
 canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
     toggleBetweenEditModeInputButtons(canvasBaseURLEditMode, canvasBaseURLInput, canvasBaseURLBtn);
+    canvasBaseURLEditMode = !canvasBaseURLEditMode;
 });
 
 canvasAPITokenBtn.addEventListener('click', (event: MouseEvent) => {
     toggleBetweenEditModeInputButtons(canvasAPITokenEditMode, canvasAPITokenInput, canvasAPITokenBtn);
+    canvasAPITokenEditMode = !canvasAPITokenEditMode;
 });
 
 whenToRemindFormatDropdown.addEventListener('change', (event: Event) => {
@@ -204,14 +206,10 @@ function addEventsToCheckIfSettingsChanged() {
 
 function toggleBetweenEditModeInputButtons(editMode: boolean, input: HTMLInputElement, button: HTMLButtonElement) {
     if (!editMode) {
-        editMode = true;
-
         input.disabled = false;
         button.innerText = 'Done'
     }
     else {
-        editMode = false;
-
         input.disabled = true;
         button.innerText = 'Edit'
     }
