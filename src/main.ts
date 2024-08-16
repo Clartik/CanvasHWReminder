@@ -5,9 +5,7 @@ import { promisify } from 'util'
 
 import SaveManager from './save-manager'
 
-// import { api_get } from './Canvas-API/core'
-
-import { PythonShell } from 'python-shell'
+import * as CanvasAPI from './Canvas-API/canvas'
 
 const sleep = promisify(setTimeout);
 
@@ -22,16 +20,22 @@ let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
 
 let settingsData: SettingsData | null = loadSettingsData();
 
-const pyshell =  new PythonShell('test.py');
-
-pyshell.on('message', function(message) {
-	console.log(message);
-})
-
 mainLoop();
 
-// Main Function
+// Main Function	
 async function mainLoop() {
+	const canvas = new CanvasAPI.Canvas('https://vcccd.instructure.com/', '5499~bcVvGMzdng3rwfyMgLKiEaSLekEyaSZJchKxsV8Wq5HHdFeGeNAwYxX8FgoTE4fU')
+
+	const courses = await canvas.getCourses();
+
+	courses.forEach(async (course) => {
+		console.log(course.name);
+		const upcomingAssignments = await course.getAssignments('upcoming', 'due_at');
+
+		upcomingAssignments.forEach(upcomingAssignment => {
+			console.log(upcomingAssignment.name);
+		});
+	});
 
 	// while (isAppRunning) {
 	// 	console.log('Checking!!!');
