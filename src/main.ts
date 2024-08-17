@@ -24,7 +24,11 @@ mainLoop();
 
 // Main Function	
 async function mainLoop() {
-	await fetchCanvasDataAndSaveToJSON();
+	try {
+		await fetchCanvasDataAndSaveToJSON();
+	} catch (error) {
+		console.error('Failed to Fetch Data From Canvas', error);
+	}
 
 	while (isAppRunning) {
 		console.log('Checking!!!');
@@ -48,7 +52,13 @@ async function mainLoop() {
 
 		if (nextAssignment === null) {
 			await sleep(60 * 60 * 1000);									// Check every hour for updates!
-			await fetchCanvasDataAndSaveToJSON();
+
+			try {
+				await fetchCanvasDataAndSaveToJSON();
+			} catch (error) {
+				console.error('Failed to Fetch Data From Canvas', error);
+			}
+			
 			continue;
 		}
 
@@ -171,9 +181,12 @@ function openLink(url: string) {
 }
 
 async function fetchCanvasDataAndSaveToJSON() {
-	console.log('a');
+	if (settingsData === null)
+		return;
 
-	const canvas = new CanvasAPI.Canvas('https://vcccd.instructure.com/', '5499~bcVvGMzdng3rwfyMgLKiEaSLekEyaSZJchKxsV8Wq5HHdFeGeNAwYxX8FgoTE4fU')
+	console.log('Fetching Data from Canvas!');
+
+	const canvas = new CanvasAPI.Canvas(settingsData.canvasBaseURL, settingsData.canvasAPIToken)
 	const courses = await canvas.getCourses('active');
 
 	const classes: Array<Class> = [];
