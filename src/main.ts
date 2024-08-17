@@ -24,18 +24,7 @@ mainLoop();
 
 // Main Function	
 async function mainLoop() {
-	const canvas = new CanvasAPI.Canvas('https://vcccd.instructure.com/', '5499~bcVvGMzdng3rwfyMgLKiEaSLekEyaSZJchKxsV8Wq5HHdFeGeNAwYxX8FgoTE4fU')
-
-	const courses = await canvas.getCourses();
-
-	courses.forEach(async (course) => {
-		console.log(course.name);
-		const upcomingAssignments = await course.getAssignments('upcoming', 'due_at');
-
-		upcomingAssignments.forEach(upcomingAssignment => {
-			console.log(upcomingAssignment.name);
-		});
-	});
+	await fetchCanvasDataAndSaveToJSON();
 
 	// while (isAppRunning) {
 	// 	console.log('Checking!!!');
@@ -64,8 +53,6 @@ async function mainLoop() {
 	// 	await waitTillNextAssigment();
 	// 	await sleep(6 * 1000);
 	// }
-
-
 };
 
 //#region App Setup
@@ -181,6 +168,56 @@ function openLink(url: string) {
 	}
 }
 
+async function fetchCanvasDataAndSaveToJSON() {
+	const canvas = new CanvasAPI.Canvas('https://vcccd.instructure.com/', '5499~bcVvGMzdng3rwfyMgLKiEaSLekEyaSZJchKxsV8Wq5HHdFeGeNAwYxX8FgoTE4fU')
+	const courses = await canvas.getCourses('active');
+
+	const classes: Array<Class> = [];
+
+	for (const course of courses) {
+		const upcomingAssignments = await course.getAssignments('upcoming', 'due_at');
+		const courseAssignments: Assignment[] = [];
+
+		for (const upcomingAssignment of upcomingAssignments) {
+			const assignment: Assignment = {
+				name: upcomingAssignment.name,
+				points: upcomingAssignment.points_possible,
+				html_url: upcomingAssignment.html_url,
+				is_quiz_assignment: upcomingAssignment.is_quiz_assignment,
+
+				due_at: upcomingAssignment.due_at,
+				unlock_at: upcomingAssignment.unlock_at,
+				lock_at: upcomingAssignment.lock_at
+			}
+
+			courseAssignments.push(assignment);
+		}
+
+		const courseNameArray: string[] = course.name.split(" - ", 3);
+		let processedCourseName: string;
+
+		if (courseNameArray.length === 3)
+			processedCourseName = courseNameArray[0] + ' - ' + courseNameArray[1];
+		else
+			processedCourseName = course.name;
+
+		const courseClass: Class = {
+			name: processedCourseName,
+			time_zone: course.time_zone,
+			assignments: courseAssignments
+		};
+
+		classes.push(courseClass);
+	}
+
+	const data: ClassData = {
+		classes: classes
+	};
+
+	const savePath: string = getSavePath('classes-data.json');
+	return await SaveManager.writeData(savePath, data);
+}
+
 function getClasses(): Array<Class> {
 	const filepath = path.join(__dirname, '../classes.json');
 	const classData: ClassData | null = SaveManager.getDataSync(filepath) as ClassData | null;
@@ -204,9 +241,12 @@ function getUpcomingAssignments(): Array<Assignment> {
 
 		for (let assignmentIndex = 0; assignmentIndex < currentClass.assignments.length; assignmentIndex++) {
 			const currentAssignment = currentClass.assignments[assignmentIndex];
+
+			if (currentAssignment.due_at === null)
+				continue;
 			
 			const currentDate = new Date();
-			const assignmentDueDate = new Date(currentAssignment.dueDate);
+			const assignmentDueDate = new Date(currentAssignment.due_at);
 
 			if (assignmentDueDate > currentDate)
 				_upcomingAssignments.push(currentAssignment);
@@ -216,27 +256,48 @@ function getUpcomingAssignments(): Array<Assignment> {
 	return _upcomingAssignments;
 }
 
+function getUpcomingAssignmentWithDueDate(): Assignment | null {
+	for (let i = 0; i < upcomingAssignments.length; i++) {
+		const upcomingAssignment = upcomingAssignments[i];
+		
+		if (upcomingAssignment.due_at === null)
+			continue;
+
+		return upcomingAssignment;
+	}
+
+	return null;
+}
+
 function getNextUpcomingAssignment(): Assignment | null {
 	if (upcomingAssignments.length === 0)
 		return null;
 
-	let _nextAssignment: Assignment = upcomingAssignments[0];
-	let closestDueDate = new Date(_nextAssignment.dueDate);
+	let _nextAssignment: Assignment | null = getUpcomingAssignmentWithDueDate();
 
+	if (_nextAssignment === null)
+		return null;
+
+	let closestAssignmentDueDate = new Date(_nextAssignment.due_at!);
 	const currentDate = new Date();
 	
 	for (let i = 0; i < upcomingAssignments.length; i++) {
 		const currentAssignment = upcomingAssignments[i];
-		const assignmentDueDate = new Date(currentAssignment.dueDate);
 
-		if (assignmentDueDate < closestDueDate) {
-			closestDueDate = assignmentDueDate;
+		if (currentAssignment.due_at === null)
+			continue;
+
+		const assignmentDueDate = new Date(currentAssignment.due_at);
+
+		if (assignmentDueDate < closestAssignmentDueDate) {
+			closestAssignmentDueDate = assignmentDueDate;
 			_nextAssignment = currentAssignment;
 		}
 	}
 	
-	// Check to Ensure that the Closest Due Date is Not Overdue!
-	if (currentDate > closestDueDate)
+	const isAssignmentOverdue: boolean = currentDate > closestAssignmentDueDate;
+
+	if (isAssignmentOverdue)
 		return null;
 
 	return _nextAssignment;
@@ -351,11 +412,11 @@ function loadSettingsData(): SettingsData | null {
 }
 
 async function waitTillNextAssigment() {
-	if (nextAssignment === null)
+	if (nextAssignment === null || nextAssignment.due_at === null)
 		return;
 
 	const currentDate = new Date();
-	const nextAssignmentDueDate = new Date(nextAssignment.dueDate);
+	const nextAssignmentDueDate = new Date(nextAssignment.due_at);
 
 	const timeDiffInSeconds: number = getTimeDiffInSeconds(currentDate, nextAssignmentDueDate);
 	const whenToRemindInSeconds: number = getWhenToRemindInSeconds();
@@ -379,7 +440,7 @@ async function waitTillNextAssigment() {
 		body: 'Click on the Notification to Head to the Posting',
 		icon: './assets/images/4k.png',
 	}).addListener('click', () => {
-		openLink(assignment.posting);
+		openLink(assignment.html_url);
 	}).show();
 
 	assignmentsThatHaveBeenReminded.push(nextAssignment);
