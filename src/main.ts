@@ -26,33 +26,35 @@ mainLoop();
 async function mainLoop() {
 	await fetchCanvasDataAndSaveToJSON();
 
-	// while (isAppRunning) {
-	// 	console.log('Checking!!!');
+	while (isAppRunning) {
+		console.log('Checking!!!');
 
-	// 	const newClasses = getClasses();
+		const newClasses = await getClasses();
 
-	// 	if (JSON.stringify(newClasses) !== JSON.stringify(classes)) {
-	// 		console.log('ClassData Has Changed!')
-	// 		classes = newClasses;
+		if (JSON.stringify(newClasses) !== JSON.stringify(classes)) {
+			console.log('ClassData Has Changed!')
+			classes = newClasses;
 
-	// 		const classData: ClassData = { classes: classes };
-	// 		mainWindow?.webContents.send('updateData', 'classes', classData);
-	// 	}
+			const classData: ClassData = { classes: classes };
+			mainWindow?.webContents.send('updateData', 'classes', classData);
+		}
 
-	// 	upcomingAssignments = getUpcomingAssignments();
+		upcomingAssignments = getUpcomingAssignments();
 
-	// 	removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments();
+		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments();
 
-	// 	nextAssignment = getNextUpcomingAssignment();
+		nextAssignment = getNextUpcomingAssignment();
+		console.log(nextAssignment?.name);
 
-	// 	if (nextAssignment === null) {
-	// 		await sleep(10 * 1000);
-	// 		continue;
-	// 	}
+		if (nextAssignment === null) {
+			await sleep(60 * 60 * 1000);									// Check every hour for updates!
+			await fetchCanvasDataAndSaveToJSON();
+			continue;
+		}
 
-	// 	await waitTillNextAssigment();
-	// 	await sleep(6 * 1000);
-	// }
+		await waitTillNextAssigment();
+		await sleep(6 * 1000);
+	}
 };
 
 //#region App Setup
@@ -169,6 +171,8 @@ function openLink(url: string) {
 }
 
 async function fetchCanvasDataAndSaveToJSON() {
+	console.log('a');
+
 	const canvas = new CanvasAPI.Canvas('https://vcccd.instructure.com/', '5499~bcVvGMzdng3rwfyMgLKiEaSLekEyaSZJchKxsV8Wq5HHdFeGeNAwYxX8FgoTE4fU')
 	const courses = await canvas.getCourses('active');
 
@@ -215,12 +219,18 @@ async function fetchCanvasDataAndSaveToJSON() {
 	};
 
 	const savePath: string = getSavePath('classes-data.json');
-	return await SaveManager.writeData(savePath, data);
+	const success = await SaveManager.writeData(savePath, data);
+
+	if (success)
+		console.log('Saved Fetched Class Data!')
+	else
+		console.error('Failed to Save Fetched Class Data!')
 }
 
-function getClasses(): Array<Class> {
-	const filepath = path.join(__dirname, '../classes.json');
-	const classData: ClassData | null = SaveManager.getDataSync(filepath) as ClassData | null;
+async function getClasses(): Promise<Class[]> {
+	// const filepath = path.join(__dirname, '../classes.json');
+	const savePath: string = getSavePath('classes-data.json');
+	const classData: ClassData | null = await SaveManager.getData(savePath) as ClassData | null;
 
 	if (classData === null) {
 		console.error('Class Data is Null!')
