@@ -6,7 +6,7 @@ const readFileAsync = promisify(fs.readFile);
 
 class SaveManager {
     static async writeData(filepath: string, data: Object): Promise<boolean> {
-        const formattedData = JSON.stringify(data, null, 2);
+        const formattedData = JSON.stringify(data, null, 4);
 
         try {
             await writeFileAsync(filepath, formattedData, 'utf-8');
@@ -30,7 +30,7 @@ class SaveManager {
     }
 
     static writeDataSync(filepath: string, data: Object): boolean {
-        const formattedData = JSON.stringify(data, null, 2);
+        const formattedData = JSON.stringify(data, null, 4);
 
         try {
             fs.writeFileSync(filepath, formattedData, 'utf-8');

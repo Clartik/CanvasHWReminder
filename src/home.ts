@@ -6,15 +6,19 @@ interface ClassData {
 
 interface Class {
     readonly name: string;
-    readonly professor: string;
+    readonly time_zone: string;
     readonly assignments: Array<Assignment>;
 }
 
 interface Assignment {
     readonly name: string;
     readonly points: Number;
-    readonly dueDate: string;
-    readonly posting: string;
+    readonly html_url: string;
+    readonly is_quiz_assignment: boolean;
+    
+    readonly due_at: string | null;
+    readonly unlock_at: string | null;
+    readonly lock_at: string | null;
 }
 
 //#endregion
@@ -95,7 +99,7 @@ function isInt(n: number): boolean {
 }
 
 async function getClasses(): Promise<Class[]> {
-    const classData: ClassData | null = await window.api.getLocalData('../classes.json') as ClassData | null;
+    const classData: ClassData | null = await window.api.getSavedData('classes-data.json') as ClassData | null;
 
     if (classData === null) {
         console.error('Class Data is Null!')
@@ -159,18 +163,21 @@ function populateClassItemWithData(classes: Array<Class>): void {
         classHeadersLabels[classIndex].innerHTML = currentClass.name;
 
         for (const assignment of currentClass.assignments) {
+            if (assignment.due_at === null)
+                continue;
+
             const assignmentElement = createAssignmentElement();
             classBoxes[classIndex].append(assignmentElement);
 
             // Populating Assignment Element With Data
-            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.dueDate);
+            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
 
             const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
             assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 
             const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
             assignmentButton.addEventListener('click', () => {
-                window.api.openLink(assignment.posting);
+                window.api.openLink(assignment.html_url);
             })
 
             const isAssignmentOverdue = timeTillDueDate === 'Overdue';
@@ -180,6 +187,12 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 classHeaders[classIndex].classList.add('active');
                 classBoxes[classIndex].classList.remove('hide');
             }
+        }
+
+        if (currentClass.assignments.length === 0) {
+            const noAssignmentsDueElement = document.createElement('li');
+            noAssignmentsDueElement.innerText = 'No Assignments Due'
+            classBoxes[classIndex].append(noAssignmentsDueElement);
         }
     }
 }
@@ -307,9 +320,9 @@ function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): string 
     return 'Overdue';
 }
 
-function getTimeTillDueDateFromAssignment(dueDate: string): string {
+function getTimeTillDueDateFromAssignment(DueDate: string): string {
     const currentDate = new Date();
-    const assignmentDueDate = new Date(dueDate);
+    const assignmentDueDate = new Date(DueDate);
     
     const isAssignmentPastDue = currentDate > assignmentDueDate;
 
