@@ -123,3 +123,11 @@ p {
 label {
     margin-right: 5px;
 }
+
+input {
+    width: 200px;
+}
+
+#canvas-api-token-input {
+    width: 350px;
+}
