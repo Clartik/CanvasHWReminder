@@ -10,13 +10,28 @@ const whenToRemindTimeDropdown = document.getElementById('when-to-remind-time-dr
 const whenToRemindFormatDropdown = document.getElementById('when-to-remind-format-dropdown')! as HTMLSelectElement;
 
 const launchOnStartCheckbox = document.getElementById('launch-on-start-checkbox')! as HTMLInputElement;
+const minimizeOnLaunchCheckbox = document.getElementById('minimize-on-launch-checkbox')! as HTMLInputElement;
 const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-checkbox')! as HTMLInputElement;
-const neverOverdueAssignmentCheckbox = document.getElementById('never-overdue-assignment-checkbox')! as HTMLInputElement;
 
 const howLongPastDueTimeDropdown = document.getElementById('how-long-past-due-time-dropdown')! as HTMLSelectElement;
 const howLongPastDueFormatDropdown = document.getElementById('how-long-past-due-format-dropdown')! as HTMLSelectElement;
 
 const changeableElements = document.getElementsByClassName('changeable');
+
+const SETTINGS_DATA_VERSION: string = '0.1'
+
+interface SettingsData {
+    readonly version: string;
+    readonly canvasBaseURL: string;
+    readonly canvasAPIToken: string;
+    readonly whenToRemindTimeValue: string;
+    readonly whenToRemindFormatValue: string;
+    readonly launchOnStart: boolean;
+    readonly minimizeOnLaunch: boolean;
+    readonly minimizeOnClose: boolean;
+    readonly howLongPastDueTimeValue: string;
+    readonly howLongPastDueFormatValue: string;
+}
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
@@ -26,24 +41,22 @@ let canvasAPITokenEditMode = false;
 let canvasBaseURLEditMode = false;
 let hasSettingsChanged = false;
 
-interface SettingsData {
-    readonly canvasBaseURL: string;
-    readonly canvasAPIToken: string;
-    readonly whenToRemindTimeValue: string;
-    readonly whenToRemindFormatValue: string;
-    readonly launchOnStart: boolean;
-    readonly minimizeOnClose: boolean;
-    readonly howLongPastDueTimeValue: string;
-    readonly howLongPastDueFormatValue: string;
+settingsMain();
+
+async function settingsMain() {
+    populateWhenToRemindTimeOptions();
+    populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
+    populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
+
+    addEventsToCheckIfSettingsChanged();
+
+    const settingsData: SettingsData | null = await settingsPageGetCachedSettingsData();
+
+    console.log(settingsData!.minimizeOnLaunch);
+
+    if (settingsData !== null)
+        populateElementsWithData(settingsData);
 }
-
-populateWhenToRemindTimeOptions();
-populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
-populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
-
-addEventsToCheckIfSettingsChanged();
-
-loadSettingsDataAndPopulateElements();
 
 //#region Event Handlers
 
@@ -80,16 +93,17 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
         
         const messageResponse: Electron.MessageBoxReturnValue = await window.api.showMessageDialog(options);
     
-        if (messageResponse.response === 0) {
-            const settingsData = getSettingsData();
+        const YES_BUTTON_RESPONSE = 0;
+        if (messageResponse.response === YES_BUTTON_RESPONSE) {
+            const settingsData = getSettingsDataToSave();
             const success = await window.api.writeSavedData("settings-data.json", settingsData);
 
             if (success) {
-                console.log('Settings Data Saved Successfully!')
-                window.api.updateData('settings', settingsData);
+                console.log('Settings Data Saved Successfully!');
+                window.api.updateData('settings-data.json', settingsData);
             }
             else
-                console.log('Failed to Save Settings Data!')
+                console.log('Failed to Save Settings Data!');
         }
     }
 
@@ -101,17 +115,26 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
 
 //#region Functions
 
-async function loadSettingsDataAndPopulateElements() {
-    const settingsData = await window.api.getSavedData('settings-data.json') as SettingsData | null;
+async function settingsPageGetCachedSettingsData(): Promise<SettingsData | null> {
+    const cachedSettingsData = await window.api.getCachedData('settings-data.json') as SettingsData | null;
 
-    if (settingsData === null) {
-        console.error('SettingsData is Null!')
-        return;
+    if (cachedSettingsData === null) {
+        console.error('Cached SettingsData is Null!');
+        return null;
     }
-    
+
+    return cachedSettingsData;
+}
+
+function populateElementsWithData(settingsData: SettingsData) {
+    if (settingsData === null)
+        return;
+
     canvasBaseURLInput.value = settingsData.canvasBaseURL;
     canvasAPITokenInput.value = settingsData.canvasAPIToken;
+
     launchOnStartCheckbox.checked = settingsData.launchOnStart;
+    minimizeOnLaunchCheckbox.checked = settingsData.minimizeOnLaunch;
     minimizeOnCloseCheckbox.checked = settingsData.minimizeOnClose;
 
     whenToRemindFormatDropdown.value = settingsData.whenToRemindFormatValue;
@@ -124,13 +147,15 @@ async function loadSettingsDataAndPopulateElements() {
     howLongPastDueTimeDropdown.value = settingsData.howLongPastDueTimeValue;
 };
 
-function getSettingsData(): SettingsData {
+function getSettingsDataToSave(): SettingsData {
     return {
+        version: SETTINGS_DATA_VERSION,
         canvasBaseURL: canvasBaseURLInput.value,
         canvasAPIToken: canvasAPITokenInput.value,
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,
         launchOnStart: launchOnStartCheckbox.checked,
+        minimizeOnLaunch: minimizeOnLaunchCheckbox.checked,
         minimizeOnClose: minimizeOnCloseCheckbox.checked,
         howLongPastDueTimeValue: howLongPastDueTimeDropdown.value,
         howLongPastDueFormatValue: howLongPastDueFormatDropdown.value

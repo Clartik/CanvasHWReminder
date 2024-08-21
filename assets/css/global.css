@@ -116,6 +116,10 @@ p {
     grid-row-gap: 10px;
 }
 
+.checkbox-label {
+    justify-self: left;
+}
+
 #settings-container {
     margin: 10px 20px;
 }

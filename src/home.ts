@@ -51,28 +51,28 @@ let classBoxes: HTMLCollectionOf<HTMLUListElement>;
 
 let settingsData: SettingsData | null;
 
-async function sleep(ms: number) {
-    await new Promise(resolve => setTimeout(resolve, ms));
-}
+homeMain();
 
 // Main Function
-(async () => {
-    settingsData = await getCachedSettingsData();
+async function homeMain() {
+    settingsData = await homepageGetCachedSettingsData();
     
     const classes = await getClasses();
     loadElementsWithData(classes);
-})();
+};
 
 window.api.onUpdateData((type: string, data: Object | null) => {
     if (type === 'classes') {
         const classData = data as ClassData | null;
-
-        console.log('Received Updated ClassData!')
-
+        
         if (classData !== null) {
+            console.log('Received Updated ClassData!')
+            
             clearElementsFromData();
             loadElementsWithData(classData.classes);
         }
+        else
+            console.warn('Received Updated ClassData that is NULL! Homepage Will Not Use it!')
     }
 
     if (type === 'settings')
@@ -80,6 +80,10 @@ window.api.onUpdateData((type: string, data: Object | null) => {
 });
 
 //#region Functions
+
+async function sleep(ms: number): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function createClassItem(): HTMLLIElement {
     let classElement = document.createElement('li');
@@ -109,11 +113,11 @@ async function getClasses(): Promise<Class[]> {
     return classData.classes;
 }
 
-async function getCachedSettingsData(): Promise<SettingsData | null> {
+async function homepageGetCachedSettingsData(): Promise<SettingsData | null> {
     const cachedSettingsData = await window.api.getCachedData('settings-data.json') as SettingsData | null;
 
     if (cachedSettingsData === null) {
-        console.error('SettingsData is Null!')
+        console.error('Cached SettingsData is Null!');
         return null;
     }
 
