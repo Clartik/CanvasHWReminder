@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog, Notification } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, Notification, Tray, Menu, NativeImage, nativeImage } from 'electron'
 import * as path from 'path'
 import * as electronReload from 'electron-reload'
 import { promisify } from 'util'
@@ -11,7 +11,9 @@ const sleep = promisify(setTimeout);
 
 let isAppRunning = true;
 let isAppReady = false;
+let isMainWindowHidden = false;
 let mainWindow: BrowserWindow | null = null;
+let tray: Tray;
 
 let classes: Array<Class> = [];
 let upcomingAssignments: Array<Assignment> = [];
@@ -31,7 +33,7 @@ async function mainLoop() {
 	}
 
 	while (isAppRunning) {
-		console.log('Checking!!!');
+		console.log('Checking for New Data!!!');
 
 		const newClasses = await getClasses();
 
@@ -48,7 +50,6 @@ async function mainLoop() {
 		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments();
 
 		nextAssignment = getNextUpcomingAssignment();
-		console.log(nextAssignment?.name);
 
 		if (nextAssignment === null) {
 			await sleep(60 * 60 * 1000);									// Check every hour for updates!
@@ -61,6 +62,8 @@ async function mainLoop() {
 			
 			continue;
 		}
+
+		console.log("The Next Assignment is " + nextAssignment.name);
 
 		await waitTillNextAssigment();
 		await sleep(6 * 1000);
@@ -90,10 +93,44 @@ function createWindow() {
 			isAppReady = true;
 		});
 	})
+
+	mainWindow.on('close', (event) => {
+		if (isAppRunning && !isMainWindowHidden) {
+			event.preventDefault();
+			mainWindow?.hide();
+			isMainWindowHidden = true;
+		}
+	})
+}
+
+function createSystemTray() {
+	const icon = nativeImage.createFromPath('./assets/images/4k.png');
+	tray = new Tray(icon);
+	
+	const contextMenu = Menu.buildFromTemplate([
+		{ label: 'Canvas HW Reminder', type: 'normal', enabled: false },
+		{ type: 'separator' },
+		{ label: 'Show App', type: 'normal', click: () => {
+			if (isMainWindowHidden)
+				mainWindow?.show();
+		} },
+		{ label: "Don't Check for Today", type: 'checkbox' },
+		{ label: 'Quit App', type: 'normal', click: () => {
+			isAppRunning = false;
+			app.quit();
+		} },
+	])
+
+	tray.setContextMenu(contextMenu);
+
+	tray.setToolTip('Canvas HW Reminder');
+	tray.setTitle('Canvas HW Reminder');
 }
 
 app.whenReady().then(() => {
 	app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
+
+	createSystemTray();
 	createWindow();
 });
 
@@ -106,10 +143,14 @@ app.on('activate', () => {
 app.on('window-all-closed', () => {
 	// On macOS it is common for applications and their menu bar
 	// to stay active until the user quits explicitly with Cmd + Q
-	if (process.platform !== 'darwin') {
-		isAppRunning = false;
-		app.quit()
-	}
+	if (process.platform === 'darwin')
+		return;
+	
+	if (isAppRunning)
+		return;
+
+	isAppRunning = false;
+	app.quit();
 });
 
 //#endregion
