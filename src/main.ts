@@ -4,14 +4,13 @@ import * as electronReload from 'electron-reload'
 import { promisify } from 'util'
 
 import SaveManager from './save-manager'
-
 import * as CanvasAPI from './Canvas-API/canvas'
 
 const sleep = promisify(setTimeout);
 
 let isAppRunning = true;
 let isAppReady = false;
-let isMainWindowHidden = false;
+let isMainWindowHidden = true;
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray;
 
@@ -20,12 +19,14 @@ let upcomingAssignments: Array<Assignment> = [];
 let nextAssignment: Assignment | null = null;
 let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
 
-let settingsData: SettingsData | null = loadSettingsData();
+let settingsData: SettingsData | null = null;
 
-mainLoop();
+appMain();
 
 // Main Function	
-async function mainLoop() {
+async function appMain() {
+	settingsData = await getSavedSettingsData();
+
 	try {
 		await fetchCanvasDataAndSaveToJSON();
 	} catch (error) {
@@ -175,21 +176,29 @@ function getSavePath(filename: string): string {
 }
 
 ipcMain.handle('getLocalData', async (event: any, filename: string) => {
+	console.log(`Get Local Data (${filename}) Event Was Handled!`)
+
 	const filepath = path.join(__dirname, filename);
 	return await SaveManager.getData(filepath);
 });
 
 ipcMain.handle('writeSavedData', async (event: any, filename: string, data: Object) => {
+	console.log(`Write Saved Data (${filename}) Event Was Handled!`)
+
 	const savePath: string = getSavePath(filename);
     return await SaveManager.writeData(savePath, data);
 })
 
 ipcMain.handle('getSavedData', async (event: any, filename: string) => {
+	console.log(`Get Saved Data (${filename}) Event Was Handled!`)
+
 	const savePath: string = getSavePath(filename);
 	return await SaveManager.getData(savePath);
 });
 
 ipcMain.handle('getCachedData', (event: any, filename: string) => {
+	console.log(`Get Cached Data (${filename}) Event Was Handled!`)
+
 	if (filename === 'classes.json')
 		return { classes: classes };
 
@@ -200,18 +209,34 @@ ipcMain.handle('getCachedData', (event: any, filename: string) => {
 });
 
 ipcMain.on('updateData', (event: Event, type: string, data: Object | null) => {
-	if (type !== 'settings')
-		return;
+	console.log(`Update Data (${type}) Event Was Handled!`)
+	
+	if (type === 'settings-data.json') {
+		settingsData = data as SettingsData | null;
 
-	settingsData = data as SettingsData | null;
-
-	if (mainWindow !== null)
-		mainWindow.webContents.send('updateSettingsData', settingsData);
+		if (mainWindow !== null)
+			mainWindow.webContents.send('updateSettingsData', settingsData);
+	}
 });
 
 //#endregion
 
 //#region Functions
+
+function getDefaultSettingsData(): SettingsData {
+	return {
+		version: '0.0',
+		canvasBaseURL: '',
+		canvasAPIToken: '',
+		whenToRemindTimeValue: '6',
+		whenToRemindFormatValue: 'hour',
+		launchOnStart: false,
+		minimizeOnLaunch: false,
+		minimizeOnClose: true,
+		howLongPastDueTimeValue: '30',
+		howLongPastDueFormatValue: 'minute'
+	}
+}
 
 function openLink(url: string) {
 	try {
@@ -400,20 +425,16 @@ function getWhenToRemindInSeconds(): number {
 	return 0;
 }
 
-function loadSettingsData(): SettingsData | null {
+async function getSavedSettingsData(): Promise<SettingsData> {
+	const defaultSettingsData: SettingsData = getDefaultSettingsData();
+
 	const savedFilepath: string = getSavePath('settings-data.json');
-	let settingsData = SaveManager.getDataSync(savedFilepath) as SettingsData | null;
+	const savedSettingsData = await SaveManager.getData(savedFilepath) as SettingsData | null;
 
-    if (settingsData === null) {
-        console.error('Saved SettingsData is Null! Using Default Settings Data!')
+    if (savedSettingsData === null)
+        console.warn('Saved SettingsData is Null!');
 
-		const localFilePath = path.join(__dirname, '../assets/data/default-settings-data.json');
-		settingsData = SaveManager.getDataSync(localFilePath) as SettingsData | null;
-
-		if (settingsData === null)
-			return null;
-    }
-
+	const settingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
 	return settingsData;
 }
 
@@ -511,4 +532,4 @@ async function waitTillNextAssigment() {
 	console.log(`Removing ${nextAssignment.name} From Upcoming Assignmnets!`);
 };
 
-//#endregion
+// #endregion
