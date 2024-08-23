@@ -103,7 +103,7 @@ function isInt(n: number): boolean {
 }
 
 async function getClasses(): Promise<Class[]> {
-    const classData: ClassData | null = await window.api.getSavedData('classes-data.json') as ClassData | null;
+    const classData: ClassData | null = await window.api.getCachedData('classes-data.json') as ClassData | null;
 
     if (classData === null) {
         console.error('Class Data is Null!')

@@ -99,11 +99,8 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
             const success = await window.api.writeSavedData("settings-data.json", settingsData);
 
             if (success) {
-                console.log('Settings Data Saved Successfully!');
                 window.api.updateData('settings-data.json', settingsData);
             }
-            else
-                console.log('Failed to Save Settings Data!');
         }
     }
 

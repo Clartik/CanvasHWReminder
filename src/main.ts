@@ -1,4 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, Notification, Tray, Menu, NativeImage, nativeImage } from 'electron'
+import { Worker } from 'worker_threads'
+
 import * as path from 'path'
 import * as electronReload from 'electron-reload'
 import { promisify } from 'util'
@@ -7,6 +9,9 @@ import SaveManager from './save-manager'
 import * as CanvasAPI from './Canvas-API/canvas'
 
 const sleep = promisify(setTimeout);
+
+const checkForUpdatesTimeInSec: number = 60;				// Every Minute
+const notificationDisappearTimeInSec: number = 6;			// Every 6 Seconds
 
 let isAppRunning = true;
 let isAppReady = false;
@@ -27,47 +32,38 @@ appMain();
 async function appMain() {
 	settingsData = await getSavedSettingsData();
 
-	try {
-		await fetchCanvasDataAndSaveToJSON();
-	} catch (error) {
-		console.error('Failed to Fetch Data From Canvas', error);
-	}
+	const checkCanvasWorkerScript = path.join(__dirname, '../build/Workers/checkCanvas.js');
+	const checkCanvasWorker = new Worker(checkCanvasWorkerScript);
+
+	checkCanvasWorker.on('message', (classData: ClassData) => {
+		if (classData === null)
+			return;
+
+		// ClassData Is Different From Cached Classes
+		if (JSON.stringify(classData.classes) === JSON.stringify(classes))
+			return;
+
+		console.log('ClassData Has Changed!')
+		classes = classData.classes;
+
+		mainWindow?.webContents.send('updateData', 'classes', classData);
+	});
+
+	checkCanvasWorker.postMessage(settingsData);
 
 	while (isAppRunning) {
-		console.log('Checking for New Data!!!');
-
-		const newClasses = await getClasses();
-
-		if (JSON.stringify(newClasses) !== JSON.stringify(classes)) {
-			console.log('ClassData Has Changed!')
-			classes = newClasses;
-
-			const classData: ClassData = { classes: classes };
-			mainWindow?.webContents.send('updateData', 'classes', classData);
-		}
-
+		console.log('Checking for Updates!');			
+		
 		upcomingAssignments = getUpcomingAssignments();
-
 		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments();
-
 		nextAssignment = getNextUpcomingAssignment();
 
-		if (nextAssignment === null) {
-			await sleep(60 * 60 * 1000);									// Check every hour for updates!
-
-			try {
-				await fetchCanvasDataAndSaveToJSON();
-			} catch (error) {
-				console.error('Failed to Fetch Data From Canvas', error);
-			}
-			
-			continue;
+		if (nextAssignment !== null) {
+			console.log("The Next Assignment is " + nextAssignment.name);
+			await waitTillNextAssigment();
 		}
 
-		console.log("The Next Assignment is " + nextAssignment.name);
-
-		await waitTillNextAssigment();
-		await sleep(6 * 1000);
+		await sleep(checkForUpdatesTimeInSec * 1000);
 	}
 };
 
@@ -80,7 +76,7 @@ function createWindow() {
 		autoHideMenuBar: true,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
-			sandbox: false
+			nodeIntegration: true
 		}
 	});
 	
@@ -90,7 +86,7 @@ function createWindow() {
 		if (mainWindow === null)
 			return;
 
-		mainWindow.loadFile('./pages/home.html').then(async () => {
+		mainWindow.loadFile('./pages/home.html').then(() => {
 			isAppReady = true;
 		});
 	})
@@ -184,9 +180,8 @@ ipcMain.handle('getLocalData', async (event: any, filename: string) => {
 
 ipcMain.handle('writeSavedData', async (event: any, filename: string, data: Object) => {
 	console.log(`Write Saved Data (${filename}) Event Was Handled!`)
-
-	const savePath: string = getSavePath(filename);
-    return await SaveManager.writeData(savePath, data);
+	
+	return await writeSavedData(filename, data);
 })
 
 ipcMain.handle('getSavedData', async (event: any, filename: string) => {
@@ -246,64 +241,16 @@ function openLink(url: string) {
 	}
 }
 
-async function fetchCanvasDataAndSaveToJSON() {
-	if (settingsData === null)
-		return;
-
-	console.log('Fetching Data from Canvas!');
-
-	const canvas = new CanvasAPI.Canvas(settingsData.canvasBaseURL, settingsData.canvasAPIToken)
-	const courses = await canvas.getCourses('active');
-
-	const classes: Array<Class> = [];
-
-	for (const course of courses) {
-		const upcomingAssignments = await course.getAssignments('upcoming', 'due_at');
-		const courseAssignments: Assignment[] = [];
-
-		for (const upcomingAssignment of upcomingAssignments) {
-			const assignment: Assignment = {
-				name: upcomingAssignment.name,
-				points: upcomingAssignment.points_possible,
-				html_url: upcomingAssignment.html_url,
-				is_quiz_assignment: upcomingAssignment.is_quiz_assignment,
-
-				due_at: upcomingAssignment.due_at,
-				unlock_at: upcomingAssignment.unlock_at,
-				lock_at: upcomingAssignment.lock_at
-			}
-
-			courseAssignments.push(assignment);
-		}
-
-		const courseNameArray: string[] = course.name.split(" - ", 3);
-		let processedCourseName: string;
-
-		if (courseNameArray.length === 3)
-			processedCourseName = courseNameArray[0] + ' - ' + courseNameArray[1];
-		else
-			processedCourseName = course.name;
-
-		const courseClass: Class = {
-			name: processedCourseName,
-			time_zone: course.time_zone,
-			assignments: courseAssignments
-		};
-
-		classes.push(courseClass);
-	}
-
-	const data: ClassData = {
-		classes: classes
-	};
-
-	const savePath: string = getSavePath('classes-data.json');
+async function writeSavedData(filename: string, data: Object): Promise<boolean> {
+	const savePath: string = getSavePath(filename);
 	const success = await SaveManager.writeData(savePath, data);
 
 	if (success)
-		console.log('Saved Fetched Class Data!')
+		console.log(`Saved ${filename}!`)
 	else
-		console.error('Failed to Save Fetched Class Data!')
+		console.error(`Failed to Save ${filename}!`)
+
+	return success;
 }
 
 async function getClasses(): Promise<Class[]> {
