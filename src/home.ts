@@ -246,21 +246,20 @@ function getHowLongPastDueInSeconds(): number {
 	return 0;
 }
 
-function getTimeTillDueDate(currentDate: Date, assignmentDueDate: Date): string {
-    const dayDiff = assignmentDueDate.getDate() - currentDate.getDate();
-    const hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
-    const minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
-    const secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();
+function getTimeTillDueDate(date1: Date, date2: Date): string {
+    let secondsDiff = getTimeDiffInSeconds(date1, date2);
+	let minuteDiff = secondsDiff / 60;
+	let hourDiff = minuteDiff / 60;
+	let dateDiff = hourDiff / 24;
 
-    let timeTillDueDate = new Date(currentDate);
-    timeTillDueDate.setDate(currentDate.getDate() + dayDiff);
-    timeTillDueDate.setHours(currentDate.getHours() + hourDiff);
-    timeTillDueDate.setMinutes(currentDate.getMinutes() + minDiff);
-    timeTillDueDate.setSeconds(currentDate.getSeconds() + secDiff);
+    secondsDiff = Math.floor(secondsDiff);
+    minuteDiff = Math.floor(minuteDiff);
+    hourDiff = Math.floor(hourDiff);
+    dateDiff = Math.floor(dateDiff);
 
-    if (dayDiff > 0) {
-        if (dayDiff > 1)
-            return `Due in ${dayDiff} Days`
+    if (dateDiff > 0) {
+        if (dateDiff > 1)
+            return `Due in ${dateDiff} Days`
         else
             return `Due in a Day`
     }
@@ -272,16 +271,16 @@ function getTimeTillDueDate(currentDate: Date, assignmentDueDate: Date): string 
             return `Due in an Hour`
     }
 
-    if (minDiff > 0) {
-        if (minDiff > 1)
-            return `Due in ${minDiff} Minutes`
+    if (minuteDiff > 0) {
+        if (minuteDiff > 1)
+            return `Due in ${minuteDiff} Minutes`
         else
             return `Due in a Minute`
     }
 
-    if (secDiff > 0) {
-        if (secDiff > 1)
-            return `Due in ${secDiff} Seconds`
+    if (secondsDiff > 0) {
+        if (secondsDiff > 1)
+            return `Due in ${secondsDiff} Seconds`
         else
             return `Due in a Second`
     }
