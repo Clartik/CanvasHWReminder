@@ -1,0 +1,43 @@
+{
+    "classes": [
+        {
+            "name": "MATH M25B - Calc/Analy Geometry III",
+            "time_zone": "America/Los_Angeles",
+            "assignments": []
+        },
+        {
+            "name": "MATH M35 - Applied Differential Equations",
+            "time_zone": "America/Los_Angeles",
+            "assignments": [
+                {
+                    "name": "HW 3 - Sec 2.1, 2.2",
+                    "points": 0,
+                    "html_url": "https://vcccd.instructure.com/courses/68252/assignments/2508012",
+                    "is_quiz_assignment": false,
+                    "due_at": "2024-08-24T02:59:59Z",
+                    "unlock_at": null,
+                    "lock_at": null
+                },
+                {
+                    "name": "HW 4 - Sec 2.3, 2.5",
+                    "points": 0,
+                    "html_url": "https://vcccd.instructure.com/courses/68252/assignments/2508013",
+                    "is_quiz_assignment": false,
+                    "due_at": "2024-08-29T06:59:59Z",
+                    "unlock_at": null,
+                    "lock_at": null
+                }
+            ]
+        },
+        {
+            "name": "PHYS M20B - Thermo  Elec.  Magnetism",
+            "time_zone": "America/Los_Angeles",
+            "assignments": []
+        },
+        {
+            "name": "Science & Math",
+            "time_zone": "America/Los_Angeles",
+            "assignments": []
+        }
+    ]
+}

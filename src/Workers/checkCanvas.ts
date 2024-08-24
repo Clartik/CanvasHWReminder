@@ -1,7 +1,9 @@
 import { parentPort } from 'worker_threads'
 import { promisify } from 'util'
+import * as path from 'path'
 
 import * as CanvasAPI from '../Canvas-API/canvas'
+import SaveManager from '../save-manager';
 
 const sleep = promisify(setTimeout);
 
@@ -11,14 +13,14 @@ let isWorkerRunning: boolean = false;
 
 parentPort?.on('message', async (settingsData: SettingsData | null) => {
     if (settingsData === null) {
-        console.log('Check Canvas Worker Failed to Start Due to SettingsData Being Null!');
+        console.error('CheckCanvas Worker: Failed to Start Due to SettingsData Being Null!');
         return;
     }
 
     isWorkerRunning = true;
 
     while (isWorkerRunning) {
-        console.log('Fetching Data from Canvas!');
+        console.log('CheckCanvas Worker: Fetching Data from Canvas!');
 
         let classData: ClassData | null = null;
 
@@ -26,8 +28,11 @@ parentPort?.on('message', async (settingsData: SettingsData | null) => {
             const courses: CanvasAPI.Course[] = await getCoursesFromCanvas(settingsData);
             classData = await convertToClassData(courses);
         } catch (error) {
-            console.error('Failed to Get Class Data From Canvas', error);
+            console.error('CheckCanvas Worker: Failed to Get Class Data From Canvas', error);
         }
+
+		// const filepath = path.join(__dirname, '../../assets/data/classes-data.json');
+		// classData = await SaveManager.getData(filepath) as ClassData | null;
 
         parentPort?.postMessage(classData);
 

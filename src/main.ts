@@ -6,9 +6,10 @@ import * as electronReload from 'electron-reload'
 import { promisify } from 'util'
 
 import SaveManager from './save-manager'
-import * as CanvasAPI from './Canvas-API/canvas'
 
 const sleep = promisify(setTimeout);
+
+type WorkerMessageCallback = (data: any) => void;
 
 const checkForUpdatesTimeInSec: number = 60;				// Every Minute
 const notificationDisappearTimeInSec: number = 6;			// Every 6 Seconds
@@ -16,14 +17,12 @@ const notificationDisappearTimeInSec: number = 6;			// Every 6 Seconds
 let isAppRunning = true;
 let isAppReady = false;
 let isMainWindowHidden = true;
+let isCanvasDataReady = false;
+
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray;
 
 let classes: Array<Class> = [];
-let upcomingAssignments: Array<Assignment> = [];
-let nextAssignment: Assignment | null = null;
-let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
-
 let settingsData: SettingsData | null = null;
 
 appMain();
@@ -32,38 +31,88 @@ appMain();
 async function appMain() {
 	settingsData = await getSavedSettingsData();
 
-	const checkCanvasWorkerScript = path.join(__dirname, '../build/Workers/checkCanvas.js');
-	const checkCanvasWorker = new Worker(checkCanvasWorkerScript);
+	let upcomingAssignments: Array<Assignment> = [];
+	let nextAssignment: Assignment | null = null;
+	let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
+	let isWaitingOnNotification: boolean = false;
 
-	checkCanvasWorker.on('message', (classData: ClassData) => {
+	const checkCanvasWorker = createWorker('../build/Workers/checkCanvas.js', (classData: ClassData | null) => {
 		if (classData === null)
 			return;
-
+	
 		// ClassData Is Different From Cached Classes
 		if (JSON.stringify(classData.classes) === JSON.stringify(classes))
 			return;
-
+	
 		console.log('ClassData Has Changed!')
 		classes = classData.classes;
-
+	
+		upcomingAssignments = getUpcomingAssignments();
+		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments(assignmentsThatHaveBeenReminded, upcomingAssignments);
+		const possibleNextAssignment = getNextUpcomingAssignment(upcomingAssignments);
+	
+		if (possibleNextAssignment?.name === nextAssignment?.name)
+			isWaitingOnNotification = false;
+	
 		mainWindow?.webContents.send('updateData', 'classes', classData);
 	});
 
 	checkCanvasWorker.postMessage(settingsData);
 
 	while (isAppRunning) {
-		console.log('Checking for Updates!');			
-		
-		upcomingAssignments = getUpcomingAssignments();
-		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments();
-		nextAssignment = getNextUpcomingAssignment();
-
-		if (nextAssignment !== null) {
-			console.log("The Next Assignment is " + nextAssignment.name);
-			await waitTillNextAssigment();
+		if (!isCanvasDataReady) {
+			await sleep(1000);
+			continue;
 		}
 
-		await sleep(checkForUpdatesTimeInSec * 1000);
+		console.log('Checking for Updates!');
+		
+		upcomingAssignments = getUpcomingAssignments();
+		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments(assignmentsThatHaveBeenReminded, upcomingAssignments);
+		nextAssignment = getNextUpcomingAssignment(upcomingAssignments);
+
+		if (nextAssignment === null || nextAssignment.due_at === null) {
+			await sleep(checkForUpdatesTimeInSec * 1000);
+			continue;
+		}
+
+		console.log("The Next Assignment is " + nextAssignment.name);
+
+		const secondsToWait: number = getSecondsToWaitTillNotification(nextAssignment.due_at);
+		const timeTillDueDate: string = getTimeTillDueDateFromSecondsDiff(secondsToWait);
+	
+		isWaitingOnNotification = true;
+
+		console.log(`Sleeping for ${timeTillDueDate}`);
+
+		let secondsWaited = 0;
+
+		while (secondsWaited < secondsToWait && isWaitingOnNotification) {
+			await sleep(1 * 1000);
+			secondsWaited++;
+		}
+
+		if (!isWaitingOnNotification) {
+			console.log("Cancelled Waiting on Notification Timer! Restarting While Loop!");
+			continue;
+		}
+		
+		while (!isAppReady)
+			await sleep(1 * 1000);
+
+		isWaitingOnNotification = false;
+
+		const notification: Notification | null = getNotification(nextAssignment);
+
+		if (notification)
+			notification.show();
+		else
+			console.error('Failed to Show Notification!');
+	
+		assignmentsThatHaveBeenReminded.push(nextAssignment);
+		console.log(`Removing ${nextAssignment.name} From Upcoming Assignmnets!`);
+
+		await sleep(notificationDisappearTimeInSec * 1000);
 	}
 };
 
@@ -82,9 +131,14 @@ function createWindow() {
 	
 	mainWindow.loadFile('./pages/loading.html');
 
-	mainWindow.webContents.once('did-finish-load', () => {
+	mainWindow.webContents.once('did-finish-load', async () => {
 		if (mainWindow === null)
 			return;
+
+		while (classes.length === 0)
+			await sleep(1 * 1000);
+		
+		isCanvasDataReady = true;
 
 		mainWindow.loadFile('./pages/home.html').then(() => {
 			isAppReady = true;
@@ -191,10 +245,10 @@ ipcMain.handle('getSavedData', async (event: any, filename: string) => {
 	return await SaveManager.getData(savePath);
 });
 
-ipcMain.handle('getCachedData', (event: any, filename: string) => {
+ipcMain.handle('getCachedData', (event: any, filename: string): Object | null => {
 	console.log(`Get Cached Data (${filename}) Event Was Handled!`)
 
-	if (filename === 'classes.json')
+	if (filename === 'classes-data.json')
 		return { classes: classes };
 
 	if (filename === 'settings-data.json')
@@ -270,7 +324,7 @@ function getUpcomingAssignments(): Array<Assignment> {
 	if (classes.length <= 0)
 		return [];
 
-	let _upcomingAssignments: Array<Assignment> = [];
+	let upcomingAssignments: Array<Assignment> = [];
 
 	for (let classIndex = 0; classIndex < classes.length; classIndex++) {
 		const currentClass = classes[classIndex];
@@ -285,14 +339,14 @@ function getUpcomingAssignments(): Array<Assignment> {
 			const assignmentDueDate = new Date(currentAssignment.due_at);
 
 			if (assignmentDueDate > currentDate)
-				_upcomingAssignments.push(currentAssignment);
+				upcomingAssignments.push(currentAssignment);
 		}
 	}
 
-	return _upcomingAssignments;
+	return upcomingAssignments;
 }
 
-function getUpcomingAssignmentWithDueDate(): Assignment | null {
+function getUpcomingAssignmentWithDueDate(upcomingAssignments: Assignment[]): Assignment | null {
 	for (let i = 0; i < upcomingAssignments.length; i++) {
 		const upcomingAssignment = upcomingAssignments[i];
 		
@@ -305,11 +359,11 @@ function getUpcomingAssignmentWithDueDate(): Assignment | null {
 	return null;
 }
 
-function getNextUpcomingAssignment(): Assignment | null {
+function getNextUpcomingAssignment(upcomingAssignments: Assignment[]): Assignment | null {
 	if (upcomingAssignments.length === 0)
 		return null;
 
-	let _nextAssignment: Assignment | null = getUpcomingAssignmentWithDueDate();
+	let _nextAssignment: Assignment | null = getUpcomingAssignmentWithDueDate(upcomingAssignments);
 
 	if (_nextAssignment === null)
 		return null;
@@ -338,21 +392,6 @@ function getNextUpcomingAssignment(): Assignment | null {
 
 	return _nextAssignment;
 }
-
-function getTimeDiffInSeconds(date1: Date, date2: Date): number {
-	if (date1 > date2)
-		return 0;
-
-	const yearDiff = date2.getFullYear() - date1.getFullYear();
-	const monthDiff = date2.getMonth() - date1.getMonth();
-	const dateDiff = date2.getDate() - date1.getDate();
-    const hourDiff = date2.getHours() - date1.getHours();
-    const minDiff = date2.getMinutes() - date1.getMinutes();
-    const secDiff = date2.getSeconds() - date1.getSeconds();
-
-	return secDiff + (minDiff * 60) + (hourDiff * 3600) + (dateDiff * 3600 * 24) + (monthDiff * 3600 * 24 * 7) + (yearDiff * 3600 * 24 * 7 * 365);
-}
-
 function getWhenToRemindInSeconds(): number {
 	if (settingsData === null)
 		return 0;
@@ -385,7 +424,7 @@ async function getSavedSettingsData(): Promise<SettingsData> {
 	return settingsData;
 }
 
- function removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments() {
+ function removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments(assignmentsThatHaveBeenReminded: Assignment[], upcomingAssignments: Assignment[]) {
 	for (const assignmentThatHasBeenReminded of assignmentsThatHaveBeenReminded) {
 		for (const upcomingAssignment of upcomingAssignments) {
 			
@@ -400,21 +439,34 @@ async function getSavedSettingsData(): Promise<SettingsData> {
 	}
  }
 
- function getTimeTillDueDate(currentDate: Date, assignmentDueDate: Date): string {
-    const dayDiff = assignmentDueDate.getDate() - currentDate.getDate();
-    const hourDiff = assignmentDueDate.getHours() - currentDate.getHours();
-    const minDiff = assignmentDueDate.getMinutes() - currentDate.getMinutes();
-    const secDiff = assignmentDueDate.getSeconds() - currentDate.getSeconds();
+function getTimeDiffInSeconds(date1: Date, date2: Date): number {
+	if (date1 > date2)
+		return 0;
 
-    let timeTillDueDate = new Date(currentDate);
-    timeTillDueDate.setDate(currentDate.getDate() + dayDiff);
-    timeTillDueDate.setHours(currentDate.getHours() + hourDiff);
-    timeTillDueDate.setMinutes(currentDate.getMinutes() + minDiff);
-    timeTillDueDate.setSeconds(currentDate.getSeconds() + secDiff);
+	const yearDiff = date2.getFullYear() - date1.getFullYear();
+	const monthDiff = date2.getMonth() - date1.getMonth();
+	const dateDiff = date2.getDate() - date1.getDate();
+    const hourDiff = date2.getHours() - date1.getHours();
+    const minDiff = date2.getMinutes() - date1.getMinutes();
+    const secDiff = date2.getSeconds() - date1.getSeconds();
 
-    if (dayDiff > 0) {
-        if (dayDiff > 1)
-            return `Due in ${dayDiff} Days`
+	return secDiff + (minDiff * 60) + (hourDiff * 3600) + (dateDiff * 3600 * 24) + (monthDiff * 3600 * 24 * 7) + (yearDiff * 3600 * 24 * 7 * 365);
+}
+
+ function getTimeTillDueDate(date1: Date, date2: Date): string {
+	let secondsDiff = getTimeDiffInSeconds(date1, date2);
+	let minuteDiff = secondsDiff / 60;
+	let hourDiff = minuteDiff / 60;
+	let dateDiff = hourDiff / 24;
+
+	secondsDiff = Math.floor(secondsDiff);
+    minuteDiff = Math.floor(minuteDiff);
+    hourDiff = Math.floor(hourDiff);
+    dateDiff = Math.floor(dateDiff);
+
+    if (dateDiff > 0) {
+        if (dateDiff > 1)
+            return `Due in ${dateDiff} Days`
         else
             return `Due in a Day`
     }
@@ -426,16 +478,16 @@ async function getSavedSettingsData(): Promise<SettingsData> {
             return `Due in an Hour`
     }
 
-    if (minDiff > 0) {
-        if (minDiff > 1)
-            return `Due in ${minDiff} Minutes`
+    if (minuteDiff > 0) {
+        if (minuteDiff > 1)
+            return `Due in ${minuteDiff} Minutes`
         else
             return `Due in a Minute`
     }
 
-    if (secDiff > 0) {
-        if (secDiff > 1)
-            return `Due in ${secDiff} Seconds`
+    if (secondsDiff > 0) {
+        if (secondsDiff > 1)
+            return `Due in ${secondsDiff} Seconds`
         else
             return `Due in a Second`
     }
@@ -443,12 +495,50 @@ async function getSavedSettingsData(): Promise<SettingsData> {
     return 'Due Soon'
 }
 
-async function waitTillNextAssigment() {
-	if (nextAssignment === null || nextAssignment.due_at === null)
-		return;
+ function getTimeTillDueDateFromSecondsDiff(secondsDiff: number): string {
+	let minuteDiff = secondsDiff / 60;
+	let hourDiff = minuteDiff / 60;
+	let dateDiff = hourDiff / 24;
 
+	secondsDiff = Math.floor(secondsDiff);
+    minuteDiff = Math.floor(minuteDiff);
+    hourDiff = Math.floor(hourDiff);
+    dateDiff = Math.floor(dateDiff);
+
+    if (dateDiff > 0) {
+        if (dateDiff > 1)
+            return `${dateDiff} Days`
+        else
+            return `a Day`
+    }
+
+    if (hourDiff > 0) {
+        if (hourDiff > 1)
+            return `${hourDiff} Hours`
+        else
+            return `an Hour`
+    }
+
+    if (minuteDiff > 0) {
+        if (minuteDiff > 1)
+            return `${minuteDiff} Minutes`
+        else
+            return `a Minute`
+    }
+
+    if (secondsDiff > 0) {
+        if (secondsDiff > 1)
+            return `${secondsDiff} Seconds`
+        else
+            return `a Second`
+    }
+
+    return 'Due Soon'
+}
+
+function getSecondsToWaitTillNotification(nextAssignmentDueAt: string): number {
 	const currentDate = new Date();
-	const nextAssignmentDueDate = new Date(nextAssignment.due_at);
+	const nextAssignmentDueDate = new Date(nextAssignmentDueAt);
 
 	const timeDiffInSeconds: number = getTimeDiffInSeconds(currentDate, nextAssignmentDueDate);
 	const whenToRemindInSeconds: number = getWhenToRemindInSeconds();
@@ -458,25 +548,40 @@ async function waitTillNextAssigment() {
 	if (secondsToWait < 0)
 		secondsToWait = 0;
 
-	console.log(`Sleeping for ${secondsToWait} Seconds`);
-	await sleep(secondsToWait * 1000);
+	return secondsToWait;
+}
 
-	while (!isAppReady)
-		await sleep(1);
+function getNotification(nextAssignment: Assignment): Notification | null {
+	if (nextAssignment.due_at === null)
+		return null;
 
-	const assignment = nextAssignment;
-	const timeTilleDueDate: string = getTimeTillDueDate(currentDate, nextAssignmentDueDate);
+	const currentDate = new Date();
+	const nextAssignmentDueDate = new Date(nextAssignment.due_at);
 
-	new Notification({
-		title: `${assignment.name} is ${timeTilleDueDate}!`,
+	const timeTillDueDate: string = getTimeTillDueDate(currentDate, nextAssignmentDueDate);
+
+	const notification = new Notification({
+		title: `${nextAssignment.name} is ${timeTillDueDate}!`,
 		body: 'Click on the Notification to Head to the Posting',
 		icon: './assets/images/4k.png',
 	}).addListener('click', () => {
-		openLink(assignment.html_url);
-	}).show();
+		if (nextAssignment === null)
+			return;
 
-	assignmentsThatHaveBeenReminded.push(nextAssignment);
-	console.log(`Removing ${nextAssignment.name} From Upcoming Assignmnets!`);
-};
+		openLink(nextAssignment.html_url);
+	});
+
+	return notification;
+}
+
+function createWorker(filepath: string, messageCallback?: WorkerMessageCallback): Worker {
+	const workerScriptPath = path.join(__dirname, filepath);
+	const worker = new Worker(workerScriptPath);
+
+	if (messageCallback)
+		worker.on('message', messageCallback);
+
+	return worker;
+}
 
 // #endregion

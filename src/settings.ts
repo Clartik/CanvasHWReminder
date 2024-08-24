@@ -44,15 +44,13 @@ let hasSettingsChanged = false;
 settingsMain();
 
 async function settingsMain() {
-    populateWhenToRemindTimeOptions();
+    populateTimeOptions();
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
     populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
 
     addEventsToCheckIfSettingsChanged();
 
     const settingsData: SettingsData | null = await settingsPageGetCachedSettingsData();
-
-    console.log(settingsData!.minimizeOnLaunch);
 
     if (settingsData !== null)
         populateElementsWithData(settingsData);
@@ -159,7 +157,7 @@ function getSettingsDataToSave(): SettingsData {
     };
 }
 
-function populateWhenToRemindTimeOptions() {
+function populateTimeOptions() {
     // Includes 1 to 7
     for (let i = 1; i <= 7; i++) {
         DAY_TIME_OPTIONS.push('' + i);
