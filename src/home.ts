@@ -26,10 +26,10 @@ interface Assignment {
 //#region Templates
 
 const CLASS_HEADER_TEMPLATE: string = `
-    <span class='class-header'>
+    <div class='class-header'>
         <div class='class-header-arrow'></div>
         <span class='class-header-label'>Class Name</span>
-    </span>
+    </div>
 `;
 
 const CLASS_BOX_TEMPLATE: string = `
@@ -194,9 +194,11 @@ function populateClassItemWithData(classes: Array<Class>): void {
         }
 
         if (currentClass.assignments.length === 0) {
-            const noAssignmentsDueElement = document.createElement('li');
-            noAssignmentsDueElement.innerText = 'No Assignments Due'
+            const noAssignmentsDueElement = createAssignmentElement();
             classBoxes[classIndex].append(noAssignmentsDueElement);
+
+            const assignmentLabel = noAssignmentsDueElement.querySelector('.assignment-label')! as HTMLParagraphElement;
+            assignmentLabel.innerText = 'No Assignments Due';
         }
     }
 }
