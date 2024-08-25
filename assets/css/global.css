@@ -1,9 +1,5 @@
 body {
-    overflow-x: hidden;
-}
-
-.class-header {
-    cursor: pointer;
+    margin: 0;
 }
 
 ul {
@@ -14,15 +10,17 @@ a {
     color: inherit;
 }
 
-#top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+p {
+    padding: 0;
+    margin: 0;
 }
 
-#page-title {
-    text-align: center;
-    flex-grow: 1;
+label {
+    margin-right: 5px;
+}
+
+input {
+    width: 200px;
 }
 
 .link-btn {
@@ -31,13 +29,22 @@ a {
 
 .container-column {
     margin: 0;
+    padding: 0px;
+    margin: 0px 15px;
 }
 
-.class-item {
-    padding-top: 10px;
-    padding-bottom: 10px;
+.class-header {
+    cursor: pointer;
+    color: white;
+    background-color: darkslategray;
+    padding: 7px;
+    border-radius: 10px;
 }
-  
+
+.class-header.active {
+    border-radius: 10px 10px 0px 0px;
+}
+
 .class-header::before {
     color: black;
     display: inline-block;
@@ -45,7 +52,7 @@ a {
 }
 
 .class-header-arrow {
-    border-bottom: 12px solid black;
+    border-bottom: 12px solid lightcoral    ;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     width: 0;
@@ -58,35 +65,39 @@ a {
 .active .class-header-arrow {
     transform: rotate(180deg);
 }
+
+.class-item {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
   
 .class-box {
     list-style-type: disc;
     display: block;
+    background-color: gray;
+    border-radius: 0px 0px 10px 10px;
+    padding-bottom: 10px;
 }
 
 .hide {
     display: none;
 }
 
-#container {
-    display: grid;
-    grid-template-columns: 50vw 50vw;
-}
-
-p {
-    padding: 0;
-    margin: 0;
-}
-
 .class-box li {
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding: 10px 0px 0px 0px;
+    color: lightcoral;
+}
+
+.assignment-label {
+    color: white;
 }
 
 .assignment-btn {
     text-align: center;
     padding: 3px 6px;
-    border-radius: 5px;
+    border-radius: 7px;
+    background-color: lightcoral;
+    color: white;
 }
 
 .assignment-btn:hover {
@@ -110,26 +121,35 @@ p {
     margin-left: 10px;
 }
 
-#checkbox-container {
-    display: grid;
-    grid-template-columns: max-content max-content;
-    grid-row-gap: 10px;
-}
-
 .checkbox-label {
     justify-self: left;
+}
+
+#top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0px 10px;
+}
+
+#page-title {
+    text-align: center;
+    flex-grow: 1;
+}
+
+#container {
+    display: grid;
+    grid-template-columns: 50vw 50vw;
 }
 
 #settings-container {
     margin: 10px 20px;
 }
 
-label {
-    margin-right: 5px;
-}
-
-input {
-    width: 200px;
+#checkbox-container {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    grid-row-gap: 10px;
 }
 
 #canvas-api-token-input {
