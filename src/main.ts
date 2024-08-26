@@ -14,10 +14,18 @@ type WorkerMessageCallback = (data: any) => void;
 const checkForUpdatesTimeInSec: number = 60;				// Every Minute
 const notificationDisappearTimeInSec: number = 6;			// Every 6 Seconds
 
+interface DevMode {
+	readonly useLocalClassData: boolean;
+}
+
+const devMode: DevMode = {
+	useLocalClassData: true
+}
+
 let isAppRunning = true;
 let isAppReady = false;
-let isMainWindowHidden = true;
-let isCanvasDataReady = false;
+let isMainWindowHidden = false;
+let isCanvasDataReady = true;
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray;
@@ -36,28 +44,61 @@ async function appMain() {
 	let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
 	let isWaitingOnNotification: boolean = false;
 
-	const checkCanvasWorker = createWorker('../build/Workers/checkCanvas.js', (classData: ClassData | null) => {
-		if (classData === null)
-			return;
+	if (!devMode.useLocalClassData) {
+		const checkCanvasWorker = createWorker('../build/Workers/checkCanvas.js', (classData: ClassData | null) => {
+			if (classData === null)
+				return;
 	
-		// ClassData Is Different From Cached Classes
-		if (JSON.stringify(classData.classes) === JSON.stringify(classes))
-			return;
+			if (!isCanvasDataReady)
+				isCanvasDataReady = true;
+		
+			// ClassData Is Different From Cached Classes
+			if (JSON.stringify(classData.classes) === JSON.stringify(classes))
+				return;
+		
+			console.log('ClassData Has Changed!')
+			classes = classData.classes;
+		
+			upcomingAssignments = getUpcomingAssignments();
+			removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments(assignmentsThatHaveBeenReminded, upcomingAssignments);
+			const possibleNextAssignment = getNextUpcomingAssignment(upcomingAssignments);
+		
+			if (possibleNextAssignment?.name === nextAssignment?.name)
+				isWaitingOnNotification = false;
+		
+			mainWindow?.webContents.send('updateData', 'classes', classData);
+		});
 	
-		console.log('ClassData Has Changed!')
-		classes = classData.classes;
+		checkCanvasWorker.postMessage(settingsData);
+	}
+	else {
+		const checkCanvasWorker = createWorker('../build/Workers/checkCanvasDEV.js', (classData: ClassData | null) => {
+			if (classData === null)
+				return;
 	
-		upcomingAssignments = getUpcomingAssignments();
-		removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments(assignmentsThatHaveBeenReminded, upcomingAssignments);
-		const possibleNextAssignment = getNextUpcomingAssignment(upcomingAssignments);
+			if (!isCanvasDataReady)
+				isCanvasDataReady = true;
+		
+			// ClassData Is Different From Cached Classes
+			if (JSON.stringify(classData.classes) === JSON.stringify(classes))
+				return;
+		
+			console.log('ClassData Has Changed!')
+			classes = classData.classes;
+		
+			upcomingAssignments = getUpcomingAssignments();
+			removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments(assignmentsThatHaveBeenReminded, upcomingAssignments);
+			const possibleNextAssignment = getNextUpcomingAssignment(upcomingAssignments);
+		
+			if (possibleNextAssignment?.name === nextAssignment?.name)
+				isWaitingOnNotification = false;
+		
+			mainWindow?.webContents.send('updateData', 'classes', classData);
+		});
 	
-		if (possibleNextAssignment?.name === nextAssignment?.name)
-			isWaitingOnNotification = false;
-	
-		mainWindow?.webContents.send('updateData', 'classes', classData);
-	});
+		checkCanvasWorker.postMessage(settingsData);
+	}
 
-	checkCanvasWorker.postMessage(settingsData);
 
 	while (isAppRunning) {
 		if (!isCanvasDataReady) {
@@ -123,11 +164,15 @@ function createWindow() {
 		width: 800,
 		height: 600,
 		autoHideMenuBar: true,
+		show: !settingsData?.minimizeOnLaunch,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: true
 		}
 	});
+
+	if (settingsData?.minimizeOnLaunch)
+		isMainWindowHidden = true;
 	
 	mainWindow.loadFile('./pages/loading.html');
 
@@ -135,23 +180,26 @@ function createWindow() {
 		if (mainWindow === null)
 			return;
 
-		while (classes.length === 0)
+		while (!isCanvasDataReady)
 			await sleep(1 * 1000);
-		
-		isCanvasDataReady = true;
 
 		mainWindow.loadFile('./pages/home.html').then(() => {
 			isAppReady = true;
 		});
-	})
+	});
 
 	mainWindow.on('close', (event) => {
-		if (isAppRunning && !isMainWindowHidden) {
+		if (!isAppRunning)
+			return;
+
+		if (!isMainWindowHidden && settingsData?.minimizeOnClose) {
 			event.preventDefault();
 			mainWindow?.hide();
 			isMainWindowHidden = true;
 		}
-	})
+		else if (!settingsData?.minimizeOnClose)
+			isAppRunning = false;
+	});
 }
 
 function createSystemTray() {
@@ -162,8 +210,10 @@ function createSystemTray() {
 		{ label: 'Canvas HW Reminder', type: 'normal', enabled: false },
 		{ type: 'separator' },
 		{ label: 'Show App', type: 'normal', click: () => {
-			if (isMainWindowHidden)
+			if (isMainWindowHidden ) {
 				mainWindow?.show();
+				isMainWindowHidden = false;
+			}
 		} },
 		{ label: "Don't Check for Today", type: 'checkbox' },
 		{ label: 'Quit App', type: 'normal', click: () => {
@@ -178,10 +228,14 @@ function createSystemTray() {
 	tray.setTitle('Canvas HW Reminder');
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
 	app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
 
 	createSystemTray();
+	
+	while (settingsData === null)
+		await sleep(100);
+
 	createWindow();
 });
 
@@ -200,7 +254,6 @@ app.on('window-all-closed', () => {
 	if (isAppRunning)
 		return;
 
-	isAppRunning = false;
 	app.quit();
 });
 

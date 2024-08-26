@@ -20,8 +20,8 @@
 
 :root {
     --accent-color: hsl(0, 100%, 63%);
-    --accent-color-hover: hsl(0, 100%, 45%);
-    --accent-color-press: hsl(0, 100%, 35%);
+    --accent-color-hover: hsl(0, 100%, 40%);
+    --accent-color-press: hsl(0, 100%, 30%);
 
     --primary-color: hsl(212, 49%, 33%);
     --primary-color-hover: hsl(212, 49%, 25%);
@@ -66,7 +66,8 @@ a {
 p {
     padding: 0;
     margin: 0;
-    font-family: 'Poppins Light';
+    font-family: 'Poppins Regular';
+    color: var(--text-color);
 }
 
 label {
@@ -182,7 +183,7 @@ select:hover {
 }
 
 .assignment-label {
-    color: var(--text-color);
+    font-family: 'Poppins Light';
 }
 
 .assignment-btn {
@@ -264,4 +265,12 @@ select:hover {
 #canvas-api-token-input {
     width: 350px;
     text-overflow: ellipsis;
+}
+
+#loading-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background-color: var(--background-color);
 }

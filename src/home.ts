@@ -58,6 +58,13 @@ async function homeMain() {
     settingsData = await homepageGetCachedSettingsData();
     
     const classes = await getClasses();
+
+    if (classes.length === 0) {
+        const noClasses = document.createElement('label') as HTMLLabelElement;
+        noClasses.innerText = 'No Classes Enrolled';
+        containerColumns[0].append(noClasses);
+    }
+
     loadElementsWithData(classes);
 };
 
