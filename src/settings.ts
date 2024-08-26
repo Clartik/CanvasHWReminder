@@ -59,12 +59,32 @@ async function settingsMain() {
 //#region Event Handlers
 
 canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
-    toggleBetweenEditModeInputButtons(canvasBaseURLEditMode, canvasBaseURLInput, canvasBaseURLBtn);
+    if (!canvasBaseURLEditMode) {
+        canvasBaseURLInput.disabled = false;
+        canvasBaseURLBtn.innerText = 'Done'
+    }
+    else {
+        canvasBaseURLInput.disabled = true;
+        canvasBaseURLBtn.innerText = 'Edit'
+    }
+
     canvasBaseURLEditMode = !canvasBaseURLEditMode;
 });
 
 canvasAPITokenBtn.addEventListener('click', (event: MouseEvent) => {
-    toggleBetweenEditModeInputButtons(canvasAPITokenEditMode, canvasAPITokenInput, canvasAPITokenBtn);
+    if (!canvasAPITokenEditMode) {
+        canvasAPITokenInput.disabled = false;
+        canvasAPITokenInput.type = 'text';
+
+        canvasAPITokenBtn.innerText = 'Hide';
+    }
+    else {
+        canvasAPITokenInput.disabled = true;
+        canvasAPITokenInput.type = 'password';
+
+        canvasAPITokenBtn.innerText = 'Reveal';
+    }
+
     canvasAPITokenEditMode = !canvasAPITokenEditMode;
 });
 
@@ -222,17 +242,6 @@ function addEventsToCheckIfSettingsChanged() {
                 hasSettingsChanged = true;
         });
     };
-}
-
-function toggleBetweenEditModeInputButtons(editMode: boolean, input: HTMLInputElement, button: HTMLButtonElement) {
-    if (!editMode) {
-        input.disabled = false;
-        button.innerText = 'Done'
-    }
-    else {
-        input.disabled = true;
-        button.innerText = 'Edit'
-    }
 }
 
 //#endregion

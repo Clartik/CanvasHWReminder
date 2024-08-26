@@ -19,10 +19,19 @@
 }
 
 :root {
-    --accent-color: #ff4040;
-    --primary-color: #2b527e;
-    --secondary-color: #575757;
-    --header-color: #f5f5cf;
+    --accent-color: hsl(0, 100%, 63%);
+    --accent-color-hover: hsl(0, 100%, 45%);
+    --accent-color-press: hsl(0, 100%, 35%);
+
+    --primary-color: hsl(212, 49%, 33%);
+    --primary-color-hover: hsl(212, 49%, 25%);
+
+    --secondary-color: hsl(0, 0%, 34%);
+    --secondary-color-hover: hsl(0, 0%, 28%);
+    
+    --header-color: hsl(60, 66%, 89%);
+    --header-color-hover: hsl(60, 66%, 80%);
+
     --text-color: white;
     --background-color: #272727;
     --shadow-color: black;
@@ -90,16 +99,25 @@ button {
 
 select {
     font-family: 'Poppins Regular';
-    background-color: gray;
-    background-color: var(--secondary-color);
     border: none;
-    color: var(--text-color);
     border-radius: var(--border-radius);
+    
+    color: var(--text-color);
+    background-color: var(--secondary-color);
+}
+
+select:hover {
+    background-color: var(--secondary-color-hover);
 }
 
 .link-btn {
     padding: 5px;
     color: var(--header-color);
+    transition: transform 0.1s ease;
+}
+
+.link-btn:hover {
+    transform: scale(1.2);
 }
 
 .container-column {
@@ -110,19 +128,20 @@ select {
 
 .class-item {
     margin: 20px 0px;
-    /* padding: 10px 0px; */
 }
 
 .class-item:hover {
-    box-shadow: 1px 3px 10px var(--shadow-color);
+    box-shadow: 1px 3px 15px var(--shadow-color);
+    /* filter: brightness(90%); */
 }
 
 .class-header {
     cursor: pointer;
-    color: var(--text-color);
-    background-color: var(--primary-color);
     padding: 7px;
     border-radius: var(--border-radius);
+
+    color: var(--text-color);
+    background-color: var(--primary-color);
 }
 
 .class-header.active {
@@ -177,11 +196,11 @@ select {
 }
 
 .assignment-btn:hover {
-    background-color: rgb(255, 103, 89);
+    background-color: var(--accent-color-hover);
 }
 
-.assignment-btn:focus {
-    background-color: rgb(227, 60, 46);
+.assignment-btn:active {
+    background-color: var(--accent-color-press);
 }
 
 .settings-option {
@@ -205,6 +224,10 @@ select {
 .input-btn {
     background-color: var(--primary-color);
     border-radius: 2px;
+}
+
+.input-btn:hover {
+    background-color: var(--primary-color-hover);
 }
 
 #top-bar {
@@ -239,5 +262,6 @@ select {
 }
 
 #canvas-api-token-input {
-    width: 400px;
+    width: 350px;
+    text-overflow: ellipsis;
 }
