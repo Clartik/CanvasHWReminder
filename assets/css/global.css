@@ -1,5 +1,49 @@
+@font-face {
+    font-family: 'Poppins Extra Light';
+    src: url('../fonts/Poppins-ExtraLight.ttf');
+}
+
+@font-face {
+    font-family: 'Poppins Light';
+    src: url('../fonts/Poppins-Light.ttf');
+}
+
+@font-face {
+    font-family: 'Poppins Regular';
+    src: url('../fonts/Poppins-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Poppins Bold';
+    src: url('../fonts/Poppins-Bold.ttf');
+}
+
+:root {
+    --accent-color: #ff4040;
+    --primary-color: #2b527e;
+    --secondary-color: #575757;
+    --header-color: #f5f5cf;
+    --text-color: white;
+    --background-color: #272727;
+    --shadow-color: black;
+    --disabled-text-color: rgb(121, 121, 121);
+    --disabled-background-color: #303030;
+
+    --border-radius: 6px;
+}
+
 body {
     margin: 0;
+    background-color: var(--background-color);
+}
+
+span {
+    font-family: 'Poppins Regular';
+}
+
+h1 {
+    font-family: 'Poppins Bold';
+    color: var(--header-color);
 }
 
 ul {
@@ -13,18 +57,49 @@ a {
 p {
     padding: 0;
     margin: 0;
+    font-family: 'Poppins Light';
 }
 
 label {
     margin-right: 5px;
+    font-family: 'Poppins Regular';
+    color: var(--text-color);
 }
 
 input {
     width: 200px;
+    font-family: 'Poppins Regular';
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    /* border: 1px solid var(--secondary-color); */
+    border: none;
+}
+
+input:disabled {
+    color: var(--disabled-text-color);
+    background-color: var(--disabled-background-color);
+}
+
+button {
+    font-family: 'Poppins Regular';
+    background-color: gray;
+    color: var(--text-color);
+    cursor: pointer;
+    border: none;
+}
+
+select {
+    font-family: 'Poppins Regular';
+    background-color: gray;
+    background-color: var(--secondary-color);
+    border: none;
+    color: var(--text-color);
+    border-radius: var(--border-radius);
 }
 
 .link-btn {
     padding: 5px;
+    color: var(--header-color);
 }
 
 .container-column {
@@ -33,26 +108,29 @@ input {
     margin: 0px 15px;
 }
 
+.class-item {
+    margin: 20px 0px;
+    /* padding: 10px 0px; */
+}
+
+.class-item:hover {
+    box-shadow: 1px 3px 10px var(--shadow-color);
+}
+
 .class-header {
     cursor: pointer;
-    color: white;
-    background-color: darkslategray;
+    color: var(--text-color);
+    background-color: var(--primary-color);
     padding: 7px;
-    border-radius: 10px;
+    border-radius: var(--border-radius);
 }
 
 .class-header.active {
-    border-radius: 10px 10px 0px 0px;
-}
-
-.class-header::before {
-    color: black;
-    display: inline-block;
-    margin-right: 8px;
+    border-radius: var(--border-radius) var(--border-radius) 0px 0px;
 }
 
 .class-header-arrow {
-    border-bottom: 12px solid lightcoral    ;
+    border-bottom: 12px solid var(--accent-color);
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     width: 0;
@@ -60,22 +138,18 @@ input {
     justify-self: center;
     align-self: center;
     display: inline-block;
+    margin: 0px 5px;
 }
 
 .active .class-header-arrow {
     transform: rotate(180deg);
 }
-
-.class-item {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
   
 .class-box {
     list-style-type: disc;
     display: block;
-    background-color: gray;
-    border-radius: 0px 0px 10px 10px;
+    background-color: var(--secondary-color);
+    border-radius: 0px 0px var(--border-radius) var(--border-radius);
     padding-bottom: 10px;
 }
 
@@ -84,20 +158,22 @@ input {
 }
 
 .class-box li {
-    padding: 10px 0px 0px 0px;
-    color: lightcoral;
+    padding: 4px 0px 0px 0px;
+    color: var(--accent-color);
 }
 
 .assignment-label {
-    color: white;
+    color: var(--text-color);
 }
 
 .assignment-btn {
     text-align: center;
     padding: 3px 6px;
     border-radius: 7px;
-    background-color: lightcoral;
-    color: white;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    font-family: 'Poppins Regular';
+    border: 3px solid var(--primary-color);
 }
 
 .assignment-btn:hover {
@@ -115,14 +191,20 @@ input {
 }
 
 .checkbox {
-    width: 15px;
-    height: 15px;
+    width: 17px;
+    height: 17px;
     vertical-align: middle;
     margin-left: 10px;
+    accent-color: var(--primary-color);
 }
 
 .checkbox-label {
     justify-self: left;
+}
+
+.input-btn {
+    background-color: var(--primary-color);
+    border-radius: 2px;
 }
 
 #top-bar {
@@ -143,13 +225,17 @@ input {
 }
 
 #settings-container {
-    margin: 10px 20px;
+    margin: 10px 15px;
 }
 
 #checkbox-container {
     display: grid;
     grid-template-columns: max-content max-content;
     grid-row-gap: 10px;
+}
+
+#canvas-base-url-input {
+    width: 225px;
 }
 
 #canvas-api-token-input {
