@@ -31,6 +31,8 @@
             <input type="password" id="canvas-api-token-input" class="changeable" disabled>
             <button id="canvas-api-token-btn" class="input-btn changeable">Reveal</button>
         </div>
+
+        <div class="separator"></div>
     
         <div class="settings-option">
             <label>When To Remind Me?</label>
@@ -42,15 +44,6 @@
             </select>
         </div>
 
-        <div class="settings-option" id="checkbox-container">
-            <label class="checkbox-label">Launch on System Bootup?</label>
-            <input type="checkbox" id="launch-on-start-checkbox" class="checkbox changeable">
-            <label class="checkbox-label">Minimize When App Launches?</label>
-            <input type="checkbox" id="minimize-on-launch-checkbox" class="checkbox changeable">
-            <label class="checkbox-label">Minimize On Close?</label>
-            <input type="checkbox" id="minimize-on-close-checkbox" class="checkbox changeable">
-        </div>
-
         <div class="settings-option">
             <label>How Long Should An Assignment Show Past Due Date?</label>
             <select id="how-long-past-due-time-dropdown" class="changeable"></select>
@@ -60,6 +53,23 @@
                 <option value="minute">Mins</option>
                 <option value="never">Never</option>
             </select>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="settings-option checkbox-container">
+            <div class="checkbox-column">
+                <label class="checkbox-label">Launch on System Bootup?</label>
+                <input type="checkbox" id="launch-on-start-checkbox" class="checkbox changeable">
+                <label class="checkbox-label">Minimize When App Launches?</label>
+                <input type="checkbox" id="minimize-on-launch-checkbox" class="checkbox changeable">
+                <label class="checkbox-label">Minimize On Close?</label>
+                <input type="checkbox" id="minimize-on-close-checkbox" class="checkbox changeable">
+            </div>
+            <div class="checkbox-column">
+                <label class="checkbox-label">Show Specific Due Dates?</label>
+                <input type="checkbox" id="show-specific-due-date-checkbox" class="checkbox changeable">
+            </div>
         </div>
     </div>
 </body>
