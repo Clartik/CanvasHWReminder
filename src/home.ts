@@ -220,18 +220,18 @@ function expandElement(element: HTMLElement) {
   
     // Set the element height to its scrollHeight to expand
     element.style.height = startHeight + 'px';
-  }
+}
   
-  function collapseElement(element: HTMLElement) {
-    // Get the current height
-    const startHeight = element.scrollHeight;
-  
-    // Set the height to the current height to start collapsing
-    element.style.height = startHeight + 'px';
-  
-    // Set the height to 0 to collapse
-    element.style.height = '0px';
-  }  
+function collapseElement(element: HTMLElement) {
+// Get the current height
+const startHeight = element.scrollHeight;
+
+// Set the height to the current height to start collapsing
+element.style.height = startHeight + 'px';
+
+// Set the height to 0 to collapse
+element.style.height = '0px';
+}  
 
 function addClickEventsToClassItem(): void {
     for (let i = 0; i < classHeaders.length; i++) {
