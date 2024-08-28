@@ -33,7 +33,7 @@ const CLASS_HEADER_TEMPLATE: string = `
 `;
 
 const CLASS_BOX_TEMPLATE: string = `
-    <ul class='class-box hide'></ul>
+    <ul class='class-box collapse'></ul>
 `;
 
 const ASSIGNMENT_TEMPLATE: string = `
@@ -196,7 +196,9 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 assignmentButton.classList.remove('hide');
                     
                 classHeaders[classIndex].classList.add('active');
-                classBoxes[classIndex].classList.remove('hide');
+
+                classBoxes[classIndex].classList.remove('collapse');
+                expandElement(classBoxes[classIndex]);
             }
         }
 
@@ -210,11 +212,46 @@ function populateClassItemWithData(classes: Array<Class>): void {
     }
 }
 
+function expandElement(element: HTMLElement) {
+    const startHeight = element.scrollHeight; // Get the current height
+  
+    // Set the height to 0 initially for a clean start
+    element.style.height = '0px';
+  
+    // Set the element height to its scrollHeight to expand
+    element.style.height = startHeight + 'px';
+  }
+  
+  function collapseElement(element: HTMLElement) {
+    // Get the current height
+    const startHeight = element.scrollHeight;
+  
+    // Set the height to the current height to start collapsing
+    element.style.height = startHeight + 'px';
+  
+    // Set the height to 0 to collapse
+    element.style.height = '0px';
+  }  
+
 function addClickEventsToClassItem(): void {
     for (let i = 0; i < classHeaders.length; i++) {
-        classHeaders[i].addEventListener("click", () => {
-            classHeaders[i].classList.toggle('active');
-            classHeaders[i].parentElement?.querySelector(".class-box")?.classList.toggle("hide");
+        const classHeader = classHeaders[i];
+        classHeader.addEventListener("click", () => {
+            classHeader.classList.toggle('active');
+            
+            const classBox = classHeader.parentElement?.querySelector(".class-box") as HTMLUListElement | null;
+
+            if (!classBox)
+                return;
+
+            if (classBox.classList.contains('collapse')) {
+                classBox?.classList.remove('collapse');
+                expandElement(classBox);
+            }
+            else {
+                classBox?.classList.add('collapse');
+                collapseElement(classBox);
+            }
         });
     }
 }
@@ -270,28 +307,28 @@ function getTimeTillDueDate(date1: Date, date2: Date): string {
         if (dateDiff > 1)
             return `Due in ${dateDiff} Days`
         else
-            return `Due in a Day`
+            return `Due in 1 Day`
     }
 
     if (hourDiff > 0) {
         if (hourDiff > 1)
             return `Due in ${hourDiff} Hours`
         else
-            return `Due in an Hour`
+            return `Due in 1 Hour`
     }
 
     if (minuteDiff > 0) {
         if (minuteDiff > 1)
             return `Due in ${minuteDiff} Minutes`
         else
-            return `Due in a Minute`
+            return `Due in 1 Minute`
     }
 
     if (secondsDiff > 0) {
         if (secondsDiff > 1)
             return `Due in ${secondsDiff} Seconds`
         else
-            return `Due in a Second`
+            return `Due in 1 Second`
     }
 
     return 'Due Soon'

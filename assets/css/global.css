@@ -81,7 +81,6 @@ input {
     font-family: 'Poppins Regular';
     background-color: var(--secondary-color);
     color: var(--text-color);
-    /* border: 1px solid var(--secondary-color); */
     border: none;
 }
 
@@ -114,7 +113,7 @@ select:hover {
 .link-btn {
     padding: 5px;
     color: var(--header-color);
-    transition: transform 0.1s ease;
+    transition: transform 0.2s ease;
 }
 
 .link-btn:hover {
@@ -129,17 +128,20 @@ select:hover {
 
 .class-item {
     margin: 20px 0px;
+    box-shadow: 1px 3px 15px var(--shadow-color);
+    transition: transform 0.15s ease;
 }
 
 .class-item:hover {
-    box-shadow: 1px 3px 15px var(--shadow-color);
-    /* filter: brightness(90%); */
+    transform: scale(103%);
 }
 
 .class-header {
     cursor: pointer;
     padding: 7px;
     border-radius: var(--border-radius);
+
+    transition: border-radius 0.3s ease;
 
     color: var(--text-color);
     background-color: var(--primary-color);
@@ -159,6 +161,7 @@ select:hover {
     align-self: center;
     display: inline-block;
     margin: 0px 5px;
+    transition: transform ease-out 0.3s;
 }
 
 .active .class-header-arrow {
@@ -171,7 +174,24 @@ select:hover {
     background-color: var(--secondary-color);
     border-radius: 0px 0px var(--border-radius) var(--border-radius);
     padding-bottom: 10px;
+    overflow: hidden;
+    opacity: 1;
+    height: 0;
+    transition: all 0.3s ease;
 }
+
+.class-box.collapse {
+    opacity: 0;
+    padding: 0;
+}
+
+/* .class-box > li {
+    visibility: visible;
+}
+
+.class-box.collapse > li {
+    visibility: hidden;
+} */
 
 .hide {
     display: none;
@@ -194,10 +214,13 @@ select:hover {
     color: var(--text-color);
     font-family: 'Poppins Regular';
     border: 3px solid var(--primary-color);
+    transition: transform ease 0.1s, box-shadow 0.2s ease;
 }
 
 .assignment-btn:hover {
-    background-color: var(--accent-color-hover);
+    /* background-color: var(--accent-color-hover); */
+    /* transform: scale(1.02); */
+    box-shadow: 1px 3px 8px var(--shadow-color);
 }
 
 .assignment-btn:active {
@@ -205,9 +228,10 @@ select:hover {
 }
 
 .settings-option {
-    margin: 0px 0px 10px 0px;
+    margin: 10px 0px;
     justify-items: center;
     align-items: center;
+    box-shadow: 1px 3px 15px var(--shadow-color);
 }
 
 .checkbox {
@@ -231,6 +255,25 @@ select:hover {
     background-color: var(--primary-color-hover);
 }
 
+.separator {
+    background: var(--primary-color);
+    width: 95%;
+    height: 2px;
+}
+
+.checkbox-container {
+    display: grid;
+    grid-template-columns: 50vw 50vw;
+    align-items: flex-start;
+    justify-items: left;
+}
+
+.checkbox-column {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    grid-row-gap: 10px;
+}
+
 #top-bar {
     display: flex;
     align-items: center;
@@ -252,12 +295,6 @@ select:hover {
     margin: 10px 15px;
 }
 
-#checkbox-container {
-    display: grid;
-    grid-template-columns: max-content max-content;
-    grid-row-gap: 10px;
-}
-
 #canvas-base-url-input {
     width: 225px;
 }
@@ -273,4 +310,26 @@ select:hover {
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
     background-color: var(--background-color);
+}
+
+@keyframes class-box-open {
+    0% {
+        opacity: 0;
+        max-height: 0;
+        padding: 0;
+        visibility: hidden;
+    }
+
+    5% {
+        visibility: visible;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        max-height: 100%;
+        padding-bottom: 10px;
+    }
 }

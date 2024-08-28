@@ -521,28 +521,28 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
         if (dateDiff > 1)
             return `Due in ${dateDiff} Days`
         else
-            return `Due in a Day`
+            return `Due in 1 Day`
     }
 
     if (hourDiff > 0) {
         if (hourDiff > 1)
             return `Due in ${hourDiff} Hours`
         else
-            return `Due in an Hour`
+            return `Due in 1 Hour`
     }
 
     if (minuteDiff > 0) {
         if (minuteDiff > 1)
             return `Due in ${minuteDiff} Minutes`
         else
-            return `Due in a Minute`
+            return `Due in 1 Minute`
     }
 
     if (secondsDiff > 0) {
         if (secondsDiff > 1)
             return `Due in ${secondsDiff} Seconds`
         else
-            return `Due in a Second`
+            return `Due in 1 Second`
     }
 
     return 'Due Soon'
@@ -562,28 +562,28 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
         if (dateDiff > 1)
             return `${dateDiff} Days`
         else
-            return `a Day`
+            return `1 Day`
     }
 
     if (hourDiff > 0) {
         if (hourDiff > 1)
             return `${hourDiff} Hours`
         else
-            return `an Hour`
+            return `1 Hour`
     }
 
     if (minuteDiff > 0) {
         if (minuteDiff > 1)
             return `${minuteDiff} Minutes`
         else
-            return `a Minute`
+            return `1 Minute`
     }
 
     if (secondsDiff > 0) {
         if (secondsDiff > 1)
             return `${secondsDiff} Seconds`
         else
-            return `a Second`
+            return `1 Second`
     }
 
     return 'Due Soon'
