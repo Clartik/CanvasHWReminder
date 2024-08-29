@@ -6,7 +6,8 @@ export interface IElectronAPI {
     getLocalData: (filename: string) => Promise<Object | null>,
     getCachedData: (filename: string) => Promise<Object | null>,
     updateData: UpdateDataCallback,
-    onUpdateData: (callback: UpdateDataCallback) => void
+    onUpdateData: (callback: UpdateDataCallback) => void,
+    keyPress: (key: string) => void,
 }
 
 declare global {

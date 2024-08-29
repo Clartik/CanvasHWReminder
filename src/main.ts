@@ -16,10 +16,12 @@ const notificationDisappearTimeInSec: number = 6;			// Every 6 Seconds
 
 interface DevMode {
 	readonly useLocalClassData: boolean;
+	readonly devKeybinds: boolean
 }
 
 const devMode: DevMode = {
-	useLocalClassData: true
+	useLocalClassData: true,
+	devKeybinds: true
 }
 
 let isAppRunning = true;
@@ -31,6 +33,11 @@ let mainWindow: BrowserWindow | null = null;
 let tray: Tray;
 
 let classes: Array<Class> = [];
+let upcomingAssignments: Array<Assignment> = [];
+let nextAssignment: Assignment | null = null;
+let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
+let isWaitingOnNotification: boolean = false;
+
 let settingsData: SettingsData | null = null;
 
 appMain();
@@ -39,35 +46,8 @@ appMain();
 async function appMain() {
 	settingsData = await getSavedSettingsData();
 
-	let upcomingAssignments: Array<Assignment> = [];
-	let nextAssignment: Assignment | null = null;
-	let assignmentsThatHaveBeenReminded: Array<Assignment> = [];
-	let isWaitingOnNotification: boolean = false;
-
 	if (!devMode.useLocalClassData) {
-		const checkCanvasWorker = createWorker('../build/Workers/checkCanvas.js', (classData: ClassData | null) => {
-			if (classData === null)
-				return;
-	
-			if (!isCanvasDataReady)
-				isCanvasDataReady = true;
-		
-			// ClassData Is Different From Cached Classes
-			if (JSON.stringify(classData.classes) === JSON.stringify(classes))
-				return;
-		
-			console.log('ClassData Has Changed!')
-			classes = classData.classes;
-		
-			upcomingAssignments = getUpcomingAssignments();
-			removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments(assignmentsThatHaveBeenReminded, upcomingAssignments);
-			const possibleNextAssignment = getNextUpcomingAssignment(upcomingAssignments);
-		
-			if (possibleNextAssignment?.name === nextAssignment?.name)
-				isWaitingOnNotification = false;
-		
-			mainWindow?.webContents.send('updateData', 'classes', classData);
-		});
+		const checkCanvasWorker = createWorker('../build/Workers/checkCanvas.js', updateInfoWithClassData);
 	
 		checkCanvasWorker.postMessage(settingsData);
 	}
@@ -99,13 +79,10 @@ async function appMain() {
 		checkCanvasWorker.postMessage(settingsData);
 	}
 
+	while (!isCanvasDataReady)
+		await sleep(1000);
 
 	while (isAppRunning) {
-		if (!isCanvasDataReady) {
-			await sleep(1000);
-			continue;
-		}
-
 		console.log('Checking for Updates!');
 		
 		upcomingAssignments = getUpcomingAssignments();
@@ -321,6 +298,17 @@ ipcMain.on('updateData', (event: Event, type: string, data: Object | null) => {
 	}
 });
 
+ipcMain.on('keyPress', async (event, key: string) => {
+	switch (key) {
+		case 'F5':
+			await reloadClassData();
+			break;
+	
+		default:
+			break;
+	}
+});
+
 //#endregion
 
 //#region Functions
@@ -340,12 +328,55 @@ function getDefaultSettingsData(): SettingsData {
 	}
 }
 
+async function reloadClassData() {
+	if (!devMode.devKeybinds)
+		return;
+
+	console.log('[DEVMODE]: Reloading Class Data!');
+
+	let classData: ClassData | null = null;
+
+	if (devMode.useLocalClassData) {
+		const filepath = path.join(__dirname, '../assets/data/classes-data.json');
+		classData = await SaveManager.getData(filepath) as ClassData | null;
+	}
+	else {
+		
+	}
+	
+	updateInfoWithClassData(classData);
+}
+
 function openLink(url: string) {
 	try {
 		shell.openExternal(url);
 	} catch {
 		dialog.showErrorBox('Could Not Open Assignment Post!', 'An Error Occured While Trying to Open the Assignment Post')
 	}
+}
+
+function updateInfoWithClassData(classData: ClassData | null) {
+	if (classData === null)
+		return;
+
+	if (!isCanvasDataReady)
+		isCanvasDataReady = true;
+
+	// ClassData Is Different From Cached Classes
+	if (JSON.stringify(classData.classes) === JSON.stringify(classes))
+		return;
+
+	console.log('ClassData Has Changed!')
+	classes = classData.classes;
+
+	upcomingAssignments = getUpcomingAssignments();
+	removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments(assignmentsThatHaveBeenReminded, upcomingAssignments);
+	const possibleNextAssignment = getNextUpcomingAssignment(upcomingAssignments);
+
+	if (possibleNextAssignment?.name === nextAssignment?.name)
+		isWaitingOnNotification = false;
+
+	mainWindow?.webContents.send('updateData', 'classes', classData);
 }
 
 async function writeSavedData(filename: string, data: Object): Promise<boolean> {
@@ -539,10 +570,11 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
     }
 
     if (secondsDiff > 0) {
-        if (secondsDiff > 1)
-            return `Due in ${secondsDiff} Seconds`
-        else
-            return `Due in 1 Second`
+		return 'Due in Less Than 1 Minute'
+        // if (secondsDiff > 1)
+        //     return `Due in ${secondsDiff} Seconds`
+        // else
+        //     return `Due in 1 Second`
     }
 
     return 'Due Soon'
