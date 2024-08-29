@@ -180,7 +180,7 @@ select:hover {
     display: block;
     background-color: var(--secondary-color);
     border-radius: 0px 0px var(--border-radius) var(--border-radius);
-    padding-bottom: 10px;
+    padding-bottom: 8px;
     overflow: hidden;
     opacity: 1;
     height: 0;
@@ -192,20 +192,12 @@ select:hover {
     padding: 0;
 }
 
-/* .class-box > li {
-    visibility: visible;
-}
-
-.class-box.collapse > li {
-    visibility: hidden;
-} */
-
 .hide {
     display: none;
 }
 
 .class-box li {
-    padding: 4px 0px 0px 0px;
+    padding: 5px 0px 0px 0px;
     color: var(--accent-color);
 }
 
@@ -247,10 +239,12 @@ select:hover {
     vertical-align: middle;
     margin-left: 10px;
     accent-color: var(--primary-color);
+
+    transition: transform 0.1s ease;
 }
 
-.checkbox:not(:checked):hover {
-    filter: brightness(80%);
+.checkbox:hover {
+    transform: scale(1.15);
 }
 
 .checkbox-label {

@@ -21,6 +21,11 @@ interface Assignment {
     readonly lock_at: string | null;
 }
 
+interface AssignmentElementThatIsDue {
+    readonly assignment: Assignment;
+    readonly label: HTMLParagraphElement;
+}
+
 //#endregion
 
 //#region Templates
@@ -51,6 +56,12 @@ let classBoxes: HTMLCollectionOf<HTMLUListElement>;
 
 let settingsData: SettingsData | null;
 
+let isCheckingForUpdates = true;
+
+const checkForUpdatesTimeInSec: number = 60;                // Every Minute
+
+let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
+
 homeMain();
 
 // Main Function
@@ -66,7 +77,32 @@ async function homeMain() {
     }
 
     loadElementsWithData(classes);
+
+    while (isCheckingForUpdates) {
+        await sleep(checkForUpdatesTimeInSec * 1000);
+
+        for (const assignmentElement of assignmentElementsThatAreDue) {
+            const assignment: Assignment = assignmentElement.assignment;
+
+            if (assignment.due_at === null)
+                break;
+
+            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
+            assignmentElement.label.innerHTML = assignment.name + ' - ' + timeTillDueDate;   
+        }
+    }
 };
+
+document.addEventListener('keydown', (event: KeyboardEvent) => {
+    switch (event.key) {
+        case 'F5':
+            window.api.keyPress('F5');
+            break;
+    
+        default:
+            break;
+    }
+})
 
 window.api.onUpdateData((type: string, data: Object | null) => {
     if (type === 'classes') {
@@ -77,13 +113,25 @@ window.api.onUpdateData((type: string, data: Object | null) => {
             
             clearElementsFromData();
             loadElementsWithData(classData.classes);
+
+            updateHeight(classBoxes[1]);
+
+            function updateHeight(element: HTMLElement) {
+                const startHeight = element.scrollHeight; // Capture current full content height
+            
+                element.style.height = startHeight + 'px'; // Update the height with the new content size
+              }
         }
         else
             console.warn('Received Updated ClassData that is NULL! Homepage Will Not Use it!')
     }
 
-    if (type === 'settings')
+    if (type === 'settings')  {
         settingsData = data as SettingsData | null;
+
+        if (settingsData)
+            console.log('Received Updated ClassData!')
+    }
 });
 
 //#region Functions
@@ -145,7 +193,7 @@ function loadElementsWithData(classes: Class[]): void {
 
 function clearElementsFromData(): void {
     for (const column of containerColumns) {
-        column.innerHTML = ''
+        column.innerHTML = '';
     }
 }
 
@@ -186,12 +234,22 @@ function populateClassItemWithData(classes: Array<Class>): void {
             const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
             assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 
+            if (timeTillDueDate !== 'Overdue') {
+                const assignmentElementThatIsDue: AssignmentElementThatIsDue = {
+                    assignment: assignment,
+                    label: assignmentLabel
+                };
+                
+                assignmentElementsThatAreDue.push(assignmentElementThatIsDue);
+            }
+
             const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
             assignmentButton.addEventListener('click', () => {
                 window.api.openLink(assignment.html_url);
             })
 
             const isAssignmentOverdue = timeTillDueDate === 'Overdue';
+            
             if (!isAssignmentOverdue) {
                 assignmentButton.classList.remove('hide');
                     
@@ -223,14 +281,14 @@ function expandElement(element: HTMLElement) {
 }
   
 function collapseElement(element: HTMLElement) {
-// Get the current height
-const startHeight = element.scrollHeight;
+    // Get the current height
+    const startHeight = element.scrollHeight;
 
-// Set the height to the current height to start collapsing
-element.style.height = startHeight + 'px';
+    // Set the height to the current height to start collapsing
+    element.style.height = startHeight + 'px';
 
-// Set the height to 0 to collapse
-element.style.height = '0px';
+    // Set the height to 0 to collapse
+    element.style.height = '0px';
 }  
 
 function addClickEventsToClassItem(): void {
@@ -325,10 +383,11 @@ function getTimeTillDueDate(date1: Date, date2: Date): string {
     }
 
     if (secondsDiff > 0) {
-        if (secondsDiff > 1)
-            return `Due in ${secondsDiff} Seconds`
-        else
-            return `Due in 1 Second`
+        return `Due in Less Than 1 Minute`
+        // if (secondsDiff > 1)
+        //     return `Due in ${secondsDiff} Seconds`
+        // else
+        //     return `Due in 1 Second`
     }
 
     return 'Due Soon'

@@ -10,7 +10,8 @@ const API = {
     getLocalData: (filename: string) => ipcRenderer.invoke('getLocalData', filename),
     getCachedData: (filename: string) => ipcRenderer.invoke('getCachedData', filename),
     updateData: (type: string, data: Object | null) => ipcRenderer.send('updateData', type, data),
-    onUpdateData: (callback: UpdateDataCallback) => ipcRenderer.on('updateData', (_event: Event, type: string, data: Object | null) => callback(type, data))
+    onUpdateData: (callback: UpdateDataCallback) => ipcRenderer.on('updateData', (_event: Event, type: string, data: Object | null) => callback(type, data)),
+    keyPress: (key: string) => ipcRenderer.send('keyPress', key)
 }
 
 contextBridge.exposeInMainWorld("api", API);
