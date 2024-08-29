@@ -113,14 +113,6 @@ window.api.onUpdateData((type: string, data: Object | null) => {
             
             clearElementsFromData();
             loadElementsWithData(classData.classes);
-
-            updateHeight(classBoxes[1]);
-
-            function updateHeight(element: HTMLElement) {
-                const startHeight = element.scrollHeight; // Capture current full content height
-            
-                element.style.height = startHeight + 'px'; // Update the height with the new content size
-              }
         }
         else
             console.warn('Received Updated ClassData that is NULL! Homepage Will Not Use it!')
@@ -179,7 +171,7 @@ async function homepageGetCachedSettingsData(): Promise<SettingsData | null> {
     return cachedSettingsData;
 }
 
-function loadElementsWithData(classes: Class[]): void {
+function loadElementsWithData(classes: Class[]): void {    
     generateAllClassItems(classes.length);
 
     // These Elements Are Not Generated Until After the Previous Function Runs
@@ -192,9 +184,8 @@ function loadElementsWithData(classes: Class[]): void {
 };
 
 function clearElementsFromData(): void {
-    for (const column of containerColumns) {
+    for (const column of containerColumns)
         column.innerHTML = '';
-    }
 }
 
 function generateAllClassItems(classAmount: number): void {
@@ -248,6 +239,8 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 window.api.openLink(assignment.html_url);
             })
 
+            console.log(classBoxes[classIndex].scrollHeight);
+
             const isAssignmentOverdue = timeTillDueDate === 'Overdue';
             
             if (!isAssignmentOverdue) {
@@ -256,7 +249,7 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 classHeaders[classIndex].classList.add('active');
 
                 classBoxes[classIndex].classList.remove('collapse');
-                expandElement(classBoxes[classIndex]);
+                // expandElement(classBoxes[classIndex]);
             }
         }
 
@@ -275,6 +268,8 @@ function expandElement(element: HTMLElement) {
   
     // Set the height to 0 initially for a clean start
     element.style.height = '0px';
+
+    element.offsetHeight;
   
     // Set the element height to its scrollHeight to expand
     element.style.height = startHeight + 'px';
@@ -287,6 +282,8 @@ function collapseElement(element: HTMLElement) {
     // Set the height to the current height to start collapsing
     element.style.height = startHeight + 'px';
 
+    element.offsetHeight;
+
     // Set the height to 0 to collapse
     element.style.height = '0px';
 }  
@@ -294,7 +291,7 @@ function collapseElement(element: HTMLElement) {
 function addClickEventsToClassItem(): void {
     for (let i = 0; i < classHeaders.length; i++) {
         const classHeader = classHeaders[i];
-        classHeader.addEventListener("click", () => {
+        classHeader.addEventListener("click", async () => {
             classHeader.classList.toggle('active');
             
             const classBox = classHeader.parentElement?.querySelector(".class-box") as HTMLUListElement | null;
@@ -304,11 +301,11 @@ function addClickEventsToClassItem(): void {
 
             if (classBox.classList.contains('collapse')) {
                 classBox?.classList.remove('collapse');
-                expandElement(classBox);
+                // expandElement(classBox);
             }
             else {
                 classBox?.classList.add('collapse');
-                collapseElement(classBox);
+                // collapseElement(classBox);
             }
         });
     }

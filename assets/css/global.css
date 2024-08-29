@@ -148,7 +148,7 @@ select:hover {
     padding: 7px;
     border-radius: var(--border-radius);
 
-    transition: border-radius 0.3s ease;
+    /* transition: border-radius 0.3s ease; */
 
     color: var(--text-color);
     background-color: var(--primary-color);
@@ -180,16 +180,17 @@ select:hover {
     display: block;
     background-color: var(--secondary-color);
     border-radius: 0px 0px var(--border-radius) var(--border-radius);
-    padding-bottom: 8px;
-    overflow: hidden;
+    padding-bottom: 10px;
     opacity: 1;
-    height: 0;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
+    height: auto;
 }
 
 .class-box.collapse {
+    display: block;
     opacity: 0;
-    padding: 0;
+    height: 0;
+    padding-bottom: 0;
 }
 
 .hide {
@@ -208,6 +209,7 @@ select:hover {
 .assignment-btn {
     text-align: center;
     padding: 3px 6px;
+    margin-left: -2px;
     border-radius: 7px;
     background-color: var(--accent-color);
     color: var(--text-color);
@@ -322,26 +324,4 @@ select:hover {
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
     background-color: var(--background-color);
-}
-
-@keyframes class-box-open {
-    0% {
-        opacity: 0;
-        max-height: 0;
-        padding: 0;
-        visibility: hidden;
-    }
-
-    5% {
-        visibility: visible;
-    }
-
-    50% {
-        opacity: 1;
-    }
-
-    100% {
-        max-height: 100%;
-        padding-bottom: 10px;
-    }
 }
