@@ -92,7 +92,9 @@ async function homeMain() {
     loadElementsWithData(classes);
 
     while (isCheckingForUpdates) {
-        await sleep(checkForUpdatesTimeInSec * 1000);
+        const secondsLeft = 60 - new Date().getSeconds();
+        await sleep(secondsLeft * 1000);
+        console.log('Checking For Any Updates!');
 
         for (const assignmentElement of assignmentElementsThatAreDue) {
             const assignment: Assignment = assignmentElement.assignment;
@@ -323,14 +325,7 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 	if (date1 > date2)
 		return 0;
 
-	const yearDiff = date2.getFullYear() - date1.getFullYear();
-	const monthDiff = date2.getMonth() - date1.getMonth();
-	const dateDiff = date2.getDate() - date1.getDate();
-    const hourDiff = date2.getHours() - date1.getHours();
-    const minDiff = date2.getMinutes() - date1.getMinutes();
-    const secDiff = date2.getSeconds() - date1.getSeconds();
-
-	return secDiff + (minDiff * 60) + (hourDiff * 3600) + (dateDiff * 3600 * 24) + (monthDiff * 3600 * 24 * 7) + (yearDiff * 3600 * 24 * 7 * 365);
+    return (date2.getTime() - date1.getTime()) / 1000;
 }
 
 function getHowLongPastDueInSeconds(): number {
@@ -356,6 +351,7 @@ function getHowLongPastDueInSeconds(): number {
 
 function getTimeTillDueDate(date1: Date, date2: Date): string {
     let secondsDiff = getTimeDiffInSeconds(date1, date2);
+
 	let minuteDiff = secondsDiff / 60;
 	let hourDiff = minuteDiff / 60;
 	let dateDiff = hourDiff / 24;
@@ -411,7 +407,7 @@ function getExactDueDate(date1: Date, date2: Date): string {
         hour12: true
     });
 
-    const formattedTime: string = timeFormatter.format();
+    const formattedTime: string = timeFormatter.format(date2);
 
     if (dateDiff > 0) {
         const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -419,7 +415,7 @@ function getExactDueDate(date1: Date, date2: Date): string {
             day: "numeric"
         });
 
-        const formattedDate: string = dateFormatter.format();
+        const formattedDate: string = dateFormatter.format(date2);
         return `Due on ${formattedDate} ${formattedTime}`;
     }
     
