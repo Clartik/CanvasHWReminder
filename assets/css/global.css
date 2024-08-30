@@ -18,6 +18,25 @@
     src: url('../fonts/Poppins-Bold.ttf');
 }
 
+.icon-container {
+    position: relative;
+}
+
+#a #b {
+    display: inline;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#a {
+    color: white;
+}
+
+#b {
+    color: black;
+}
+
 :root {
     --accent-color: hsl(0, 100%, 63%);
     --accent-color-hover: hsl(0, 100%, 40%);
@@ -82,7 +101,7 @@ input {
     box-shadow: 1px 3px 10px var(--shadow-color);
     padding: 3px;
 
-    transition: all 0.3s;
+    transition: all 0.2s;
 }
 
 input:disabled {
@@ -186,9 +205,9 @@ select:hover {
     padding-bottom: 10px;
     opacity: 1;
     transition: opacity 0.3s ease;
+    align-self: flex-start;
     height: auto;
     margin: 0;
-    align-self: flex-start;
 }
 
 .class-box.collapse {
@@ -274,6 +293,10 @@ select:hover {
 }
 
 .switch:hover {
+    /* filter: brightness(90%); */
+}
+
+.switch:hover {
     transform: scale(1.15);
 }
 
@@ -295,6 +318,11 @@ select:hover {
     transition: 0.3s;
 }
 
+.slider:hover {
+    transition: 0.1s;
+    background-color: var(--secondary-color-hover);
+}
+
 .slider:before {
     position: absolute;
     content: "";
@@ -304,6 +332,8 @@ select:hover {
     bottom: 3px;
     background-color: white;
     transition: 0.3s;
+
+    box-shadow: 2px 2px 5px var(--shadow-color);
 }
 
 .slider.round {
@@ -316,6 +346,11 @@ select:hover {
 
 input:checked + .slider {
     background-color: var(--primary-color);
+}
+
+input:checked + .slider:hover {
+    transition: 0.1s;
+    background-color: var(--primary-color-hover);
 }
 
 input:focus + .slider {
@@ -372,6 +407,7 @@ input:checked + .slider:before {
 #page-title {
     text-align: center;
     flex-grow: 1;
+    text-shadow: 5px 5px 5px var(--shadow-color);
 }
 
 #container {
