@@ -13,25 +13,36 @@ const launchOnStartCheckbox = document.getElementById('launch-on-start-checkbox'
 const minimizeOnLaunchCheckbox = document.getElementById('minimize-on-launch-checkbox')! as HTMLInputElement;
 const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-checkbox')! as HTMLInputElement;
 
+const showExactDueDateCheckbox = document.getElementById('show-exact-due-date-checkbox')! as HTMLInputElement;
+const alwaysExpandAllCourseCardsCheckbox = document.getElementById('always-expand-course-cards-checkbox')! as HTMLInputElement;
+
 const howLongPastDueTimeDropdown = document.getElementById('how-long-past-due-time-dropdown')! as HTMLSelectElement;
 const howLongPastDueFormatDropdown = document.getElementById('how-long-past-due-format-dropdown')! as HTMLSelectElement;
 
 const changeableElements = document.getElementsByClassName('changeable');
 
-const SETTINGS_DATA_VERSION: string = '0.1'
+const SETTINGS_DATA_VERSION: string = '0.2'
 
 interface SettingsData {
     readonly version: string;
+
     readonly canvasBaseURL: string;
     readonly canvasAPIToken: string;
+
     readonly whenToRemindTimeValue: string;
     readonly whenToRemindFormatValue: string;
+    readonly howLongPastDueTimeValue: string;
+    readonly howLongPastDueFormatValue: string;
+
     readonly launchOnStart: boolean;
     readonly minimizeOnLaunch: boolean;
     readonly minimizeOnClose: boolean;
-    readonly howLongPastDueTimeValue: string;
-    readonly howLongPastDueFormatValue: string;
+
+    readonly showExactDueDate: boolean;
+    readonly alwaysExpandAllCourseCards: boolean;
 }
+
+let settingsPageDebugMode: DebugMode;
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
@@ -44,6 +55,8 @@ let hasSettingsChanged = false;
 settingsMain();
 
 async function settingsMain() {
+    settingsPageDebugMode = await window.api.getDebugMode() as DebugMode;
+
     populateTimeOptions();
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
     populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
@@ -108,17 +121,17 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
             buttons: ['Yes', 'No'],
             defaultId: 0
         }
-        
+
         const messageResponse: Electron.MessageBoxReturnValue = await window.api.showMessageDialog(options);
-    
+
         const YES_BUTTON_RESPONSE = 0;
+
         if (messageResponse.response === YES_BUTTON_RESPONSE) {
             const settingsData = getSettingsDataToSave();
             const success = await window.api.writeSavedData("settings-data.json", settingsData);
 
-            if (success) {
+            if (success)
                 window.api.updateData('settings-data.json', settingsData);
-            }
         }
     }
 
@@ -152,6 +165,9 @@ function populateElementsWithData(settingsData: SettingsData) {
     minimizeOnLaunchCheckbox.checked = settingsData.minimizeOnLaunch;
     minimizeOnCloseCheckbox.checked = settingsData.minimizeOnClose;
 
+    showExactDueDateCheckbox.checked = settingsData.showExactDueDate;
+    alwaysExpandAllCourseCardsCheckbox.checked = settingsData.alwaysExpandAllCourseCards;
+
     whenToRemindFormatDropdown.value = settingsData.whenToRemindFormatValue;
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
     whenToRemindTimeDropdown.value = settingsData.whenToRemindTimeValue;
@@ -165,15 +181,21 @@ function populateElementsWithData(settingsData: SettingsData) {
 function getSettingsDataToSave(): SettingsData {
     return {
         version: SETTINGS_DATA_VERSION,
+
         canvasBaseURL: canvasBaseURLInput.value,
         canvasAPIToken: canvasAPITokenInput.value,
+
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,
+        howLongPastDueTimeValue: howLongPastDueTimeDropdown.value,
+        howLongPastDueFormatValue: howLongPastDueFormatDropdown.value,
+
         launchOnStart: launchOnStartCheckbox.checked,
         minimizeOnLaunch: minimizeOnLaunchCheckbox.checked,
         minimizeOnClose: minimizeOnCloseCheckbox.checked,
-        howLongPastDueTimeValue: howLongPastDueTimeDropdown.value,
-        howLongPastDueFormatValue: howLongPastDueFormatDropdown.value
+
+        showExactDueDate: showExactDueDateCheckbox.checked,
+        alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked
     };
 }
 

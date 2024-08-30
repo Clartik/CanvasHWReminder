@@ -14,14 +14,16 @@ type WorkerMessageCallback = (data: any) => void;
 const checkForUpdatesTimeInSec: number = 60;				// Every Minute
 const notificationDisappearTimeInSec: number = 6;			// Every 6 Seconds
 
-interface DevMode {
+interface DebugMode {
 	readonly useLocalClassData: boolean;
-	readonly devKeybinds: boolean
+	readonly devKeybinds: boolean,
+	readonly hideSaveSettingsDialog: boolean
 }
 
-const devMode: DevMode = {
+const debugMode: DebugMode = {
 	useLocalClassData: true,
-	devKeybinds: true
+	devKeybinds: true,
+	hideSaveSettingsDialog: true,
 }
 
 let isAppRunning = true;
@@ -46,7 +48,7 @@ appMain();
 async function appMain() {
 	settingsData = await getSavedSettingsData();
 
-	if (!devMode.useLocalClassData) {
+	if (!debugMode.useLocalClassData) {
 		const checkCanvasWorker = createWorker('../build/Workers/checkCanvas.js', updateInfoWithClassData);
 	
 		checkCanvasWorker.postMessage(settingsData);
@@ -309,34 +311,42 @@ ipcMain.on('keyPress', async (event, key: string) => {
 	}
 });
 
+ipcMain.handle('getDebugMode', (event) => {
+	return debugMode;
+});
+
 //#endregion
 
 //#region Functions
 
 function getDefaultSettingsData(): SettingsData {
 	return {
-		version: '0.0',
+		version: '0.2',
 		canvasBaseURL: '',
 		canvasAPIToken: '',
 		whenToRemindTimeValue: '6',
 		whenToRemindFormatValue: 'hour',
+		howLongPastDueTimeValue: '30',
+		howLongPastDueFormatValue: 'minute',
+		
 		launchOnStart: false,
 		minimizeOnLaunch: false,
 		minimizeOnClose: true,
-		howLongPastDueTimeValue: '30',
-		howLongPastDueFormatValue: 'minute'
+
+		showExactDueDate: false,
+		alwaysExpandAllCourseCards: false,
 	}
 }
 
 async function reloadClassData() {
-	if (!devMode.devKeybinds)
+	if (!debugMode.devKeybinds)
 		return;
 
 	console.log('[DEVMODE]: Reloading Class Data!');
 
 	let classData: ClassData | null = null;
 
-	if (devMode.useLocalClassData) {
+	if (debugMode.useLocalClassData) {
 		const filepath = path.join(__dirname, '../assets/data/classes-data.json');
 		classData = await SaveManager.getData(filepath) as ClassData | null;
 	}
@@ -503,6 +513,9 @@ async function getSavedSettingsData(): Promise<SettingsData> {
 
     if (savedSettingsData === null)
         console.warn('Saved SettingsData is Null!');
+
+	if (savedSettingsData?.version !== defaultSettingsData.version)
+		console.warn('Saved Settings Has New Version!')
 
 	const settingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
 	return settingsData;

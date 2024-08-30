@@ -26,6 +26,12 @@ interface AssignmentElementThatIsDue {
     readonly label: HTMLParagraphElement;
 }
 
+interface DebugMode {
+	readonly useLocalClassData: boolean;
+	readonly devKeybinds: boolean,
+	readonly hideSaveSettingsDialog: boolean
+}
+
 //#endregion
 
 //#region Templates
@@ -54,18 +60,20 @@ let classHeaders: HTMLCollectionOf<HTMLSpanElement>;
 let classHeadersLabels: HTMLCollectionOf<HTMLSpanElement>;
 let classBoxes: HTMLCollectionOf<HTMLUListElement>;
 
-let settingsData: SettingsData | null;
-
 let isCheckingForUpdates = true;
 
 const checkForUpdatesTimeInSec: number = 60;                // Every Minute
 
 let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
 
+let settingsData: SettingsData | null;
+let homepageDebugMode: DebugMode;
+
 homeMain();
 
 // Main Function
 async function homeMain() {
+    homepageDebugMode = await window.api.getDebugMode() as DebugMode;
     settingsData = await homepageGetCachedSettingsData();
     
     const classes = await getClasses();
@@ -239,15 +247,12 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 window.api.openLink(assignment.html_url);
             })
 
-            console.log(classBoxes[classIndex].scrollHeight);
-
             const isAssignmentOverdue = timeTillDueDate === 'Overdue';
-            
+
             if (!isAssignmentOverdue) {
                 assignmentButton.classList.remove('hide');
                     
                 classHeaders[classIndex].classList.add('active');
-
                 classBoxes[classIndex].classList.remove('collapse');
                 // expandElement(classBoxes[classIndex]);
             }
@@ -259,6 +264,11 @@ function populateClassItemWithData(classes: Array<Class>): void {
 
             const assignmentLabel = noAssignmentsDueElement.querySelector('.assignment-label')! as HTMLParagraphElement;
             assignmentLabel.innerText = 'No Assignments Due';
+        }
+
+        if (settingsData?.alwaysExpandAllCourseCards) {                    
+            classHeaders[classIndex].classList.add('active');
+            classBoxes[classIndex].classList.remove('collapse');
         }
     }
 }
@@ -390,6 +400,35 @@ function getTimeTillDueDate(date1: Date, date2: Date): string {
     return 'Due Soon'
 }
 
+function getExactDueDate(date1: Date, date2: Date): string {
+    let secondsDiff = getTimeDiffInSeconds(date1, date2);
+	let minuteDiff = secondsDiff / 60;
+	let hourDiff = minuteDiff / 60;
+	let dateDiff = hourDiff / 24;
+
+    dateDiff = Math.floor(dateDiff);
+
+    const timeFormatter = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
+
+    const formattedTime: string = timeFormatter.format();
+
+    if (dateDiff > 0) {
+        const dateFormatter = new Intl.DateTimeFormat('en-US', {
+            month: 'numeric',
+            day: "numeric"
+        });
+
+        const formattedDate: string = dateFormatter.format();
+        return `Due on ${formattedDate} ${formattedTime}`;
+    }
+    
+    return `Due at ${formattedTime}`;
+}
+
 function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): string {
     const timeDiffInSec: number = getTimeDiffInSeconds(assignmentDueDate, currentDate);
     const howLongPastDueInSec: number | null = getHowLongPastDueInSeconds();
@@ -425,16 +464,20 @@ function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): string 
     return 'Overdue';
 }
 
-function getTimeTillDueDateFromAssignment(DueDate: string): string {
+function getTimeTillDueDateFromAssignment(dueDate: string): string {
     const currentDate = new Date();
-    const assignmentDueDate = new Date(DueDate);
+    const assignmentDueDate = new Date(dueDate);
     
     const isAssignmentPastDue = currentDate > assignmentDueDate;
 
     if (isAssignmentPastDue)
         return getTimePastDueDate(currentDate, assignmentDueDate);
-    else
+    else {
+        if (settingsData?.showExactDueDate)
+            return getExactDueDate(currentDate, assignmentDueDate);
+        
         return getTimeTillDueDate(currentDate, assignmentDueDate);
+    }
 }
 
 //#endregion
