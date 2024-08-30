@@ -17,11 +17,13 @@ const notificationDisappearTimeInSec: number = 6;			// Every 6 Seconds
 interface DebugMode {
 	readonly useLocalClassData: boolean;
 	readonly devKeybinds: boolean
+	readonly saveFetchedClassData: boolean;
 }
 
 const debugMode: DebugMode = {
 	useLocalClassData: true,
-	devKeybinds: true
+	devKeybinds: true,
+	saveFetchedClassData: true,
 }
 
 let isAppRunning = true;
@@ -163,10 +165,10 @@ function createSystemTray() {
 		{ label: 'Canvas HW Reminder', type: 'normal', enabled: false },
 		{ type: 'separator' },
 		{ label: 'Show App', type: 'normal', click: () => {
-			if (isMainWindowHidden ) {
-				mainWindow?.show();
-				isMainWindowHidden = false;
-			}
+			if (!isMainWindowHidden) return;
+
+			mainWindow?.show();
+			isMainWindowHidden = false;
 		} },
 		// { label: "Don't Check for Today", type: 'checkbox' },
 		{ label: 'Quit App', type: 'normal', click: () => {
@@ -328,7 +330,7 @@ async function reloadClassData() {
 		
 	}
 	
-	updateInfoWithClassData(classData);
+	await updateInfoWithClassData(classData);
 }
 
 function openLink(url: string) {
@@ -339,7 +341,7 @@ function openLink(url: string) {
 	}
 }
 
-function updateInfoWithClassData(classData: ClassData | null) {
+async function updateInfoWithClassData(classData: ClassData | null) {
 	if (classData === null)
 		return;
 
@@ -351,6 +353,11 @@ function updateInfoWithClassData(classData: ClassData | null) {
 		return;
 
 	console.log('ClassData Has Changed!')
+
+	if (debugMode.saveFetchedClassData) {
+		const success = await writeSavedData('classes-data.json', classData);
+	}
+
 	classes = classData.classes;
 
 	upcomingAssignments = getUpcomingAssignments();
@@ -514,14 +521,7 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 	if (date1 > date2)
 		return 0;
 
-	const yearDiff = date2.getFullYear() - date1.getFullYear();
-	const monthDiff = date2.getMonth() - date1.getMonth();
-	const dateDiff = date2.getDate() - date1.getDate();
-    const hourDiff = date2.getHours() - date1.getHours();
-    const minDiff = date2.getMinutes() - date1.getMinutes();
-    const secDiff = date2.getSeconds() - date1.getSeconds();
-
-	return secDiff + (minDiff * 60) + (hourDiff * 3600) + (dateDiff * 3600 * 24) + (monthDiff * 3600 * 24 * 7) + (yearDiff * 3600 * 24 * 7 * 365);
+    return (date2.getTime() - date1.getTime()) / 1000;
 }
 
  function getTimeTillDueDate(date1: Date, date2: Date): string {
