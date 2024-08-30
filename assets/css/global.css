@@ -81,6 +81,8 @@ input {
     border: none;
     box-shadow: 1px 3px 10px var(--shadow-color);
     padding: 3px;
+
+    transition: all 0.3s;
 }
 
 input:disabled {

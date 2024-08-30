@@ -16,20 +16,18 @@ const notificationDisappearTimeInSec: number = 6;			// Every 6 Seconds
 
 interface DebugMode {
 	readonly useLocalClassData: boolean;
-	readonly devKeybinds: boolean,
-	readonly hideSaveSettingsDialog: boolean
+	readonly devKeybinds: boolean
 }
 
 const debugMode: DebugMode = {
 	useLocalClassData: true,
-	devKeybinds: true,
-	hideSaveSettingsDialog: true,
+	devKeybinds: true
 }
 
 let isAppRunning = true;
 let isAppReady = false;
 let isMainWindowHidden = false;
-let isCanvasDataReady = true;
+let isCanvasDataReady = false;
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray;
@@ -50,34 +48,10 @@ async function appMain() {
 
 	if (!debugMode.useLocalClassData) {
 		const checkCanvasWorker = createWorker('../build/Workers/checkCanvas.js', updateInfoWithClassData);
-	
 		checkCanvasWorker.postMessage(settingsData);
 	}
 	else {
-		const checkCanvasWorker = createWorker('../build/Workers/checkCanvasDEV.js', (classData: ClassData | null) => {
-			if (classData === null)
-				return;
-	
-			if (!isCanvasDataReady)
-				isCanvasDataReady = true;
-		
-			// ClassData Is Different From Cached Classes
-			if (JSON.stringify(classData.classes) === JSON.stringify(classes))
-				return;
-		
-			console.log('ClassData Has Changed!')
-			classes = classData.classes;
-		
-			upcomingAssignments = getUpcomingAssignments();
-			removeAssignmentsThatHaveBeenRemindedFromUpcomingAssignments(assignmentsThatHaveBeenReminded, upcomingAssignments);
-			const possibleNextAssignment = getNextUpcomingAssignment(upcomingAssignments);
-		
-			if (possibleNextAssignment?.name === nextAssignment?.name)
-				isWaitingOnNotification = false;
-		
-			mainWindow?.webContents.send('updateData', 'classes', classData);
-		});
-	
+		const checkCanvasWorker = createWorker('../build/Workers/checkCanvasDEV.js', updateInfoWithClassData);
 		checkCanvasWorker.postMessage(settingsData);
 	}
 
@@ -194,7 +168,7 @@ function createSystemTray() {
 				isMainWindowHidden = false;
 			}
 		} },
-		{ label: "Don't Check for Today", type: 'checkbox' },
+		// { label: "Don't Check for Today", type: 'checkbox' },
 		{ label: 'Quit App', type: 'normal', click: () => {
 			isAppRunning = false;
 			app.quit();
