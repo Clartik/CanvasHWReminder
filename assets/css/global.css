@@ -187,10 +187,11 @@ select:hover {
 }
 
 .class-box.collapse {
-    display: block;
     opacity: 0;
     height: 0;
     padding-bottom: 0;
+
+    transition: none;
 }
 
 .hide {
