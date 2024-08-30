@@ -69,6 +69,7 @@ let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
 let settingsData: SettingsData | null;
 let homepageDebugMode: DebugMode;
 
+
 homeMain();
 
 // Main Function
@@ -90,19 +91,19 @@ async function homeMain() {
 
     loadElementsWithData(classes);
 
-    // while (isCheckingForUpdates) {
-    //     await sleep(checkForUpdatesTimeInSec * 1000);
+    while (isCheckingForUpdates) {
+        await sleep(checkForUpdatesTimeInSec * 1000);
 
-    //     for (const assignmentElement of assignmentElementsThatAreDue) {
-    //         const assignment: Assignment = assignmentElement.assignment;
+        for (const assignmentElement of assignmentElementsThatAreDue) {
+            const assignment: Assignment = assignmentElement.assignment;
 
-    //         if (assignment.due_at === null)
-    //             break;
+            if (assignment.due_at === null)
+                break;
 
-    //         const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
-    //         assignmentElement.label.innerHTML = assignment.name + ' - ' + timeTillDueDate;   
-    //     }
-    // }
+            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
+            assignmentElement.label.innerHTML = assignment.name + ' - ' + timeTillDueDate;   
+        }
+    }
 };
 
 document.addEventListener('keydown', (event: KeyboardEvent) => {
