@@ -54,7 +54,7 @@ const ASSIGNMENT_TEMPLATE: string = `
 
 //#endregion
 
-const containerColumns = document.getElementsByClassName('container-column') as HTMLCollectionOf<HTMLUListElement>;
+const container = document.getElementById('container') as HTMLDivElement;
 
 let classHeaders: HTMLCollectionOf<HTMLSpanElement>;
 let classHeadersLabels: HTMLCollectionOf<HTMLSpanElement>;
@@ -76,29 +76,33 @@ async function homeMain() {
     homepageDebugMode = await window.api.getDebugMode() as DebugMode;
     settingsData = await homepageGetCachedSettingsData();
     
-    const classes = await getClasses();
+    const classes: Class[] = await getClasses();
 
     if (classes.length === 0) {
         const noClasses = document.createElement('label') as HTMLLabelElement;
         noClasses.innerText = 'No Classes Enrolled';
-        containerColumns[0].append(noClasses);
+
+        const column = document.createElement('div');
+        column.classList.add('container-column');
+        column.appendChild(noClasses);
+        container.appendChild(column);
     }
 
     loadElementsWithData(classes);
 
-    while (isCheckingForUpdates) {
-        await sleep(checkForUpdatesTimeInSec * 1000);
+    // while (isCheckingForUpdates) {
+    //     await sleep(checkForUpdatesTimeInSec * 1000);
 
-        for (const assignmentElement of assignmentElementsThatAreDue) {
-            const assignment: Assignment = assignmentElement.assignment;
+    //     for (const assignmentElement of assignmentElementsThatAreDue) {
+    //         const assignment: Assignment = assignmentElement.assignment;
 
-            if (assignment.due_at === null)
-                break;
+    //         if (assignment.due_at === null)
+    //             break;
 
-            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
-            assignmentElement.label.innerHTML = assignment.name + ' - ' + timeTillDueDate;   
-        }
-    }
+    //         const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
+    //         assignmentElement.label.innerHTML = assignment.name + ' - ' + timeTillDueDate;   
+    //     }
+    // }
 };
 
 document.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -140,8 +144,8 @@ async function sleep(ms: number): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function createClassItem(): HTMLLIElement {
-    let classElement = document.createElement('li');
+function createClassItem(): HTMLDivElement {
+    let classElement = document.createElement('div');
     classElement.classList.add('class-item');
     classElement.innerHTML = CLASS_HEADER_TEMPLATE + CLASS_BOX_TEMPLATE;
     return classElement;
@@ -192,25 +196,17 @@ function loadElementsWithData(classes: Class[]): void {
 };
 
 function clearElementsFromData(): void {
-    for (const column of containerColumns)
-        column.innerHTML = '';
+    container.innerHTML = ''
 }
 
 function generateAllClassItems(classAmount: number): void {
-    const amountOfClassesInEachColumn = Math.floor(classAmount / 2);        // Round Down Amount
-    const isAmountOfClassesOdd = isInt(classAmount / 2) === false;          // Accounts for the Extra
-
-    for (const column of containerColumns) {
-        for (let childIndex = 0; childIndex < amountOfClassesInEachColumn; childIndex++) {
-            const classItem = createClassItem();
-            column.appendChild(classItem);
-        }
-    }
-    
-    // If Odd, Add Extra Class to First Column
-    if (isAmountOfClassesOdd) {
+    for (let childIndex = 0; childIndex < classAmount; childIndex++) {
+        const column = document.createElement('div');
+        column.classList.add('container-column');
+        
         const classItem = createClassItem();
-        containerColumns[0].appendChild(classItem);
+        column.appendChild(classItem);
+        container.appendChild(column);
     }
 }
 
