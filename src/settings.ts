@@ -89,13 +89,13 @@ canvasAPITokenBtn.addEventListener('click', (event: MouseEvent) => {
         canvasAPITokenInput.disabled = false;
         canvasAPITokenInput.type = 'text';
 
-        canvasAPITokenBtn.innerText = 'Hide';
+        canvasAPITokenBtn.innerText = 'Done';
     }
     else {
         canvasAPITokenInput.disabled = true;
         canvasAPITokenInput.type = 'password';
 
-        canvasAPITokenBtn.innerText = 'Reveal';
+        canvasAPITokenBtn.innerText = 'Edit';
     }
 
     canvasAPITokenEditMode = !canvasAPITokenEditMode;
