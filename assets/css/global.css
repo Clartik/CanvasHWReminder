@@ -71,6 +71,13 @@ h1 {
     color: var(--text-color);
 }
 
+h2 {
+    font-family: 'Poppins Bold';
+    color: var(--text-color);
+    padding: 0;
+    margin: 0;
+}
+
 ul {
     list-style-type: none;
 }
@@ -202,12 +209,13 @@ select:hover {
     display: block;
     background-color: var(--secondary-color);
     border-radius: 0px 0px var(--border-radius) var(--border-radius);
+    padding-right: 10px;
     padding-bottom: 10px;
     opacity: 1;
+    margin: 0;
     transition: opacity 0.3s ease;
     align-self: flex-start;
     height: auto;
-    margin: 0;
 }
 
 .class-box.collapse {
@@ -230,6 +238,7 @@ select:hover {
 
 .assignment-label {
     font-family: 'Poppins Light';
+    overflow: hidden;
 }
 
 .assignment-btn {
@@ -245,8 +254,6 @@ select:hover {
 }
 
 .assignment-btn:hover {
-    /* background-color: var(--accent-color-hover); */
-    /* transform: scale(1.02); */
     box-shadow: 1px 3px 8px var(--shadow-color);
 }
 
@@ -397,6 +404,14 @@ input:checked + .slider:before {
     column-gap: 10px;
 }
 
+.info-widget {
+    background-color: var(--primary-color);
+    padding: 10px 20px;
+    border-radius: 20px;
+    box-shadow: 1px 3px 10px var(--shadow-color);
+    text-align: center;
+}
+
 #top-bar {
     display: flex;
     align-items: center;
@@ -410,15 +425,27 @@ input:checked + .slider:before {
     text-shadow: 5px 5px 5px var(--shadow-color);
 }
 
-#container {
+#class-container {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 @media (min-width: 800px) {
-    #container {
+    #class-container {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     } 
+}
+
+#loading-or-error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* height: 200px; */
+}
+
+#load {
+    flex-grow: 1;
 }
 
 #settings-container {

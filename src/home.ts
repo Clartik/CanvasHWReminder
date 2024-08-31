@@ -52,9 +52,26 @@ const ASSIGNMENT_TEMPLATE: string = `
     <button class='assignment-btn hide'>Launch Canvas</button>
 `;
 
+const INFO_WIDGET_NO_CLASSES: string = `
+    <h2>No Classes Enrolled</h2>
+    <p>Canvas HW Reminder Will Check Every Hour For Updates</p>
+`;
+
+const INFO_WIDGET_NO_INTERNET: string = `
+    <h2>Not Connected to Internet</h2>
+    <p>Please Check Your Connection and Try Again</p>
+`;
+
+const INFO_WIDGET_INCORRECT_LOGIN: string = `
+    <h2>Could Not Connect to Canvas</h2>
+    <p>Please Check Your Base URL or Access Token Are Correct</p>
+`;
+
 //#endregion
 
-const container = document.getElementById('container') as HTMLDivElement;
+const classContainer = document.getElementById('class-container') as HTMLDivElement;
+const loadingOrErrorContainer = document.getElementById('loading-or-error-container') as HTMLDivElement;
+const loadingCircle = document.getElementById('loading-circle') as HTMLImageElement;
 
 let classHeaders: HTMLCollectionOf<HTMLSpanElement>;
 let classHeadersLabels: HTMLCollectionOf<HTMLSpanElement>;
@@ -77,19 +94,15 @@ async function homeMain() {
     homepageDebugMode = await window.api.getDebugMode() as DebugMode;
     settingsData = await homepageGetCachedSettingsData();
     
-    const classes: Class[] = await getClasses();
+    // const classes: Class[] = await getCachedClasses();
 
-    if (classes.length === 0) {
-        const noClasses = document.createElement('label') as HTMLLabelElement;
-        noClasses.innerText = 'No Classes Enrolled';
+    // if (classes.length === 0) {
+    //     loadingCircle.classList.add('hide');
+    //     const infoWidget = createInfoWidget(INFO_WIDGET_NO_CLASSES);
+    //     loadingOrErrorContainer.append(infoWidget);
+    // }
 
-        const column = document.createElement('div');
-        column.classList.add('container-column');
-        column.appendChild(noClasses);
-        container.appendChild(column);
-    }
-
-    loadElementsWithData(classes);
+    // loadElementsWithData(classes);
 
     while (isCheckingForUpdates) {
         const secondsLeft = 60 - new Date().getSeconds();
@@ -125,7 +138,15 @@ window.api.onUpdateData((type: string, data: Object | null) => {
         
         if (classData !== null) {
             console.log('Received Updated ClassData!')
-            
+
+            clearLoadingOrErrorContainer();
+
+            if (classData.classes.length === 0) {
+                const infoWidget = createInfoWidget(INFO_WIDGET_NO_CLASSES);
+                loadingOrErrorContainer.append(infoWidget);
+                return;
+            }
+                
             clearElementsFromData();
             loadElementsWithData(classData.classes);
         }
@@ -147,6 +168,13 @@ async function sleep(ms: number): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function createInfoWidget(template?: string): HTMLDivElement {
+    const infoWidget = document.createElement('div');
+    infoWidget.classList.add('info-widget');
+    infoWidget.innerHTML = template ?? '';
+    return infoWidget;
+}
+
 function createClassItem(): HTMLDivElement {
     let classElement = document.createElement('div');
     classElement.classList.add('class-item');
@@ -164,7 +192,7 @@ function isInt(n: number): boolean {
     return n % 1 === 0;
 }
 
-async function getClasses(): Promise<Class[]> {
+async function getCachedClasses(): Promise<Class[]> {
     const classData: ClassData | null = await window.api.getCachedData('classes-data.json') as ClassData | null;
 
     if (classData === null) {
@@ -198,8 +226,12 @@ function loadElementsWithData(classes: Class[]): void {
     addClickEventsToClassItem();
 };
 
+function clearLoadingOrErrorContainer(): void {
+    loadingOrErrorContainer.innerHTML = ''
+}
+
 function clearElementsFromData(): void {
-    container.innerHTML = ''
+    classContainer.innerHTML = ''
 }
 
 function generateAllClassItems(classAmount: number): void {
@@ -209,7 +241,7 @@ function generateAllClassItems(classAmount: number): void {
         
         const classItem = createClassItem();
         column.appendChild(classItem);
-        container.appendChild(column);
+        classContainer.appendChild(column);
     }
 }
 
@@ -383,7 +415,7 @@ function getTimeTillDueDate(date1: Date, date2: Date): string {
     }
 
     if (secondsDiff > 0) {
-        return `Due in Less Than 1 Minute`
+        return `Due in < 1 Minute`
         // if (secondsDiff > 1)
         //     return `Due in ${secondsDiff} Seconds`
         // else

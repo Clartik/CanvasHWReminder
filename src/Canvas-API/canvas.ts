@@ -52,6 +52,7 @@ class Canvas {
             params.append('state', state);
 
         const url = this.baseURL + 'courses?' + params.toString();
+
         const coursesData: CourseData[] = await getAPI(url, this.accessToken);
 
         const courses: Course[] = [];
