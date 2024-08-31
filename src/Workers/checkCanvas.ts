@@ -28,11 +28,8 @@ parentPort?.on('message', async (settingsData: SettingsData | null) => {
             const courses: CanvasAPI.Course[] = await getCoursesFromCanvas(settingsData);
             classData = await convertToClassData(courses);
         } catch (error) {
-            console.error('CheckCanvas Worker: Failed to Get Class Data From Canvas', error);
+            console.error('CheckCanvas Worker: Failed to Get Class Data From Canvas -', error);
         }
-
-		// const filepath = path.join(__dirname, '../../assets/data/classes-data.json');
-		// classData = await SaveManager.getData(filepath) as ClassData | null;
 
         parentPort?.postMessage(classData);
 

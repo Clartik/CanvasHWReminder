@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog, Notification, Tray, Menu, NativeImage, nativeImage } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, Notification, Tray, Menu, NativeImage, nativeImage, net } from 'electron'
 import { Worker } from 'worker_threads'
 
 import * as path from 'path'
@@ -21,7 +21,7 @@ interface DebugMode {
 }
 
 const debugMode: DebugMode = {
-	useLocalClassData: true,
+	useLocalClassData: false,
 	devKeybinds: true,
 	saveFetchedClassData: true,
 }
@@ -47,6 +47,9 @@ appMain();
 // Main Function	
 async function appMain() {
 	settingsData = await getSavedSettingsData();
+
+	while (!net.isOnline())
+		await sleep(1000);
 
 	if (!debugMode.useLocalClassData) {
 		const checkCanvasWorker = createWorker('../build/Workers/checkCanvas.js', updateInfoWithClassData);
@@ -129,7 +132,7 @@ function createWindow() {
 	if (settingsData?.minimizeOnLaunch)
 		isMainWindowHidden = true;
 	
-	mainWindow.loadFile('./pages/loading.html');
+	mainWindow.loadFile('./pages/home.html');
 
 	mainWindow.webContents.once('did-finish-load', async () => {
 		if (mainWindow === null)
@@ -138,9 +141,7 @@ function createWindow() {
 		while (!isCanvasDataReady)
 			await sleep(1 * 1000);
 
-		mainWindow.loadFile('./pages/home.html').then(() => {
-			isAppReady = true;
-		});
+		isAppReady = true;
 	});
 
 	mainWindow.on('close', (event) => {

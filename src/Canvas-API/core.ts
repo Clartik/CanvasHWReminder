@@ -1,5 +1,10 @@
 import fetch from 'node-fetch'
 
+// interface GetAPIResult {
+//     readonly data: Object;
+//     readonly error
+// }
+
 async function getAPI(url: string, accessToken: string): Promise<any> {
     const response = await fetch(url, {
         method: 'GET',
@@ -8,6 +13,10 @@ async function getAPI(url: string, accessToken: string): Promise<any> {
             'Content-Type': 'application/json'
         }
     });
+
+    if (!response.ok)
+        throw new Error(`Response Status: ${response.status}`);
+
     return response.json();
 }
 
