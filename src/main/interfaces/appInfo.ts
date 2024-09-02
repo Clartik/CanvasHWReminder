@@ -1,12 +1,9 @@
 interface AppInfo {
 	isRunning: boolean,
-	isReady: boolean,
 	isMainWindowHidden: boolean,
 
-	isWaitingOnNotification: boolean,
-
 	classData: ClassData | null,
-	settingsData: SettingsData | undefined,
+	settingsData: SettingsData | null,
 
 	nextAssignment: Assignment | null,
 	assignmentsThatHaveBeenReminded: Array<Assignment>,

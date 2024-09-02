@@ -1,7 +1,8 @@
+import { Worker } from 'worker_threads'
 import electronReload from 'electron-reload'
 import { promisify } from 'util'
 
-import { app, BrowserWindow, Notification } from 'electron'
+import { app, BrowserWindow, net, Notification } from 'electron'
 
 import handleIPCRequests from './ipc';
 
@@ -10,6 +11,7 @@ import createMainWindow from './window';
 
 import AppInfo from './interfaces/appInfo';
 import DebugMode from './interfaces/debugMode'
+import WaitOnNotificationParams from './interfaces/waitForNotificationParams';
 
 import * as FileUtil from './util/fileUtil';
 import * as CourseUtil from './util/courseUtil';
@@ -21,14 +23,11 @@ const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
-const checkForUpdatesTimeInSec: number = 60;				// Every Minute
-const notificationDisappearTimeInSec: number = 6;			// Every 6 Seconds
-
 const debugMode: DebugMode = {
 	active: true,
 	useLocalClassData: true,
 	devKeybinds: true,
-	saveFetchedClassData: true,
+	saveFetchedClassData: false,
 };
 
 if (!debugMode.active) {
@@ -39,19 +38,22 @@ if (!debugMode.active) {
 
 const appInfo: AppInfo = {
 	isRunning: true,
-	isReady: false,
 	isMainWindowHidden: false,
 
-	isWaitingOnNotification: false,
-
 	classData: null,
-	settingsData: undefined,
+	settingsData: null,
 
 	nextAssignment: null,
 	assignmentsThatHaveBeenReminded: [],
 }
 
-let mainWindow: BrowserWindow;
+const CHECK_FOR_UPDATES_TIME_IN_SEC = 60;			// Every Minute
+const NOTIFICATION_DISAPPER_TIME_IN_SEC: number = 6;			// Every 6 Seconds
+
+let mainWindow: BrowserWindow | null = null;
+
+let checkCanvasWorker: Worker | null = null;
+let waitForNotificationWorker: Worker | null = null;
 
 createElectronApp();
 handleIPCRequests(appInfo, debugMode);
@@ -67,14 +69,18 @@ function createElectronApp() {
 		while (appInfo.settingsData === null)
 			await sleep(100);
 	
+		if (appInfo.settingsData?.minimizeOnLaunch) {
+			appInfo.isMainWindowHidden = true;
+			return;
+		}
+
 		mainWindow = createMainWindow(appInfo);
 	});
 
+	// MACOS ONLY
 	app.on('activate', async () => {
-		if (BrowserWindow.getAllWindows().length !== 0 || !appInfo.isReady)
-			return;
-		
-		mainWindow = createMainWindow(appInfo);
+		if (BrowserWindow.getAllWindows().length === 0 && app.isReady())
+			mainWindow = createMainWindow(appInfo);
 	});
 	
 	app.on('window-all-closed', () => {
@@ -86,6 +92,9 @@ function createElectronApp() {
 		if (appInfo.isRunning)
 			return;
 	
+		checkCanvasWorker?.terminate();
+		waitForNotificationWorker?.terminate();
+
 		app.quit();
 	});
 }
@@ -97,103 +106,123 @@ function createElectronApp() {
 async function appMain() {
 	appInfo.settingsData = await DataUtil.getSavedSettingsData();
 
-	if (!appInfo.settingsData)
+	if (!appInfo.settingsData) {
+		console.error('[Main]: SettingsData is NULL!');
 		return;
-
-	// while (!net.isOnline())
-	// 	await sleep(1000);
+	}
 
 	if (!debugMode.useLocalClassData) {
-		const checkCanvasWorker = createWorker('./workers/checkCanvas.js', updateInfoWithClassData);
+		checkCanvasWorker = createWorker('./workers/checkCanvas.js', updateClassData);
 		checkCanvasWorker.postMessage(appInfo.settingsData);
 	}
 	else {
-		const checkCanvasWorker = createWorker('./workers/checkCanvasDEBUG.js', updateInfoWithClassData);
+		const checkCanvasWorker = createWorker('./workers/checkCanvasDEBUG.js', updateClassData);
 		checkCanvasWorker.postMessage(appInfo.settingsData);
 	}
 
-	while (!appInfo.classData)
-		await sleep(1000);
+	let hasToldRendererAboutInternetOnlineStatus = true;			// By Default, the Status is Assumed to Be Online
+	let hasToldRendererAboutInternetOfflineStatus = false;
 
 	while (appInfo.isRunning) {
-		console.log('Checking if There is a Next Assignment/New Next Assignment!');
-		
-		const upcomingAssignments = CourseUtil.getUpcomingAssignments(appInfo.classData);
-		CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
-		appInfo.nextAssignment = CourseUtil.getNextAssignment(upcomingAssignments);
+		if (!net.isOnline() && !hasToldRendererAboutInternetOfflineStatus) {
+			mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
 
-		if (appInfo.nextAssignment === null || appInfo.nextAssignment.due_at === null) {
-			await sleep(checkForUpdatesTimeInSec * 1000);
-			continue;
+			hasToldRendererAboutInternetOfflineStatus = true;
+			hasToldRendererAboutInternetOnlineStatus = false;
+		}
+		else if (net.isOnline() && !hasToldRendererAboutInternetOnlineStatus) {
+			mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
+
+			hasToldRendererAboutInternetOnlineStatus = true;
+			hasToldRendererAboutInternetOfflineStatus = false;
 		}
 
-		console.log("The Next Assignment is " + appInfo.nextAssignment.name);
-
-		const secondsToWait: number = CourseUtil.getSecondsToWaitTillNotification(appInfo.nextAssignment.due_at, settingsData!);
-		const timeTillDueDate: string = CourseUtil.getTimeTillDueDateFromSecondsDiff(secondsToWait);
-	
-		appInfo.isWaitingOnNotification = true;
-
-		console.log(`Sleeping for ${timeTillDueDate} Till Notification`);
-
-		let secondsWaited = 0;
-
-		while (secondsWaited < secondsToWait && appInfo.isWaitingOnNotification) {
-			await sleep(1 * 1000);
-			secondsWaited++;
-		}
-
-		if (!appInfo.isWaitingOnNotification) {
-			console.log("Cancelled Waiting on Notification Timer! Restarting While Loop!");
-			continue;
-		}
-		
-		while (!appInfo.isReady)
-			await sleep(1 * 1000);
-
-		appInfo.isWaitingOnNotification = false;
-
-		const notification: Notification | null = CourseUtil.getNotification(appInfo.nextAssignment);
-
-		if (notification)
-			notification.show();
-		else
-			console.error('Failed to Show Notification!');
-	
-		appInfo.assignmentsThatHaveBeenReminded.push(appInfo.nextAssignment);
-		console.log(`Removing ${appInfo.nextAssignment.name} From Upcoming Assignmnets!`);
-
-		await sleep(notificationDisappearTimeInSec * 1000);
+		await sleep(CHECK_FOR_UPDATES_TIME_IN_SEC * 1000);
 	}
 };
 
-async function updateInfoWithClassData(classData: ClassData | null) {
+async function updateClassData(classData: ClassData | null) {
 	if (classData === null)
 		return;
 
 	// ClassData Is Different From Cached Classes
 	if (JSON.stringify(classData.classes) === JSON.stringify(appInfo.classData?.classes)) {
-		console.log('ClassData Has Not Changed!')
+		console.log('[Main]: ClassData Has Not Changed!')
 		return;
 	}
 
-	console.log('ClassData Has Changed!')
+	console.log('[Main]: ClassData Has Changed!')
 
 	if (debugMode.saveFetchedClassData)
-		await FileUtil.writeSavedData('classes-data.json', classData);
+		await FileUtil.writeSavedData('class-data.json', classData);
 
 	appInfo.classData = classData;
-
-	const upcomingAssignments = CourseUtil.getUpcomingAssignments(classData);
-	CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
-	const possibleNextAssignment = CourseUtil.getNextAssignment(upcomingAssignments);
-
-	if (possibleNextAssignment?.name === appInfo.nextAssignment?.name)
-		appInfo.isWaitingOnNotification = false;
-
 	mainWindow?.webContents.send('updateData', 'classes', classData);
+
+	findNextAssignmentAndStartWorker();
+}
+
+function findNextAssignmentAndStartWorker() {
+	if (!appInfo.classData)
+		return;
+
+	if (!appInfo.settingsData)
+		return;
+
+	const upcomingAssignments = CourseUtil.getUpcomingAssignments(appInfo.classData);
+	CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
+	const possibleNextAssignment: Assignment | null = CourseUtil.getNextAssignment(upcomingAssignments);
+
+	if (possibleNextAssignment === null) {
+		console.log('[Main]: There is No Next Assignment!');
+		return
+	}
+
+	if (possibleNextAssignment.name === appInfo.nextAssignment?.name) {
+		console.log('[Main]: Possible Next Assignment is the Same As the Current Next Assignment!');	
+		return;
+	}
+
+	console.log('[Main]: Next Assignment is ' + possibleNextAssignment.name);
+	appInfo.nextAssignment = possibleNextAssignment;
+
+	if (waitForNotificationWorker !== null) {
+		console.log('[Main]: Terminating Old Worker (WaitOnNotification)!');
+		waitForNotificationWorker.terminate();
+		waitForNotificationWorker =  null;
+	}
+
+	const waitOnNotificationParams: WaitOnNotificationParams = {
+		nextAssignment: appInfo.nextAssignment, 
+		settingsData: appInfo.settingsData
+	};
+
+	console.log('[Main]: Starting Worker (WaitOnNotification)!');
+	waitForNotificationWorker = createWorker('./workers/waitForNotification.js', showNotification);
+	waitForNotificationWorker.postMessage(waitOnNotificationParams);
+}
+
+async function showNotification(nextAssignment: Assignment) {
+	waitForNotificationWorker = null;
+
+	while (!app.isReady())
+		await sleep(100);
+	
+	const notification: Notification | null = CourseUtil.getNotification(nextAssignment);
+
+	if (notification)
+		notification.show();
+	else
+		console.error('[Main]: Failed to Show Notification!');
+
+	appInfo.assignmentsThatHaveBeenReminded.push(nextAssignment);
+	console.log(`[Main]: Adding ${nextAssignment.name} to Assignments That Have Been Reminded!`);
+
+	await sleep(NOTIFICATION_DISAPPER_TIME_IN_SEC * 1000);
+
+	findNextAssignmentAndStartWorker();
 }
 
 // #endregion
 
-export { updateInfoWithClassData }
+export { updateClassData }
