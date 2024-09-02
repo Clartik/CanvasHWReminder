@@ -1,0 +1,235 @@
+import { Notification } from "electron";
+
+import { openLink } from "./misc";
+
+function getUpcomingAssignments(classData: ClassData): Array<Assignment> {
+	if (classData.classes.length <= 0)
+		return [];
+
+	let upcomingAssignments: Array<Assignment> = [];
+
+	for (let classIndex = 0; classIndex < classData.classes.length; classIndex++) {
+		const currentClass = classData.classes[classIndex];
+
+		for (let assignmentIndex = 0; assignmentIndex < currentClass.assignments.length; assignmentIndex++) {
+			const currentAssignment = currentClass.assignments[assignmentIndex];
+
+			if (currentAssignment.due_at === null)
+				continue;
+			
+			const currentDate = new Date();
+			const assignmentDueDate = new Date(currentAssignment.due_at);
+
+			if (assignmentDueDate > currentDate)
+				upcomingAssignments.push(currentAssignment);
+		}
+	}
+
+	return upcomingAssignments;
+}
+
+function getAssignmentWithDueDate(upcomingAssignments: Assignment[]): Assignment | null {
+	for (let i = 0; i < upcomingAssignments.length; i++) {
+		const upcomingAssignment = upcomingAssignments[i];
+		
+		if (upcomingAssignment.due_at === null)
+			continue;
+
+		return upcomingAssignment;
+	}
+
+	return null;
+}
+
+function getNextAssignment(upcomingAssignments: Assignment[]): Assignment | null {
+	if (upcomingAssignments.length === 0)
+		return null;
+
+	let nextAssignment: Assignment | null = getAssignmentWithDueDate(upcomingAssignments);
+
+	if (nextAssignment === null)
+		return null;
+
+	let closestAssignmentDueDate = new Date(nextAssignment.due_at!);
+	const currentDate = new Date();
+	
+	for (let i = 0; i < upcomingAssignments.length; i++) {
+		const currentAssignment = upcomingAssignments[i];
+
+		if (currentAssignment.due_at === null)
+			continue;
+
+		const assignmentDueDate = new Date(currentAssignment.due_at);
+
+		if (assignmentDueDate < closestAssignmentDueDate) {
+			closestAssignmentDueDate = assignmentDueDate;
+			nextAssignment = currentAssignment;
+		}
+	}
+	
+	const isAssignmentOverdue: boolean = currentDate > closestAssignmentDueDate;
+
+	if (isAssignmentOverdue)
+		return null;
+
+	return nextAssignment;
+}
+
+function getWhenToRemindInSeconds(settingsData: SettingsData): number {
+	const whenToRemindTime: number = Number(settingsData.whenToRemindTimeValue);
+
+	if (settingsData.whenToRemindFormatValue === 'day') {
+		return whenToRemindTime * 3600 * 24;
+	}
+	else if (settingsData.whenToRemindFormatValue === 'hour') {
+		return whenToRemindTime * 3600;
+	}
+	else if (settingsData.whenToRemindFormatValue === 'minute') {
+		return whenToRemindTime * 60;
+	}
+
+	return 0;
+}
+
+ function filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments: Assignment[], assignmentsThatHaveBeenReminded: Assignment[]) {
+	for (const assignmentThatHasBeenReminded of assignmentsThatHaveBeenReminded) {
+		for (const upcomingAssignment of upcomingAssignments) {
+			if (upcomingAssignment.name !== assignmentThatHasBeenReminded.name)
+				continue;
+
+			const indexToRemove: number = upcomingAssignments.indexOf(upcomingAssignment);
+
+			if (indexToRemove > -1)
+				upcomingAssignments.splice(indexToRemove, 1);
+		}	
+	}
+ }
+
+function getTimeDiffInSeconds(date1: Date, date2: Date): number {
+	if (date1 > date2)
+		return 0;
+
+    return (date2.getTime() - date1.getTime()) / 1000;
+}
+
+ function getTimeTillDueDate(date1: Date, date2: Date): string {
+	let secondsDiff = getTimeDiffInSeconds(date1, date2);
+	let minuteDiff = secondsDiff / 60;
+	let hourDiff = minuteDiff / 60;
+	let dateDiff = hourDiff / 24;
+
+	secondsDiff = Math.floor(secondsDiff);
+    minuteDiff = Math.floor(minuteDiff);
+    hourDiff = Math.floor(hourDiff);
+    dateDiff = Math.floor(dateDiff);
+
+    if (dateDiff > 0) {
+        if (dateDiff > 1)
+            return `Due in ${dateDiff} Days`
+        else
+            return `Due in 1 Day`
+    }
+
+    if (hourDiff > 0) {
+        if (hourDiff > 1)
+            return `Due in ${hourDiff} Hours`
+        else
+            return `Due in 1 Hour`
+    }
+
+    if (minuteDiff > 0) {
+        if (minuteDiff > 1)
+            return `Due in ${minuteDiff} Minutes`
+        else
+            return `Due in 1 Minute`
+    }
+
+    if (secondsDiff > 0) {
+		return 'Due in Less Than 1 Minute'
+        // if (secondsDiff > 1)
+        //     return `Due in ${secondsDiff} Seconds`
+        // else
+        //     return `Due in 1 Second`
+    }
+
+    return 'Due Soon'
+}
+
+ function getTimeTillDueDateFromSecondsDiff(secondsDiff: number): string {
+	let minuteDiff = secondsDiff / 60;
+	let hourDiff = minuteDiff / 60;
+	let dateDiff = hourDiff / 24;
+
+	secondsDiff = Math.floor(secondsDiff);
+    minuteDiff = Math.floor(minuteDiff);
+    hourDiff = Math.floor(hourDiff);
+    dateDiff = Math.floor(dateDiff);
+
+    if (dateDiff > 0) {
+        if (dateDiff > 1)
+            return `${dateDiff} Days`
+        else
+            return `1 Day`
+    }
+
+    if (hourDiff > 0) {
+        if (hourDiff > 1)
+            return `${hourDiff} Hours`
+        else
+            return `1 Hour`
+    }
+
+    if (minuteDiff > 0) {
+        if (minuteDiff > 1)
+            return `${minuteDiff} Minutes`
+        else
+            return `1 Minute`
+    }
+
+    if (secondsDiff > 0) {
+        if (secondsDiff > 1)
+            return `${secondsDiff} Seconds`
+        else
+            return `1 Second`
+    }
+
+    return 'Due Soon'
+}
+
+function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsData: SettingsData): number {
+	const currentDate = new Date();
+	const nextAssignmentDueDate = new Date(nextAssignmentDueAt);
+
+	const timeDiffInSeconds: number = getTimeDiffInSeconds(currentDate, nextAssignmentDueDate);
+	const whenToRemindInSeconds: number = getWhenToRemindInSeconds(settingsData);
+
+	let secondsToWait = timeDiffInSeconds - whenToRemindInSeconds;
+
+	if (secondsToWait < 0)
+		secondsToWait = 0;
+
+	return secondsToWait;
+}
+
+function getNotification(nextAssignment: Assignment): Notification | null {
+	if (nextAssignment.due_at === null)
+		return null;
+
+	const currentDate = new Date();
+	const nextAssignmentDueDate = new Date(nextAssignment.due_at);
+
+	const timeTillDueDate: string = getTimeTillDueDate(currentDate, nextAssignmentDueDate);
+
+	const notification = new Notification({
+		title: `${nextAssignment.name} is ${timeTillDueDate}!`,
+		body: 'Click on the Notification to Head to the Posting',
+		icon: './assets/images/4k.png',
+	}).addListener('click', () => {
+		openLink(nextAssignment.html_url);
+	});
+
+	return notification;
+}
+
+export { getUpcomingAssignments, getNextAssignment, filterUpcomingAssignmentsToRemoveRemindedAssignments, 
+    getTimeTillDueDate, getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getNotification}
