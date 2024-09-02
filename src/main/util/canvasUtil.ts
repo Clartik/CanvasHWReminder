@@ -1,47 +1,4 @@
-import { parentPort } from 'worker_threads'
-import { promisify } from 'util'
-import * as path from 'path'
-
-import * as CanvasAPI from '../Canvas-API/canvas'
-import SaveManager from '../save-manager';
-
-const sleep = promisify(setTimeout);
-
-const checkCanvasTimeInSec: number = 60 * 60;				// Every Hour
-
-let isWorkerRunning: boolean = false;
-
-parentPort?.on('message', async (settingsData: SettingsData | null) => {
-    if (settingsData === null) {
-        console.error('CheckCanvas Worker: Failed to Start Due to SettingsData Being Null!');
-        return;
-    }
-
-    isWorkerRunning = true;
-
-    while (isWorkerRunning) {
-        console.log('CheckCanvas Worker: Fetching Data from Canvas!');
-
-        let classData: ClassData | null = null;
-
-        try {
-            const courses: CanvasAPI.Course[] = await getCoursesFromCanvas(settingsData);
-            classData = await convertToClassData(courses);
-        } catch (error) {
-            console.error('CheckCanvas Worker: Failed to Get Class Data From Canvas -', error);
-        }
-
-        parentPort?.postMessage(classData);
-
-        await sleep(checkCanvasTimeInSec * 1000);
-    }
-});
-
-parentPort?.on('exit', () => {
-    isWorkerRunning = false;
-});
-
-//#region Functions
+import * as CanvasAPI from '../util/canvasAPI/canvas'
 
 async function getCoursesFromCanvas(settingsData: SettingsData): Promise<CanvasAPI.Course[]> {
 	if (settingsData === null)
@@ -105,4 +62,4 @@ async function convertToClassData(courses: CanvasAPI.Course[]): Promise<ClassDat
 	return data;
 }
 
-//#endregion
+export { getCoursesFromCanvas, convertToClassData }

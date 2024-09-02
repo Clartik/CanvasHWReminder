@@ -21,7 +21,7 @@ const howLongPastDueFormatDropdown = document.getElementById('how-long-past-due-
 
 const changeableElements = document.getElementsByClassName('changeable');
 
-const SETTINGS_DATA_VERSION: string = '0.2'
+const SETTINGS_DATA_VERSION: string = '0.2';
 
 interface SettingsData {
     readonly version: string;
@@ -42,7 +42,7 @@ interface SettingsData {
     readonly alwaysExpandAllCourseCards: boolean;
 }
 
-let settingsPageDebugMode: DebugMode;
+let settingsPageDebugMode;
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
@@ -51,11 +51,12 @@ const MINUTE_TIME_OPTIONS: Array<string> = [];
 let canvasAPITokenEditMode = false;
 let canvasBaseURLEditMode = false;
 let hasSettingsChanged = false;
+let isSaveSettingsDialogBoxOpen = false;
 
 settingsMain();
 
 async function settingsMain() {
-    settingsPageDebugMode = await window.api.getDebugMode() as DebugMode;
+    settingsPageDebugMode = await window.api.getDebugMode();
 
     populateTimeOptions();
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
@@ -113,6 +114,9 @@ howLongPastDueFormatDropdown.addEventListener('change', (event: Event) => {
 backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
     event.preventDefault();
 
+    if (isSaveSettingsDialogBoxOpen)
+        return;
+
     if (hasSettingsChanged) {
         const options: Electron.MessageBoxOptions = {
             type: "warning",
@@ -122,7 +126,9 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
             defaultId: 0
         }
 
+        isSaveSettingsDialogBoxOpen = true;
         const messageResponse: Electron.MessageBoxReturnValue = await window.api.showMessageDialog(options);
+        isSaveSettingsDialogBoxOpen = false;
 
         const YES_BUTTON_RESPONSE = 0;
 
@@ -131,7 +137,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
             const success = await window.api.writeSavedData("settings-data.json", settingsData);
 
             if (success)
-                window.api.updateData('settings-data.json', settingsData);
+                window.api.updateData('settingsData', settingsData);
         }
     }
 
@@ -144,7 +150,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
 //#region Functions
 
 async function settingsPageGetCachedSettingsData(): Promise<SettingsData | null> {
-    const cachedSettingsData = await window.api.getCachedData('settings-data.json') as SettingsData | null;
+    const cachedSettingsData = await window.api.getCachedData('settingsData') as SettingsData | null;
 
     if (cachedSettingsData === null) {
         console.error('Cached SettingsData is Null!');

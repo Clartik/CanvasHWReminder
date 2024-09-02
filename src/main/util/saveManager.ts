@@ -18,15 +18,9 @@ class SaveManager {
         return true;
     }
 
-    static async getData(filepath: string): Promise<Object | null> {
-        try {
-            const data = await readFileAsync(filepath, 'utf-8');
-            return JSON.parse(data);
-        }
-        catch (error) {
-            console.error(error);
-            return null;
-        }
+    static async getData(filepath: string): Promise<Object> {
+        const data = await readFileAsync(filepath, 'utf-8');
+        return JSON.parse(data);
     }
 
     static writeDataSync(filepath: string, data: Object): boolean {
@@ -42,14 +36,9 @@ class SaveManager {
         return true;
     }
 
-    static getDataSync(filepath: string): Object | null {
-        try {
-            const data = fs.readFileSync(filepath, 'utf-8');
-            return JSON.parse(data);    
-        } catch (error) {
-            console.error(error);
-            return null;
-        }
+    static getDataSync(filepath: string): Object {
+        const data = fs.readFileSync(filepath, 'utf-8');
+        return JSON.parse(data);
     }
 }
 

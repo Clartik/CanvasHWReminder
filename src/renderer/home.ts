@@ -26,12 +26,6 @@ interface AssignmentElementThatIsDue {
     readonly label: HTMLParagraphElement;
 }
 
-interface DebugMode {
-	readonly useLocalClassData: boolean;
-	readonly devKeybinds: boolean,
-	readonly hideSaveSettingsDialog: boolean
-}
-
 //#endregion
 
 //#region Templates
@@ -52,19 +46,23 @@ const ASSIGNMENT_TEMPLATE: string = `
     <button class='assignment-btn hide'>Launch Canvas</button>
 `;
 
-const INFO_WIDGET_NO_CLASSES: string = `
+const INFO_WIDGET_TEMPLATE_NO_CLASSES: string = `
     <h2>No Classes Enrolled</h2>
     <p>Canvas HW Reminder Will Check Every Hour For Updates</p>
 `;
 
-const INFO_WIDGET_NO_INTERNET: string = `
+const INFO_WIDGET_TEMPLATE_NO_INTERNET: string = `
     <h2>Not Connected to Internet</h2>
     <p>Please Check Your Connection and Try Again</p>
 `;
 
-const INFO_WIDGET_INCORRECT_LOGIN: string = `
+const INFO_WIDGET_TEMPLATE_INCORRECT_LOGIN: string = `
     <h2>Could Not Connect to Canvas</h2>
     <p>Please Check Your Base URL or Access Token Are Correct</p>
+`;
+
+const LOADING_CIRCLE_TEMPLATE: string = `
+    <img id="loading-circle" src="../assets/images/Loading.gif" alt="Loading GIF" width="200px" height="200px">
 `;
 
 //#endregion
@@ -84,25 +82,27 @@ const checkForUpdatesTimeInSec: number = 60;                // Every Minute
 let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
 
 let settingsData: SettingsData | null;
-let homepageDebugMode: DebugMode;
-
+let homepageDebugMode;
 
 homeMain();
 
 // Main Function
 async function homeMain() {
-    homepageDebugMode = await window.api.getDebugMode() as DebugMode;
+    homepageDebugMode = await window.api.getDebugMode();
     settingsData = await homepageGetCachedSettingsData();
     
-    // const classes: Class[] = await getCachedClasses();
+    const classes: Class[] | null = await getCachedClasses();
+    
+    if (classes !== null) {
+        clearLoadingOrErrorContainer();
 
-    // if (classes.length === 0) {
-    //     loadingCircle.classList.add('hide');
-    //     const infoWidget = createInfoWidget(INFO_WIDGET_NO_CLASSES);
-    //     loadingOrErrorContainer.append(infoWidget);
-    // }
-
-    // loadElementsWithData(classes);
+        if (classes.length === 0) {
+            const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_CLASSES);
+            loadingOrErrorContainer.append(infoWidget);
+        }
+    
+        loadElementsWithData(classes);
+    }
 
     while (isCheckingForUpdates) {
         const secondsLeft = 60 - new Date().getSeconds();
@@ -121,17 +121,6 @@ async function homeMain() {
     }
 };
 
-document.addEventListener('keydown', (event: KeyboardEvent) => {
-    switch (event.key) {
-        case 'F5':
-            window.api.keyPress('F5');
-            break;
-    
-        default:
-            break;
-    }
-})
-
 window.api.onUpdateData((type: string, data: Object | null) => {
     if (type === 'classes') {
         const classData = data as ClassData | null;
@@ -142,7 +131,7 @@ window.api.onUpdateData((type: string, data: Object | null) => {
             clearLoadingOrErrorContainer();
 
             if (classData.classes.length === 0) {
-                const infoWidget = createInfoWidget(INFO_WIDGET_NO_CLASSES);
+                const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_CLASSES);
                 loadingOrErrorContainer.append(infoWidget);
                 return;
             }
@@ -159,6 +148,26 @@ window.api.onUpdateData((type: string, data: Object | null) => {
 
         if (settingsData)
             console.log('Received Updated ClassData!')
+    }
+});
+
+window.api.onSendAppStatus((status: string) => {
+    console.log('Received App Status - ' + status);
+
+    switch (status) {
+        case "INTERNET ONLINE":
+            clearLoadingOrErrorContainer();
+            loadingOrErrorContainer.innerHTML = LOADING_CIRCLE_TEMPLATE;
+            break;
+
+        case "INTERNET OFFLINE":
+            clearLoadingOrErrorContainer();
+            const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_INTERNET)
+            loadingOrErrorContainer.appendChild(infoWidget);
+            break;
+    
+        default:
+            break;
     }
 });
 
@@ -192,19 +201,19 @@ function isInt(n: number): boolean {
     return n % 1 === 0;
 }
 
-async function getCachedClasses(): Promise<Class[]> {
-    const classData: ClassData | null = await window.api.getCachedData('classes-data.json') as ClassData | null;
+async function getCachedClasses(): Promise<Class[] | null> {
+    const classData: ClassData | null = await window.api.getCachedData('classData') as ClassData | null;
 
     if (classData === null) {
         console.error('Class Data is Null!')
-        return [];
+        return null;
     }
 
     return classData.classes;
 }
 
 async function homepageGetCachedSettingsData(): Promise<SettingsData | null> {
-    const cachedSettingsData = await window.api.getCachedData('settings-data.json') as SettingsData | null;
+    const cachedSettingsData = await window.api.getCachedData('settingsData') as SettingsData | null;
 
     if (cachedSettingsData === null) {
         console.error('Cached SettingsData is Null!');
