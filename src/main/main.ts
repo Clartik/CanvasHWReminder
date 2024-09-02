@@ -68,14 +68,13 @@ function createElectronApp() {
 			await sleep(100);
 	
 		mainWindow = createMainWindow(appInfo);
-	
-		// Windows Cannot Be Created Before Ready!
-		app.on('activate', async () => {
-			if (BrowserWindow.getAllWindows().length !== 0)
-				return;
-			
-			mainWindow = createMainWindow(appInfo);
-		});
+	});
+
+	app.on('activate', async () => {
+		if (BrowserWindow.getAllWindows().length !== 0 || !appInfo.isReady)
+			return;
+		
+		mainWindow = createMainWindow(appInfo);
 	});
 	
 	app.on('window-all-closed', () => {

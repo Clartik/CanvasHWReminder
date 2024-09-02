@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 
 import AppInfo from '../interfaces/appInfo';
 import DebugMode from "../interfaces/debugMode";
@@ -34,6 +34,10 @@ function handleFileRequests(appInfo: AppInfo, debugMode: DebugMode) {
         
         if (type === 'settingsData') {
             appInfo.settingsData = data as SettingsData;
+
+            app.setLoginItemSettings({
+                openAtLogin: appInfo.settingsData?.launchOnStart
+            });
         }
     });
     
