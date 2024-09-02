@@ -51,7 +51,6 @@ const MINUTE_TIME_OPTIONS: Array<string> = [];
 let canvasAPITokenEditMode = false;
 let canvasBaseURLEditMode = false;
 let hasSettingsChanged = false;
-let isSaveSettingsDialogBoxOpen = false;
 
 settingsMain();
 
@@ -114,9 +113,6 @@ howLongPastDueFormatDropdown.addEventListener('change', (event: Event) => {
 backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
     event.preventDefault();
 
-    if (isSaveSettingsDialogBoxOpen)
-        return;
-
     if (hasSettingsChanged) {
         const options: Electron.MessageBoxOptions = {
             type: "warning",
@@ -126,9 +122,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
             defaultId: 0
         }
 
-        isSaveSettingsDialogBoxOpen = true;
         const messageResponse: Electron.MessageBoxReturnValue = await window.api.showMessageDialog(options);
-        isSaveSettingsDialogBoxOpen = false;
 
         const YES_BUTTON_RESPONSE = 0;
 
