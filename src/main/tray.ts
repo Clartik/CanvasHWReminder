@@ -1,8 +1,9 @@
 import { app as electronApp, Tray, nativeImage, Menu, BrowserWindow } from 'electron';
 
 import AppInfo from './interfaces/appInfo';
+import createMainWindow from './window';
 
-function createSystemTray(appInfo: AppInfo, mainWindow: BrowserWindow): Tray {
+function createSystemTray(appInfo: AppInfo, mainWindow: BrowserWindow | null): Tray {
 	const icon = nativeImage.createFromPath('./assets/images/4k.png');
 	const tray = new Tray(icon);
 	
@@ -10,10 +11,14 @@ function createSystemTray(appInfo: AppInfo, mainWindow: BrowserWindow): Tray {
 		{ label: 'Canvas HW Reminder', type: 'normal', enabled: false },
 		{ type: 'separator' },
 		{ label: 'Show App', type: 'normal', click: () => {
-			if (!appInfo.isMainWindowHidden) return;
+			if (!appInfo.isMainWindowHidden)
+				return;
 
-			mainWindow.show();
+			if (mainWindow !== null)
+				return;
+
 			appInfo.isMainWindowHidden = false;
+			mainWindow = createMainWindow(appInfo);
 		} },
 		// { label: "Don't Check for Today", type: 'checkbox' },
 		{ label: 'Quit App', type: 'normal', click: () => {

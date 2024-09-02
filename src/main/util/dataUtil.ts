@@ -1,7 +1,7 @@
 import AppInfo from '../interfaces/appInfo';
 import DebugMode from '../interfaces/debugMode';
 
-import { updateInfoWithClassData } from '../main';
+import { updateClassData } from '../main';
 
 import * as FileUtil from './fileUtil';
 import * as CourseUtil from './courseUtil';
@@ -84,7 +84,7 @@ async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
         }
 	}
 	
-	await updateInfoWithClassData(_classData);
+	await updateClassData(_classData);
 }
 
 export { getDefaultSettingsData, getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData }

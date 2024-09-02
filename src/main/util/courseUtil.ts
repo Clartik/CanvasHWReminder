@@ -193,7 +193,7 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
             return `1 Second`
     }
 
-    return 'Due Soon'
+    return 'No Time'
 }
 
 function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsData: SettingsData): number {
@@ -224,9 +224,9 @@ function getNotification(nextAssignment: Assignment): Notification | null {
 		title: `${nextAssignment.name} is ${timeTillDueDate}!`,
 		body: 'Click on the Notification to Head to the Posting',
 		icon: './assets/images/4k.png',
-	}).addListener('click', () => {
-		openLink(nextAssignment.html_url);
 	});
+
+	notification.addListener('click', () => openLink(nextAssignment.html_url));
 
 	return notification;
 }

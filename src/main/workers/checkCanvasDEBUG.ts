@@ -13,14 +13,14 @@ let isWorkerRunning: boolean = false;
 
 parentPort?.on('message', async (settingsData: SettingsData) => {
     if (settingsData === null) {
-        console.error('[CheckCanvas DEBUG Worker]: Failed to Start Due to SettingsData Being Null!');
+        console.error('[Worker (CheckCanvas DEBUG)]: Failed to Start Due to SettingsData Being Null!');
         return;
     }
 
     isWorkerRunning = true;
 
     while (isWorkerRunning) {
-        console.log('[CheckCanvas DEBUG Worker]: Getting Data from Local Canvas Save!');
+        console.log('[Worker (CheckCanvas DEBUG)]: Getting Data from Local Canvas Save!');
 
         let classData: ClassData | null = null;
 

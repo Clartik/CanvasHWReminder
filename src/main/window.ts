@@ -9,21 +9,14 @@ function createMainWindow(appInfo: AppInfo): BrowserWindow {
 		width: 800,
 		height: 600,
 		autoHideMenuBar: true,
-		show: !appInfo.settingsData?.minimizeOnLaunch,
+		show: true,
 		webPreferences: {
 			preload: path.join(__baseDir, '../preload/preload.js'),
 			nodeIntegration: true
 		}
 	});
-
-	if (appInfo.settingsData?.minimizeOnLaunch)
-		appInfo.isMainWindowHidden = true;
 	
 	mainWindow.loadFile('./pages/home.html');
-
-	mainWindow.webContents.once('did-finish-load', async () => {
-		appInfo.isReady = true;
-	});
 
 	mainWindow.on('close', (event) => {
 		if (!appInfo.isRunning)
