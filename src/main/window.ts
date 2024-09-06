@@ -18,6 +18,10 @@ function createMainWindow(appInfo: AppInfo): BrowserWindow {
 	
 	mainWindow.loadFile('./pages/home.html');
 
+	mainWindow.webContents.once('did-finish-load', () => {
+		appInfo.isMainWindowLoaded = true;
+	})
+
 	mainWindow.on('close', (event) => {
 		if (!appInfo.isRunning)
 			return;

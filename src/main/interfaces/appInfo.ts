@@ -1,5 +1,6 @@
 interface AppInfo {
 	isRunning: boolean,
+	isMainWindowLoaded: boolean,
 	isMainWindowHidden: boolean,
 
 	classData: ClassData | null,

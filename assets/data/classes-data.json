@@ -14,21 +14,12 @@
                     "points": 0,
                     "html_url": "https://vcccd.instructure.com/courses/68252/assignments/2508012",
                     "is_quiz_assignment": false,
-                    "due_at": "2024-09-03T04:59:59Z",
+                    "due_at": "2024-08-03T04:59:59Z",
                     "unlock_at": null,
                     "lock_at": null
                 },
                 {
                     "name": "HW 4 - Sec 2.3, 2.5",
-                    "points": 0,
-                    "html_url": "https://vcccd.instructure.com/courses/68252/assignments/2508013",
-                    "is_quiz_assignment": false,
-                    "due_at": "2024-09-03T01:59:59Z",
-                    "unlock_at": null,
-                    "lock_at": null
-                },
-                {
-                    "name": "HW 5 - Sec 2.3, 2.5",
                     "points": 0,
                     "html_url": "https://vcccd.instructure.com/courses/68252/assignments/2508013",
                     "is_quiz_assignment": false,

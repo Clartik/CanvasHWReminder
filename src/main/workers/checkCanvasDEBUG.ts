@@ -2,7 +2,8 @@ import { parentPort } from 'worker_threads'
 import { promisify } from 'util'
 import * as path from 'path'
 
-import * as CanvasAPI from '../util/canvasAPI/canvas'
+import WorkerResult from '../interfaces/workerResult';
+
 import SaveManager from '../util/saveManager';
 
 const sleep = promisify(setTimeout);
@@ -11,12 +12,7 @@ const checkCanvasTimeInSec: number = 60 * 60;				// Every Hour
 
 let isWorkerRunning: boolean = false;
 
-parentPort?.on('message', async (settingsData: SettingsData) => {
-    if (settingsData === null) {
-        console.error('[Worker (CheckCanvas DEBUG)]: Failed to Start Due to SettingsData Being Null!');
-        return;
-    }
-
+parentPort?.on('message', async () => {
     isWorkerRunning = true;
 
     while (isWorkerRunning) {
@@ -24,10 +20,19 @@ parentPort?.on('message', async (settingsData: SettingsData) => {
 
         let classData: ClassData | null = null;
 
-		const filepath = path.join(__dirname, '../../../assets/data/classes-data.json');
-		classData = await SaveManager.getData(filepath) as ClassData | null;
+        try {
+            const filepath = path.join(__dirname, '../../../assets/data/classes-data.json');
+            classData = await SaveManager.getData(filepath) as ClassData | null;
+        } catch (error) {
+            console.error('[Worker (CheckCanvas DEBUG)]: Failed to Get Class Data From Local Canvas Save -', error);
+        }
 
-        parentPort?.postMessage(classData);
+        const result: WorkerResult = {
+            data: classData,
+            error: null
+        };
+
+        parentPort?.postMessage(result);
 
         await sleep(checkCanvasTimeInSec * 1000);
     }

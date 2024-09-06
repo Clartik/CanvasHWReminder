@@ -51,9 +51,19 @@ const INFO_WIDGET_TEMPLATE_NO_CLASSES: string = `
     <p>Canvas HW Reminder Will Check Every Hour For Updates</p>
 `;
 
-const INFO_WIDGET_TEMPLATE_NO_INTERNET: string = `
+const INFO_WIDGET_TEMPLATE_NO_INTERNET_ON_BOOT: string = `
     <h2>Not Connected to Internet</h2>
     <p>Please Check Your Connection and Try Again</p>
+`;
+
+const INFO_WIDGET_TEMPLATE_NO_INTERNET_WHILE_RUNNING: string = `
+    <h2>No Internet Connection</h2>
+    <p>Canvas HW Reminder May Not Be Up to Date</p>
+`;
+
+const INFO_WIDGET_TEMPLATE_INTERNET_BACK: string = `
+    <h2>Internet Connection is Back</h2>
+    <p>:D</p>
 `;
 
 const INFO_WIDGET_TEMPLATE_INCORRECT_LOGIN: string = `
@@ -107,6 +117,7 @@ async function homeMain() {
     while (isCheckingForUpdates) {
         const secondsLeft = 60 - new Date().getSeconds();
         await sleep(secondsLeft * 1000);
+        
         console.log('Checking For Any Updates!');
 
         for (const assignmentElement of assignmentElementsThatAreDue) {
@@ -151,19 +162,37 @@ window.api.onUpdateData((type: string, data: Object | null) => {
     }
 });
 
-window.api.onSendAppStatus((status: string) => {
+window.api.onSendAppStatus(async (status: string) => {
     console.log('Received App Status - ' + status);
 
     switch (status) {
         case "INTERNET ONLINE":
             clearLoadingOrErrorContainer();
-            loadingOrErrorContainer.innerHTML = LOADING_CIRCLE_TEMPLATE;
+
+            if (classBoxes === undefined) {
+                loadingOrErrorContainer.innerHTML = LOADING_CIRCLE_TEMPLATE;
+            }
+            else {
+                const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_INTERNET_BACK);
+                loadingOrErrorContainer.appendChild(infoWidget);
+
+                await sleep(2 * 1000);
+                clearLoadingOrErrorContainer();
+            }
             break;
 
         case "INTERNET OFFLINE":
             clearLoadingOrErrorContainer();
-            const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_INTERNET)
-            loadingOrErrorContainer.appendChild(infoWidget);
+
+            if (classBoxes === undefined) {
+                const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_INTERNET_ON_BOOT)
+                loadingOrErrorContainer.appendChild(infoWidget);
+            }
+            else {
+                const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_INTERNET_WHILE_RUNNING)
+                loadingOrErrorContainer.appendChild(infoWidget);
+            }
+
             break;
     
         default:
