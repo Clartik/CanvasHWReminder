@@ -9,20 +9,20 @@
 </head>
 <body>
     <div id="top-bar">
-        <a href="home.html" id="home-link" class="link-btn">
-            <img src="../assets/svg/house.svg" width="40px">
+        <a href="home.html" id="home-link" class="link-btn" title="Homepage">
+            <img src="../assets/svg/house.svg" class="link-btn-image">
         </a>
         <h1 id="page-title">Settings</h1>
         <!-- The First a tag is purely to center the h1! -->
         <a id="settings-link" class="link-btn" style="visibility: hidden;">
-            <img src="../assets/svg/house.svg" width="40px">
+            <img src="../assets/svg/house.svg" class="link-btn-image">
         </a>
     </div>
 
     <div id="settings-container">
         <div class="settings-option">
             <label>Your Canvas Base URL:</label>
-            <input type="text" id="canvas-base-url-input" class="changeable" disabled>
+            <input type="text" id="canvas-base-url-input" class="changeable" disabled placeholder="https://vcccd.instructure.com/">
             <button id="canvas-base-url-btn" class="input-btn changeable">Edit</button>
         </div>
 
@@ -34,8 +34,8 @@
 
         <div class="separator"></div>
     
-        <div class="settings-option">
-            <label>When To Remind Me?</label>
+        <div class="settings-option" title="The Amount of Time Before An Assignment Due Date Should You Be Reminded">
+            <label>When To Remind You?</label>
             <select id="when-to-remind-time-dropdown" class="changeable"></select>
             <select id="when-to-remind-format-dropdown" class="changeable">
                 <option value="day">Days</option>
@@ -44,7 +44,7 @@
             </select>
         </div>
 
-        <div class="settings-option">
+        <div class="settings-option" title="The Amount of Time Before An Overdue Assignment Disappears From Homepage">
             <label>How Long Should An Assignment Show Past Due Date?</label>
             <select id="how-long-past-due-time-dropdown" class="changeable"></select>
             <select id="how-long-past-due-format-dropdown" class="changeable">
@@ -59,34 +59,32 @@
 
         <div class="settings-option checkbox-container">
             <div class="checkbox-column">
-                <label class="checkbox-label">Launch on System Bootup?</label>
-                <!-- <input type="checkbox" id="launch-on-start-checkbox" class="checkbox changeable"> -->
+                <label class="checkbox-label" title="Launch App While Your Computer Boots Up">Launch on System Bootup?</label>
                 <label class="switch">
                     <input type="checkbox" id="launch-on-start-checkbox" class="changeable">
                     <span class="slider round"></span>
                 </label>
-                <label class="checkbox-label">Minimize When App Launches?</label>
-                <!-- <input type="checkbox" id="minimize-on-launch-checkbox" class="checkbox changeable"> -->
+                
+                <label class="checkbox-label">Minimize On App Launch?</label>
                 <label class="switch">
                     <input type="checkbox" id="minimize-on-launch-checkbox" class="changeable">
                     <span class="slider round"></span>
                 </label>
-                <label class="checkbox-label">Minimize On Close?</label>
-                <!-- <input type="checkbox" id="minimize-on-close-checkbox" class="checkbox changeable"> -->
+
+                <label class="checkbox-label">Minimize On App Close?</label>
                 <label class="switch">
                     <input type="checkbox" id="minimize-on-close-checkbox" class="changeable">
                     <span class="slider round"></span>
                 </label>
             </div>
             <div class="checkbox-column">
-                <label class="checkbox-label">Show Exact Due Dates?</label>
-                <!-- <input type="checkbox" id="show-exact-due-date-checkbox" class="checkbox changeable"> -->
+                <label class="checkbox-label" title="Show the Exact Due Dates of Assignments (8/22)">Show Exact Due Dates?</label>
                 <label class="switch">
                     <input type="checkbox" id="show-exact-due-date-checkbox" class="changeable">
                     <span class="slider round"></span>
                 </label>
-                <label class="checkbox-label">Always Expand All Course Cards?</label>
-                <!-- <input type="checkbox" id="always-expand-course-cards-checkbox" class="checkbox changeable"> -->
+
+                <label class="checkbox-label" title="Always Expand All Course Cards Regardless of If Any Assignments Are Due or Not">Always Expand All Course Cards?</label>
                 <label class="switch">
                     <input type="checkbox" id="always-expand-course-cards-checkbox" class="changeable">
                     <span class="slider round"></span>
