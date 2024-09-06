@@ -8,7 +8,8 @@ export interface IElectronAPI {
     onUpdateData: (callback: UpdateDataCallback) => void,
     keyPress: (key: string) => void,
     getDebugMode: () => Promise<Object>,
-    onSendAppStatus: (callback: (status: string) => void) => void
+    onSendAppStatus: (callback: (status: string) => void) => void,
+    getAppStatus: () => Promise<Object>
 }
 
 declare global {

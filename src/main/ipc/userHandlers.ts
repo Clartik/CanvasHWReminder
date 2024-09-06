@@ -1,7 +1,7 @@
 import { ipcMain, dialog, BrowserWindow  } from "electron";
 
 import AppInfo from "../interfaces/appInfo";
-import DebugMode from "../interfaces/debugMode";
+import DebugMode from "../../shared/interfaces/debugMode";
 
 import { openLink } from "../util/misc";
 import * as DataUtil from '../util/dataUtil';

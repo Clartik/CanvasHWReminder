@@ -1,3 +1,6 @@
+import DebugMode from "../shared/interfaces/debugMode";
+import SettingsData from "../shared/interfaces/settingsData";
+
 const backBtnAnchor = document.getElementById('home-link')! as HTMLAnchorElement;
 
 const canvasBaseURLBtn = document.getElementById('canvas-base-url-btn')! as HTMLButtonElement;
@@ -22,25 +25,6 @@ const howLongPastDueFormatDropdown = document.getElementById('how-long-past-due-
 const changeableElements = document.getElementsByClassName('changeable');
 
 const SETTINGS_DATA_VERSION: string = '0.2';
-
-interface SettingsData {
-    readonly version: string;
-
-    readonly canvasBaseURL: string;
-    readonly canvasAPIToken: string;
-
-    readonly whenToRemindTimeValue: string;
-    readonly whenToRemindFormatValue: string;
-    readonly howLongPastDueTimeValue: string;
-    readonly howLongPastDueFormatValue: string;
-
-    readonly launchOnStart: boolean;
-    readonly minimizeOnLaunch: boolean;
-    readonly minimizeOnClose: boolean;
-
-    readonly showExactDueDate: boolean;
-    readonly alwaysExpandAllCourseCards: boolean;
-}
 
 let settingsPageDebugMode;
 

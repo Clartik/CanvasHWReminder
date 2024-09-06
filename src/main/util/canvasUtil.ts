@@ -1,3 +1,6 @@
+import { ClassData, Class, Assignment } from "../../shared/interfaces/classData";
+import SettingsData from "../../shared/interfaces/settingsData";
+
 import * as CanvasAPI from '../util/canvasAPI/canvas'
 
 async function getCoursesFromCanvas(settingsData: SettingsData): Promise<CanvasAPI.Course[]> {

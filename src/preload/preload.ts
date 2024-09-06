@@ -12,7 +12,8 @@ const API = {
     onUpdateData: (callback: UpdateDataCallback) => ipcRenderer.on('updateData', (_event: Event, type: string, data: Object | null) => callback(type, data)),
     keyPress: (key: string) => ipcRenderer.send('keyPress', key),
     getDebugMode: () => ipcRenderer.invoke('getDebugMode'),
-    onSendAppStatus: (callback: (status: string) => void) => ipcRenderer.on('sendAppStatus', (_event: Event, status: string) => callback(status))
+    onSendAppStatus: (callback: (status: string) => void) => ipcRenderer.on('sendAppStatus', (_event: Event, status: string) => callback(status)),
+    getAppStatus: () => ipcRenderer.invoke('getAppStatus')
 }
 
 contextBridge.exposeInMainWorld("api", API);
