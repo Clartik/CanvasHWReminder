@@ -1,5 +1,4 @@
 import { Worker } from 'worker_threads'
-import electronReload from 'electron-reload'
 import { promisify } from 'util'
 
 import { app, BrowserWindow, net, Notification } from 'electron'
@@ -28,7 +27,7 @@ global.__baseDir = __dirname;
 
 const debugMode: DebugMode = {
 	active: true,
-	useLocalClassData: false,
+	useLocalClassData: true,
 	devKeybinds: true,
 	saveFetchedClassData: false,
 };
