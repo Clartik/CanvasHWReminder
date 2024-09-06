@@ -30,14 +30,33 @@ parentPort?.on('message', async (settingsData: SettingsData | null) => {
             classData = await CanvasUtil.convertToClassData(courses);
         } catch (error) {
             if (error instanceof FetchError) {
-                console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to No Internet -', error);
+                let result: WorkerResult;
 
-                const result: WorkerResult = {
-                    data: null,
-                    error: 'INTERNET OFFLINE'
-                };
+                switch (error.type) {
+                    case 'system':
+                        console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to No Internet -', error);
 
-                parentPort?.postMessage(result);
+                        result = {
+                            data: null,
+                            error: 'INTERNET OFFLINE'
+                        };
+
+                        parentPort?.postMessage(result);       
+                        break;
+
+                    case 'invalid-json':
+                        console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to Invalid Canvas Credentials -', error);
+
+                        result = {
+                            data: null,
+                            error: 'INVALID CANVAS CREDENTIALS'
+                        };
+
+                        parentPort?.postMessage(result);       
+                
+                    default:
+                        break;
+                }
                 return;
             }
 

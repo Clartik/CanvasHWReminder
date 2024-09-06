@@ -62,13 +62,16 @@ const INFO_WIDGET_TEMPLATE_NO_INTERNET_WHILE_RUNNING: string = `
 `;
 
 const INFO_WIDGET_TEMPLATE_INTERNET_BACK: string = `
-    <h2>Internet Connection is Back</h2>
-    <p>:D</p>
+    <h2>Connected to Internet</h2>
 `;
 
-const INFO_WIDGET_TEMPLATE_INCORRECT_LOGIN: string = `
+const INFO_WIDGET_TEMPLATE_CANVAS_INCORRECT_LOGIN: string = `
     <h2>Could Not Connect to Canvas</h2>
-    <p>Please Check Your Base URL or Access Token Are Correct</p>
+    <p>Please Check Your Base URL or Access Token Are Accurate</p>
+`;
+
+const INFO_WIDGET_TEMPLATE_CANVAS_LOGIN_SUCCESS: string = `
+    <h2>Connected to Canvas</h2>
 `;
 
 const LOADING_CIRCLE_TEMPLATE: string = `
@@ -165,6 +168,8 @@ window.api.onUpdateData((type: string, data: Object | null) => {
 window.api.onSendAppStatus(async (status: string) => {
     console.log('Received App Status - ' + status);
 
+    let infoWidget: HTMLDivElement;
+
     switch (status) {
         case "INTERNET ONLINE":
             clearLoadingOrErrorContainer();
@@ -192,6 +197,23 @@ window.api.onSendAppStatus(async (status: string) => {
                 const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_INTERNET_WHILE_RUNNING)
                 loadingOrErrorContainer.appendChild(infoWidget);
             }
+
+            break;
+
+        case "CANVAS LOGIN SUCCESS":
+            clearLoadingOrErrorContainer();
+            infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_CANVAS_LOGIN_SUCCESS);
+            loadingOrErrorContainer.appendChild(infoWidget);
+
+            await sleep(2 * 1000);
+            clearLoadingOrErrorContainer();
+
+            break;
+
+        case "INVALID CANVAS CREDENTIALS":
+            clearLoadingOrErrorContainer();
+            infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_CANVAS_INCORRECT_LOGIN);
+            loadingOrErrorContainer.appendChild(infoWidget);
 
             break;
     
