@@ -31,7 +31,7 @@ const debugMode: DebugMode = {
 };
 
 if (!debugMode.active) {
-	debugMode.useLocalClassData = false;
+	debugMode.useLocalClassData = true;
 	debugMode.devKeybinds = false;
 	debugMode.saveFetchedClassData = false;
 }

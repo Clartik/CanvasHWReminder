@@ -22,8 +22,11 @@
     <div id="settings-container">
         <div class="settings-option">
             <label>Your Canvas Base URL:</label>
-            <input type="text" id="canvas-base-url-input" class="changeable" disabled placeholder="https://vcccd.instructure.com/">
-            <button id="canvas-base-url-btn" class="input-btn changeable">Edit</button>
+            <div style="display: inline; min-width: fit-content;">
+
+                <input type="text" id="canvas-base-url-input" class="changeable" disabled placeholder="https://vcccd.instructure.com/">
+                <button id="canvas-base-url-btn" class="input-btn changeable">Edit</button>
+            </div>
         </div>
 
         <div class="settings-option">
@@ -57,7 +60,7 @@
 
         <div class="separator"></div>
 
-        <div class="settings-option checkbox-container">
+        <div class="checkbox-container">
             <div class="checkbox-column">
                 <label class="checkbox-label" title="Launch App While Your Computer Boots Up">Launch on System Bootup?</label>
                 <label class="switch">

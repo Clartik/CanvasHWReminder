@@ -8,6 +8,7 @@ function createMainWindow(appInfo: AppInfo): BrowserWindow {
 	const mainWindow = new BrowserWindow({
 		width: 800,
 		height: 600,
+		minWidth: 710,
 		autoHideMenuBar: true,
 		show: true,
 		webPreferences: {
