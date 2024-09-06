@@ -24,9 +24,11 @@ const howLongPastDueFormatDropdown = document.getElementById('how-long-past-due-
 
 const changeableElements = document.getElementsByClassName('changeable');
 
+const creditsLinkBtn = document.getElementById('credits-link-btn') as HTMLButtonElement;
+
 const SETTINGS_DATA_VERSION: string = '0.2';
 
-let settingsPageDebugMode;
+let settingsPageDebugMode: DebugMode;
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
@@ -39,7 +41,7 @@ let hasSettingsChanged = false;
 settingsMain();
 
 async function settingsMain() {
-    settingsPageDebugMode = await window.api.getDebugMode();
+    settingsPageDebugMode = await window.api.getDebugMode() as DebugMode;
 
     populateTimeOptions();
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
@@ -54,6 +56,10 @@ async function settingsMain() {
 }
 
 //#region Event Handlers
+
+creditsLinkBtn.addEventListener('click', () => {
+    window.api.openLink('https://www.youtube.com/@kartech6079');
+})
 
 canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
     if (!canvasBaseURLEditMode) {

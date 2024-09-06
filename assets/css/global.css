@@ -25,6 +25,7 @@
 
     --primary-color: hsl(212, 49%, 33%);
     --primary-color-hover: hsl(212, 49%, 25%);
+    --primary-color-press: hsl(212, 49%, 18%);
 
     --secondary-color: hsl(0, 0%, 34%);
     --secondary-color-hover: hsl(0, 0%, 28%);
@@ -475,6 +476,34 @@ input:checked + .slider:before {
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
     background-color: var(--background-color);
+}
+
+#credits-container {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    text-align: center;
+    left: 0;
+    right: 0;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+#credits-link-btn {
+    border-radius: var(--border-radius);
+    padding: 3px 8px;
+    text-align: center;
+    background-color: var(--primary-color);
+}
+
+#credits-link-btn:hover {
+    background-color: var(--primary-color-hover);
+}
+
+#credits-link-btn:active {
+    background-color: var(--primary-color-press);
 }
 
 @media (min-width: 900px) {
