@@ -441,7 +441,7 @@ input:checked + .slider:before {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* height: 200px; */
+    margin-bottom: 10px;
 }
 
 #load {

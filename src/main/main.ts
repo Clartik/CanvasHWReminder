@@ -12,12 +12,12 @@ import createMainWindow from './window';
 import AppInfo from './interfaces/appInfo';
 import DebugMode from './interfaces/debugMode'
 import WaitOnNotificationParams from './interfaces/waitForNotificationParams';
+import WorkerResult from './interfaces/workerResult';
 
 import * as FileUtil from './util/fileUtil';
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
-
-import { createWorker } from './util/misc';
+import * as WorkerUtil from './util/workerUtil';
 
 const sleep = promisify(setTimeout);
 
@@ -25,7 +25,7 @@ global.__baseDir = __dirname;
 
 const debugMode: DebugMode = {
 	active: true,
-	useLocalClassData: true,
+	useLocalClassData: false,
 	devKeybinds: true,
 	saveFetchedClassData: false,
 };
@@ -38,6 +38,7 @@ if (!debugMode.active) {
 
 const appInfo: AppInfo = {
 	isRunning: true,
+	isMainWindowLoaded: false,
 	isMainWindowHidden: false,
 
 	classData: null,
@@ -47,7 +48,7 @@ const appInfo: AppInfo = {
 	assignmentsThatHaveBeenReminded: [],
 }
 
-const CHECK_FOR_UPDATES_TIME_IN_SEC = 60;			// Every Minute
+const CHECK_FOR_UPDATES_TIME_IN_SEC = 15;			// Every Minute
 const NOTIFICATION_DISAPPER_TIME_IN_SEC: number = 6;			// Every 6 Seconds
 
 let mainWindow: BrowserWindow | null = null;
@@ -111,17 +112,14 @@ async function appMain() {
 		return;
 	}
 
-	if (!debugMode.useLocalClassData) {
-		checkCanvasWorker = createWorker('./workers/checkCanvas.js', updateClassData);
-		checkCanvasWorker.postMessage(appInfo.settingsData);
-	}
-	else {
-		const checkCanvasWorker = createWorker('./workers/checkCanvasDEBUG.js', updateClassData);
-		checkCanvasWorker.postMessage(appInfo.settingsData);
-	}
+	if (net.isOnline())
+		checkCanvasWorker = createCanvasWorker();
 
 	let hasToldRendererAboutInternetOnlineStatus = true;			// By Default, the Status is Assumed to Be Online
 	let hasToldRendererAboutInternetOfflineStatus = false;
+
+	while (!app.isReady() || !appInfo.isMainWindowLoaded)
+		await sleep(100);
 
 	while (appInfo.isRunning) {
 		if (!net.isOnline() && !hasToldRendererAboutInternetOfflineStatus) {
@@ -129,12 +127,21 @@ async function appMain() {
 
 			hasToldRendererAboutInternetOfflineStatus = true;
 			hasToldRendererAboutInternetOnlineStatus = false;
+
+			if (checkCanvasWorker !== null) {
+				checkCanvasWorker.terminate();
+				checkCanvasWorker = null;
+				console.log('[Main]: Cancelled Worker (CheckCanvas) Due to No Internet!');
+			}
 		}
 		else if (net.isOnline() && !hasToldRendererAboutInternetOnlineStatus) {
 			mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
 
 			hasToldRendererAboutInternetOnlineStatus = true;
 			hasToldRendererAboutInternetOfflineStatus = false;
+
+			if (checkCanvasWorker === null)
+				checkCanvasWorker = createCanvasWorker();
 		}
 
 		await sleep(CHECK_FOR_UPDATES_TIME_IN_SEC * 1000);
@@ -198,11 +205,15 @@ function findNextAssignmentAndStartWorker() {
 	};
 
 	console.log('[Main]: Starting Worker (WaitOnNotification)!');
-	waitForNotificationWorker = createWorker('./workers/waitForNotification.js', showNotification);
+
+	waitForNotificationWorker = WorkerUtil.createWorker('./workers/waitForNotification.js');
+	waitForNotificationWorker.on('message', onShowNotificationWorkerMessageCallback);
+
 	waitForNotificationWorker.postMessage(waitOnNotificationParams);
 }
 
 async function showNotification(nextAssignment: Assignment) {
+	waitForNotificationWorker?.terminate();
 	waitForNotificationWorker = null;
 
 	while (!app.isReady())
@@ -224,5 +235,58 @@ async function showNotification(nextAssignment: Assignment) {
 }
 
 // #endregion
+
+function createCanvasWorker(): Worker {
+    let _checkCanvasWorker: Worker;
+
+	if (!debugMode.useLocalClassData) {
+		_checkCanvasWorker = WorkerUtil.createWorker('./workers/checkCanvas.js');
+		_checkCanvasWorker.on('message', onCheckCanvasWorkerMessageCallback);
+
+		_checkCanvasWorker.postMessage(appInfo.settingsData);
+	}
+	else {
+		_checkCanvasWorker = WorkerUtil.createWorker('./workers/checkCanvasDEBUG.js');
+		_checkCanvasWorker.on('message', onCheckCanvasWorkerMessageCallback);
+
+		_checkCanvasWorker.postMessage(appInfo.settingsData);
+	}
+
+	return _checkCanvasWorker;
+}
+
+async function onCheckCanvasWorkerMessageCallback(result: WorkerResult) {
+	if (result.error !== null) {
+		switch (result.error) {
+			case 'INTERNET OFFLINE':
+				checkCanvasWorker?.terminate();
+				checkCanvasWorker = null;
+				break;
+
+			case 'INCORRECT CANVAS CREDENTIALS':
+				
+				break;
+		
+			default:
+				break;
+		}
+		
+		return;
+	}
+
+	updateClassData(result.data as ClassData | null);
+}
+
+async function onShowNotificationWorkerMessageCallback(result: WorkerResult) {
+	if (result.error !== null) {
+		return;
+	}
+
+	// Data Should Never Be NULL
+	if (result.data === null)
+		return;
+
+	showNotification(result.data as Assignment);
+}
 
 export { updateClassData }

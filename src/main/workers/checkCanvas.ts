@@ -1,15 +1,14 @@
 import { parentPort } from 'worker_threads'
 import { promisify } from 'util'
-import * as path from 'path'
+import { FetchError } from 'node-fetch';
 
-import { net } from 'electron';
+import WorkerResult from '../interfaces/workerResult';
 
 import * as CanvasUtil from '../util/canvasUtil';
 
 const sleep = promisify(setTimeout);
 
 const checkCanvasTimeInSec: number = 60 * 60;				// Every Hour
-const checkForInternetTimeInSec: number = 60;               // Every Minute
 
 let isWorkerRunning: boolean = false;
 
@@ -22,13 +21,6 @@ parentPort?.on('message', async (settingsData: SettingsData | null) => {
     isWorkerRunning = true;
 
     while (isWorkerRunning) {
-        if (!net.isOnline()) {
-            console.error('[Worker (CheckCanvas)]: No Internet Connection! Trying Again in a Minute!');
-
-            await sleep(checkForInternetTimeInSec * 1000);
-            continue;
-        }
-
         console.log('[Worker (CheckCanvas)]: Fetching Data from Canvas!');
 
         let classData: ClassData | null = null;
@@ -37,10 +29,29 @@ parentPort?.on('message', async (settingsData: SettingsData | null) => {
             const courses = await CanvasUtil.getCoursesFromCanvas(settingsData);
             classData = await CanvasUtil.convertToClassData(courses);
         } catch (error) {
+            if (error instanceof FetchError) {
+                console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to No Internet -', error);
+
+                const result: WorkerResult = {
+                    data: null,
+                    error: 'INTERNET OFFLINE'
+                };
+
+                parentPort?.postMessage(result);
+                return;
+            }
+
+            // if (error instanceof )
+            
             console.error('[Worker (CheckCanvas)]: Failed to Get Class Data From Canvas -', error);
         }
 
-        parentPort?.postMessage(classData);
+        const result: WorkerResult = {
+            data: classData,
+            error: null
+        };
+
+        parentPort?.postMessage(result);
 
         await sleep(checkCanvasTimeInSec * 1000);
     }
