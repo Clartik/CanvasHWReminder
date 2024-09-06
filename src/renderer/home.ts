@@ -101,17 +101,17 @@ async function homeMain() {
     homepageDebugMode = await window.api.getDebugMode();
     settingsData = await homepageGetCachedSettingsData();
     
-    const classes: Class[] | null = await getCachedClasses();
+    const classData: ClassData | null = await getCachedClassData();
     
-    if (classes !== null) {
+    if (classData !== null) {
         clearLoadingOrErrorContainer();
 
-        if (classes.length === 0) {
+        if (classData.classes.length === 0) {
             const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_CLASSES);
             loadingOrErrorContainer.append(infoWidget);
         }
     
-        loadElementsWithData(classes);
+        loadElementsWithData(classData.classes);
     }
 
     while (isCheckingForUpdates) {
@@ -230,7 +230,7 @@ function isInt(n: number): boolean {
     return n % 1 === 0;
 }
 
-async function getCachedClasses(): Promise<Class[] | null> {
+async function getCachedClassData(): Promise<ClassData | null> {
     const classData: ClassData | null = await window.api.getCachedData('classData') as ClassData | null;
 
     if (classData === null) {
@@ -238,7 +238,7 @@ async function getCachedClasses(): Promise<Class[] | null> {
         return null;
     }
 
-    return classData.classes;
+    return classData;
 }
 
 async function homepageGetCachedSettingsData(): Promise<SettingsData | null> {
