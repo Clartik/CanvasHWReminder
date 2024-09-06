@@ -1,3 +1,6 @@
+import { ClassData, Assignment } from "../../shared/interfaces/classData";
+import SettingsData from "../../shared/interfaces/settingsData";
+
 interface AppInfo {
 	isRunning: boolean,
 	isMainWindowLoaded: boolean,

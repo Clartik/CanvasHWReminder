@@ -10,15 +10,17 @@ import createSystemTray from './tray'
 import createMainWindow from './window';
 
 import AppInfo from './interfaces/appInfo';
-import DebugMode from './interfaces/debugMode'
+import DebugMode from '../shared/interfaces/debugMode'
 import WaitOnNotificationParams from './interfaces/waitForNotificationParams';
 import WorkerResult from './interfaces/workerResult';
+import AppStatus from '../shared/interfaces/appStatus';
+
+import { ClassData, Assignment } from "../shared/interfaces/classData";
 
 import * as FileUtil from './util/fileUtil';
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
-import AppStatus from './interfaces/appStatus';
 
 const sleep = promisify(setTimeout);
 
@@ -49,12 +51,13 @@ const appInfo: AppInfo = {
 	assignmentsThatHaveBeenReminded: [],
 }
 
+// Assume By Default Both are Avaiable!
 const appStatus: AppStatus = {
 	isOnline: true,
-	isConnectedToCanvas: false
+	isConnectedToCanvas: true
 }
 
-const CHECK_FOR_UPDATES_TIME_IN_SEC = 15;			// Every Minute
+const CHECK_FOR_UPDATES_TIME_IN_SEC = 10;			// Every Minute
 const NOTIFICATION_DISAPPER_TIME_IN_SEC: number = 6;			// Every 6 Seconds
 
 let mainWindow: BrowserWindow | null = null;
@@ -63,7 +66,7 @@ let checkCanvasWorker: Worker | null = null;
 let waitForNotificationWorker: Worker | null = null;
 
 createElectronApp();
-handleIPCRequests(appInfo, debugMode);
+handleIPCRequests(appInfo, appStatus, debugMode);
 appMain();
 
 //#region App Setup
@@ -121,9 +124,6 @@ async function appMain() {
 	if (net.isOnline())
 		checkCanvasWorker = createCanvasWorker();
 
-	let hasToldRendererAboutInternetOnlineStatus = true;			// By Default, the Status is Assumed to Be Online
-	let hasToldRendererAboutInternetOfflineStatus = false;
-
 	while (!app.isReady() || !appInfo.isMainWindowLoaded)
 		await sleep(100);
 
@@ -131,9 +131,6 @@ async function appMain() {
 		if (!net.isOnline() && appStatus.isOnline) {
 			appStatus.isOnline = false;
 			mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
-
-			hasToldRendererAboutInternetOfflineStatus = true;
-			hasToldRendererAboutInternetOnlineStatus = false;
 
 			if (checkCanvasWorker !== null) {
 				checkCanvasWorker.terminate();
@@ -144,9 +141,6 @@ async function appMain() {
 		else if (net.isOnline() && !appStatus.isOnline) {
 			appStatus.isOnline = true;
 			mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
-
-			hasToldRendererAboutInternetOnlineStatus = true;
-			hasToldRendererAboutInternetOfflineStatus = false;
 
 			if (checkCanvasWorker === null)
 				checkCanvasWorker = createCanvasWorker();
@@ -277,7 +271,9 @@ async function onCheckCanvasWorkerMessageCallback(result: WorkerResult) {
 				break;
 
 			case 'INVALID CANVAS CREDENTIALS':
+				appStatus.isConnectedToCanvas = false;
 				mainWindow?.webContents.send('sendAppStatus', 'INVALID CANVAS CREDENTIALS');
+
 				checkCanvasWorker?.terminate();
 				checkCanvasWorker = null;
 				break;
@@ -308,6 +304,7 @@ function startCheckCanvasWorker() {
 	if (checkCanvasWorker !== null)
 		return;
 
+	appStatus.isConnectedToCanvas = true;
 	checkCanvasWorker = createCanvasWorker();
 }
 

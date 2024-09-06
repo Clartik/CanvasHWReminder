@@ -4,11 +4,14 @@ import { FetchError } from 'node-fetch';
 
 import WorkerResult from '../interfaces/workerResult';
 
+import { ClassData } from "../../shared/interfaces/classData";
+import SettingsData from "../../shared/interfaces/settingsData";
+
 import * as CanvasUtil from '../util/canvasUtil';
 
 const sleep = promisify(setTimeout);
 
-const checkCanvasTimeInSec: number = 60 * 60;				// Every Hour
+const checkCanvasTimeInSec: number = 10;// 60 * 60;				// Every Hour
 
 let isWorkerRunning: boolean = false;
 
@@ -30,39 +33,27 @@ parentPort?.on('message', async (settingsData: SettingsData | null) => {
             classData = await CanvasUtil.convertToClassData(courses);
         } catch (error) {
             if (error instanceof FetchError) {
-                let result: WorkerResult;
+                if (error.type === 'system') {
+                    console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to No Internet -', error);
 
-                switch (error.type) {
-                    case 'system':
-                        console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to No Internet -', error);
+                    const result = {
+                        data: null,
+                        error: 'INTERNET OFFLINE'
+                    };
 
-                        result = {
-                            data: null,
-                            error: 'INTERNET OFFLINE'
-                        };
-
-                        parentPort?.postMessage(result);       
-                        break;
-
-                    case 'invalid-json':
-                        console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to Invalid Canvas Credentials -', error);
-
-                        result = {
-                            data: null,
-                            error: 'INVALID CANVAS CREDENTIALS'
-                        };
-
-                        parentPort?.postMessage(result);       
-                
-                    default:
-                        break;
+                    parentPort?.postMessage(result);       
+                    return;
                 }
-                return;
             }
 
-            // if (error instanceof )
-            
-            console.error('[Worker (CheckCanvas)]: Failed to Get Class Data From Canvas -', error);
+            console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to Invalid Canvas Credentials -', error);
+
+            const result = {
+                data: null,
+                error: 'INVALID CANVAS CREDENTIALS'
+            };
+
+            parentPort?.postMessage(result);
         }
 
         const result: WorkerResult = {

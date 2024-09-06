@@ -1,12 +1,14 @@
 import { app, ipcMain } from "electron";
 
 import AppInfo from '../interfaces/appInfo';
-import DebugMode from "../interfaces/debugMode";
+import AppStatus from "../../shared/interfaces/appStatus";
+import DebugMode from "../../shared/interfaces/debugMode";
+import SettingsData from "../../shared/interfaces/settingsData";
 
 import { getSavedData, writeSavedData } from "../util/fileUtil";
 import { startCheckCanvasWorker } from "../main";
 
-function handleFileRequests(appInfo: AppInfo, debugMode: DebugMode) {
+function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
     ipcMain.handle('writeSavedData', async (event, filename: string, data: Object) => {
         console.log(`[Main]: Write Saved Data (${filename}) Event Was Handled!`);
         return await writeSavedData(filename, data);
@@ -45,6 +47,7 @@ function handleFileRequests(appInfo: AppInfo, debugMode: DebugMode) {
     });
     
     ipcMain.handle('getDebugMode', (event) => debugMode);
+    ipcMain.handle('getAppStatus', (event) => appStatus);
 }
 
 export default handleFileRequests;

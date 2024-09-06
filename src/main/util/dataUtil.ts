@@ -1,7 +1,10 @@
 import AppInfo from '../interfaces/appInfo';
-import DebugMode from '../interfaces/debugMode';
+import DebugMode from '../../shared/interfaces/debugMode';
 
 import { updateClassData } from '../main';
+
+import { ClassData } from "../../shared/interfaces/classData";
+import SettingsData from "../../shared/interfaces/settingsData";
 
 import * as FileUtil from './fileUtil';
 import * as CourseUtil from './courseUtil';

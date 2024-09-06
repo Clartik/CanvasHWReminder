@@ -1,34 +1,10 @@
-//#region Interfaces
+import AppStatus from "../shared/interfaces/appStatus";
+import DebugMode from "../shared/interfaces/debugMode";
+import SettingsData from "../shared/interfaces/settingsData";
 
-interface ClassData {
-    readonly classes: Array<Class>;
-}
+import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../shared/interfaces/classData";
 
-interface Class {
-    readonly name: string;
-    readonly time_zone: string;
-    readonly assignments: Array<Assignment>;
-}
-
-interface Assignment {
-    readonly name: string;
-    readonly points: Number;
-    readonly html_url: string;
-    readonly is_quiz_assignment: boolean;
-    
-    readonly due_at: string | null;
-    readonly unlock_at: string | null;
-    readonly lock_at: string | null;
-}
-
-interface AssignmentElementThatIsDue {
-    readonly assignment: Assignment;
-    readonly label: HTMLParagraphElement;
-}
-
-//#endregion
-
-//#region Templates
+//#region TEMPLATES
 
 const CLASS_HEADER_TEMPLATE: string = `
     <div class='class-header'>
@@ -58,7 +34,7 @@ const INFO_WIDGET_TEMPLATE_NO_INTERNET_ON_BOOT: string = `
 
 const INFO_WIDGET_TEMPLATE_NO_INTERNET_WHILE_RUNNING: string = `
     <h2>No Internet Connection</h2>
-    <p>Canvas HW Reminder May Not Be Up to Date</p>
+    <p>Course/Assignment Info May Not Be Up to Date</p>
 `;
 
 const INFO_WIDGET_TEMPLATE_INTERNET_BACK: string = `
@@ -82,7 +58,6 @@ const LOADING_CIRCLE_TEMPLATE: string = `
 
 const classContainer = document.getElementById('class-container') as HTMLDivElement;
 const loadingOrErrorContainer = document.getElementById('loading-or-error-container') as HTMLDivElement;
-const loadingCircle = document.getElementById('loading-circle') as HTMLImageElement;
 
 let classHeaders: HTMLCollectionOf<HTMLSpanElement>;
 let classHeadersLabels: HTMLCollectionOf<HTMLSpanElement>;
@@ -95,17 +70,18 @@ const checkForUpdatesTimeInSec: number = 60;                // Every Minute
 let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
 
 let settingsData: SettingsData | null;
-let homepageDebugMode;
+let homepageDebugMode: DebugMode;
 
 homeMain();
 
 // Main Function
 async function homeMain() {
-    homepageDebugMode = await window.api.getDebugMode();
+    homepageDebugMode = await window.api.getDebugMode() as DebugMode;
     settingsData = await homepageGetCachedSettingsData();
-    
+
     const classData: ClassData | null = await getCachedClassData();
-    
+    const appStatus: AppStatus = await window.api.getAppStatus() as AppStatus;
+
     if (classData !== null) {
         clearLoadingOrErrorContainer();
 
@@ -115,6 +91,29 @@ async function homeMain() {
         }
     
         loadElementsWithData(classData.classes);
+    }
+
+    if (!appStatus.isOnline) {
+        clearLoadingOrErrorContainer();
+
+        if (classData === null) {
+            const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_INTERNET_ON_BOOT);
+            loadingOrErrorContainer.append(infoWidget);
+        }
+        else {
+            const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_INTERNET_WHILE_RUNNING);
+            loadingOrErrorContainer.append(infoWidget);
+        }
+    }
+
+    if (!appStatus.isConnectedToCanvas) {
+        clearLoadingOrErrorContainer();
+
+        if (classData !== null)
+            classContainer.innerHTML = '';
+
+        const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_CANVAS_INCORRECT_LOGIN);
+        loadingOrErrorContainer.append(infoWidget);
     }
 
     while (isCheckingForUpdates) {

@@ -1,5 +1,8 @@
 import { Notification } from "electron";
 
+import { ClassData, Assignment } from "../../shared/interfaces/classData";
+import SettingsData from "../../shared/interfaces/settingsData";
+
 import { openLink } from "./misc";
 
 function getUpcomingAssignments(classData: ClassData): Array<Assignment> {
@@ -232,4 +235,4 @@ function getNotification(nextAssignment: Assignment): Notification | null {
 }
 
 export { getUpcomingAssignments, getNextAssignment, filterUpcomingAssignmentsToRemoveRemindedAssignments, 
-    getTimeTillDueDate, getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getNotification}
+    getTimeTillDueDate, getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getNotification, getTimeDiffInSeconds }

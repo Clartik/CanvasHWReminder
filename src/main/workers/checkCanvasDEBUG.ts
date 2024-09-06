@@ -4,6 +4,8 @@ import * as path from 'path'
 
 import WorkerResult from '../interfaces/workerResult';
 
+import { ClassData } from "../../shared/interfaces/classData";
+
 import SaveManager from '../util/saveManager';
 
 const sleep = promisify(setTimeout);
