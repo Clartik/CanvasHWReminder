@@ -4,6 +4,7 @@ import AppInfo from '../interfaces/appInfo';
 import DebugMode from "../interfaces/debugMode";
 
 import { getSavedData, writeSavedData } from "../util/fileUtil";
+import { startCheckCanvasWorker } from "../main";
 
 function handleFileRequests(appInfo: AppInfo, debugMode: DebugMode) {
     ipcMain.handle('writeSavedData', async (event, filename: string, data: Object) => {
@@ -38,6 +39,8 @@ function handleFileRequests(appInfo: AppInfo, debugMode: DebugMode) {
             app.setLoginItemSettings({
                 openAtLogin: appInfo.settingsData?.launchOnStart
             });
+
+            startCheckCanvasWorker();
         }
     });
     

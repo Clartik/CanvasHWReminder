@@ -18,6 +18,7 @@ import * as FileUtil from './util/fileUtil';
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
+import AppStatus from './interfaces/appStatus';
 
 const sleep = promisify(setTimeout);
 
@@ -31,7 +32,7 @@ const debugMode: DebugMode = {
 };
 
 if (!debugMode.active) {
-	debugMode.useLocalClassData = true;
+	debugMode.useLocalClassData = false;
 	debugMode.devKeybinds = false;
 	debugMode.saveFetchedClassData = false;
 }
@@ -46,6 +47,11 @@ const appInfo: AppInfo = {
 
 	nextAssignment: null,
 	assignmentsThatHaveBeenReminded: [],
+}
+
+const appStatus: AppStatus = {
+	isOnline: true,
+	isConnectedToCanvas: false
 }
 
 const CHECK_FOR_UPDATES_TIME_IN_SEC = 15;			// Every Minute
@@ -122,7 +128,8 @@ async function appMain() {
 		await sleep(100);
 
 	while (appInfo.isRunning) {
-		if (!net.isOnline() && !hasToldRendererAboutInternetOfflineStatus) {
+		if (!net.isOnline() && appStatus.isOnline) {
+			appStatus.isOnline = false;
 			mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
 
 			hasToldRendererAboutInternetOfflineStatus = true;
@@ -134,7 +141,8 @@ async function appMain() {
 				console.log('[Main]: Cancelled Worker (CheckCanvas) Due to No Internet!');
 			}
 		}
-		else if (net.isOnline() && !hasToldRendererAboutInternetOnlineStatus) {
+		else if (net.isOnline() && !appStatus.isOnline) {
+			appStatus.isOnline = true;
 			mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
 
 			hasToldRendererAboutInternetOnlineStatus = true;
@@ -151,6 +159,11 @@ async function appMain() {
 async function updateClassData(classData: ClassData | null) {
 	if (classData === null)
 		return;
+
+	if (!appStatus.isConnectedToCanvas) {
+		appStatus.isConnectedToCanvas = true;
+		mainWindow?.webContents.send('sendAppStatus', 'CANVAS LOGIN SUCCESS');
+	}
 
 	// ClassData Is Different From Cached Classes
 	if (JSON.stringify(classData.classes) === JSON.stringify(appInfo.classData?.classes)) {
@@ -263,8 +276,10 @@ async function onCheckCanvasWorkerMessageCallback(result: WorkerResult) {
 				checkCanvasWorker = null;
 				break;
 
-			case 'INCORRECT CANVAS CREDENTIALS':
-				
+			case 'INVALID CANVAS CREDENTIALS':
+				mainWindow?.webContents.send('sendAppStatus', 'INVALID CANVAS CREDENTIALS');
+				checkCanvasWorker?.terminate();
+				checkCanvasWorker = null;
 				break;
 		
 			default:
@@ -289,4 +304,11 @@ async function onShowNotificationWorkerMessageCallback(result: WorkerResult) {
 	showNotification(result.data as Assignment);
 }
 
-export { updateClassData }
+function startCheckCanvasWorker() {
+	if (checkCanvasWorker !== null)
+		return;
+
+	checkCanvasWorker = createCanvasWorker();
+}
+
+export { updateClassData, startCheckCanvasWorker }
