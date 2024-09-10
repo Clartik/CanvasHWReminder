@@ -2,11 +2,14 @@ import { ipcMain, dialog, BrowserWindow  } from "electron";
 
 import AppInfo from "../interfaces/appInfo";
 import DebugMode from "../../shared/interfaces/debugMode";
+import AppStatus from "../../shared/interfaces/appStatus";
 
-import { openLink } from "../util/misc";
 import * as DataUtil from '../util/dataUtil';
+import { openLink } from "../util/misc";
 
-function handleUserRequests(appInfo: AppInfo, debugMode: DebugMode) {
+import { outputAppLog } from "../main";
+
+function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
 	ipcMain.on('openLink', (event, url: string) => openLink(url));
 
 	ipcMain.handle('showMessageDialog', (event, options: Electron.MessageBoxOptions) => {
@@ -26,6 +29,10 @@ function handleUserRequests(appInfo: AppInfo, debugMode: DebugMode) {
 	
 			case 'F5':
 				await DataUtil.reloadClassData(appInfo, debugMode);
+				break;
+
+			case 'F12':
+				await outputAppLog();
 				break;
 		
 			default:

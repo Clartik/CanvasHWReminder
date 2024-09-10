@@ -1,3 +1,4 @@
+import { FILENAME_SETTINGS_DATA_JSON } from "../shared/constants";
 import DebugMode from "../shared/interfaces/debugMode";
 import SettingsData from "../shared/interfaces/settingsData";
 
@@ -118,7 +119,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
 
         if (messageResponse.response === YES_BUTTON_RESPONSE) {
             const settingsData = getSettingsDataToSave();
-            const success = await window.api.writeSavedData("settings-data.json", settingsData);
+            const success = await window.api.writeSavedData(FILENAME_SETTINGS_DATA_JSON, settingsData);
 
             if (success)
                 window.api.updateData('settingsData', settingsData);

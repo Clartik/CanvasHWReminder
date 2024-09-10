@@ -9,10 +9,10 @@ const API = {
     getSavedData: (filename: string) => ipcRenderer.invoke('getSavedData', filename),
     getCachedData: (filename: string) => ipcRenderer.invoke('getCachedData', filename),
     updateData: (type: string, data: Object | null) => ipcRenderer.send('updateData', type, data),
-    onUpdateData: (callback: UpdateDataCallback) => ipcRenderer.on('updateData', (_event: Event, type: string, data: Object | null) => callback(type, data)),
+    onUpdateData: (callback: UpdateDataCallback) => ipcRenderer.on('updateData', (_event, type: string, data: Object | null) => callback(type, data)),
     keyPress: (key: string) => ipcRenderer.send('keyPress', key),
     getDebugMode: () => ipcRenderer.invoke('getDebugMode'),
-    onSendAppStatus: (callback: (status: string) => void) => ipcRenderer.on('sendAppStatus', (_event: Event, status: string) => callback(status)),
+    onSendAppStatus: (callback: (status: string) => void) => ipcRenderer.on('sendAppStatus', (_event, status: string) => callback(status)),
     getAppStatus: () => ipcRenderer.invoke('getAppStatus')
 }
 
@@ -26,6 +26,10 @@ document.addEventListener('keydown', (event: KeyboardEvent) => {
 
         case 'F5':
             API.keyPress('F5');
+            break;
+
+        case 'F12':
+            API.keyPress('F12');
             break;
     
         default:

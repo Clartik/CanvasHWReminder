@@ -1,12 +1,12 @@
 import { parentPort } from 'worker_threads'
 import { promisify } from 'util'
-import * as path from 'path'
 
 import WorkerResult from '../interfaces/workerResult';
-
 import { ClassData } from "../../shared/interfaces/classData";
 
-import SaveManager from '../util/saveManager';
+import SaveManager from "../util/saveManager"
+
+import { FILENAME_CLASS_DATA_JSON } from '../../shared/constants';
 
 const sleep = promisify(setTimeout);
 
@@ -14,7 +14,7 @@ const checkCanvasTimeInSec: number = 60 * 60;				// Every Hour
 
 let isWorkerRunning: boolean = false;
 
-parentPort?.on('message', async () => {
+parentPort?.on('message', async (userDataFilepath: string) => {
     isWorkerRunning = true;
 
     while (isWorkerRunning) {
@@ -23,8 +23,7 @@ parentPort?.on('message', async () => {
         let classData: ClassData | null = null;
 
         try {
-            const filepath = path.join(__dirname, '../../../assets/data/classes-data.json');
-            classData = await SaveManager.getData(filepath) as ClassData | null;
+            classData = await SaveManager.getData(userDataFilepath + '\\' + FILENAME_CLASS_DATA_JSON) as ClassData;
         } catch (error) {
             console.error('[Worker (CheckCanvas DEBUG)]: Failed to Get Class Data From Local Canvas Save -', error);
         }
