@@ -117,7 +117,7 @@ async function homeMain() {
     }
 
     while (isCheckingForUpdates) {
-        const secondsLeft = 60 - new Date().getSeconds();
+        const secondsLeft = checkForUpdatesTimeInSec - new Date().getSeconds();
         await sleep(secondsLeft * 1000);
         
         console.log('Checking For Any Updates!');

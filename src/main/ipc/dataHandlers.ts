@@ -5,18 +5,19 @@ import AppStatus from "../../shared/interfaces/appStatus";
 import DebugMode from "../../shared/interfaces/debugMode";
 import SettingsData from "../../shared/interfaces/settingsData";
 
-import { getSavedData, writeSavedData } from "../util/fileUtil";
 import { startCheckCanvasWorker } from "../main";
+
+import SaveManager from "../util/saveManager";
 
 function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
     ipcMain.handle('writeSavedData', async (event, filename: string, data: Object) => {
         console.log(`[Main]: Write Saved Data (${filename}) Event Was Handled!`);
-        return await writeSavedData(filename, data);
+        return await SaveManager.writeSavedData(filename, data);
     })
     
     ipcMain.handle('getSavedData', async (event: any, filename: string) => {
         console.log(`[Main]: Get Saved Data (${filename}) Event Was Handled!`)
-        return await getSavedData(filename);
+        return await SaveManager.getSavedData(filename);
     });
     
     ipcMain.handle('getCachedData', (event, filename: string): Object | null => {
@@ -32,7 +33,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         return null;
     });
 
-    ipcMain.on('updateData', (event: Event, type: string, data: Object | null) => {
+    ipcMain.on('updateData', (event, type: string, data: Object | null) => {
         console.log(`[Main]: Update Data (${type}) Event Was Handled!`)
         
         if (type === 'settingsData') {

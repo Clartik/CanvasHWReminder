@@ -1,9 +1,9 @@
 import { Worker } from 'worker_threads'
 import { promisify } from 'util'
 
-import { app, BrowserWindow, net, Notification } from 'electron'
+import { app, BrowserWindow, net, Notification, Menu } from 'electron'
 
-import handleIPCRequests from './ipc';
+import handleIPCRequests from './ipc/index';
 
 import createSystemTray from './tray'
 import createMainWindow from './window';
@@ -13,13 +13,16 @@ import DebugMode from '../shared/interfaces/debugMode'
 import WaitOnNotificationParams from './interfaces/waitForNotificationParams';
 import WorkerResult from './interfaces/workerResult';
 import AppStatus from '../shared/interfaces/appStatus';
+import AppLog from './interfaces/appLog';
 
 import { ClassData, Assignment } from "../shared/interfaces/classData";
 
-import * as FileUtil from './util/fileUtil';
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
+import { FILENAME_CLASS_DATA_JSON } from '../shared/constants';
+
+import SaveManager from './util/saveManager';
 
 const sleep = promisify(setTimeout);
 
@@ -73,12 +76,14 @@ appMain();
 function createElectronApp() {
 	app.on('ready', async () => {
 		app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
+		Menu.setApplicationMenu(null);
+
 		const tray = createSystemTray(appInfo, mainWindow);
 		
 		while (appInfo.settingsData === null)
 			await sleep(100);
 	
-		if (appInfo.settingsData?.minimizeOnLaunch) {
+		if (appInfo.settingsData.minimizeOnLaunch) {
 			appInfo.isMainWindowHidden = true;
 			return;
 		}
@@ -119,15 +124,17 @@ async function appMain() {
 		console.error('[Main]: SettingsData is NULL!');
 		return;
 	}
-
+	
 	if (net.isOnline())
 		checkCanvasWorker = createCanvasWorker();
-
+	
 	while (!app.isReady() || !appInfo.isMainWindowLoaded)
 		await sleep(100);
 
 	while (appInfo.isRunning) {
 		if (!net.isOnline() && appStatus.isOnline) {
+			console.log('[Main]: No Internet!');
+
 			appStatus.isOnline = false;
 			mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
 
@@ -138,6 +145,8 @@ async function appMain() {
 			}
 		}
 		else if (net.isOnline() && !appStatus.isOnline) {
+			console.log('[Main]: Internet Back!');
+
 			appStatus.isOnline = true;
 			mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
 
@@ -167,7 +176,7 @@ async function updateClassData(classData: ClassData | null) {
 	console.log('[Main]: ClassData Has Changed!')
 
 	if (debugMode.saveFetchedClassData)
-		await FileUtil.writeSavedData('class-data.json', classData);
+		await SaveManager.writeSavedData(FILENAME_CLASS_DATA_JSON, classData);
 
 	appInfo.classData = classData;
 	mainWindow?.webContents.send('updateData', 'classes', classData);
@@ -222,7 +231,7 @@ async function showNotification(nextAssignment: Assignment) {
 	waitForNotificationWorker?.terminate();
 	waitForNotificationWorker = null;
 
-	while (!app.isReady())
+	while (!app.isReady() || !appInfo.isMainWindowLoaded)
 		await sleep(100);
 	
 	const notification: Notification | null = CourseUtil.getNotification(nextAssignment);
@@ -255,7 +264,7 @@ function createCanvasWorker(): Worker {
 		_checkCanvasWorker = WorkerUtil.createWorker('./workers/checkCanvasDEBUG.js');
 		_checkCanvasWorker.on('message', onCheckCanvasWorkerMessageCallback);
 
-		_checkCanvasWorker.postMessage(appInfo.settingsData);
+		_checkCanvasWorker.postMessage(app.getPath('userData'));
 	}
 
 	return _checkCanvasWorker;
@@ -307,4 +316,19 @@ function startCheckCanvasWorker() {
 	checkCanvasWorker = createCanvasWorker();
 }
 
-export { updateClassData, startCheckCanvasWorker }
+async function outputAppLog() {
+	console.log('[Main]: Outputting App Log to File!');
+
+	const data: AppLog = {
+		appInfo: appInfo,
+		appStatus: appStatus,
+		workers: {
+			checkCanvasWorker: checkCanvasWorker !== null ? 'Running' : 'Not Running', 
+			waitForNotificationWorker: waitForNotificationWorker !== null ? 'Running' : 'Not Running'
+		}
+	};
+
+	await SaveManager.writeSavedData('app-log.json', data);
+}
+
+export { updateClassData, startCheckCanvasWorker, outputAppLog }

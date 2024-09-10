@@ -1,4 +1,4 @@
-import AppInfo from "../interfaces/appInfo";
+import AppInfo from "../interfaces/appInfo"
 import AppStatus from "../../shared/interfaces/appStatus";
 import DebugMode from "../../shared/interfaces/debugMode";
 
@@ -7,7 +7,7 @@ import handleUserRequests from "./userHandlers";
 
 function handleIPCRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
     handleFileRequests(appInfo, appStatus, debugMode);
-    handleUserRequests(appInfo, debugMode);
+    handleUserRequests(appInfo, appStatus, debugMode);
 }
 
 export default handleIPCRequests;
