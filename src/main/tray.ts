@@ -18,7 +18,7 @@ function createSystemTray(appInfo: AppInfo, mainWindow: BrowserWindow | null): T
 				return;
 
 			appInfo.isMainWindowHidden = false;
-			mainWindow = createMainWindow(appInfo);
+			mainWindow = createMainWindow(appInfo, './pages/home.html');
 		} },
 		// { label: "Don't Check for Today", type: 'checkbox' },
 		{ label: 'Quit App', type: 'normal', click: () => {

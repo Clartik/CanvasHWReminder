@@ -1,4 +1,3 @@
-import { FILENAME_SETTINGS_DATA_JSON } from "../shared/constants";
 import DebugMode from "../shared/interfaces/debugMode";
 import SettingsData from "../shared/interfaces/settingsData";
 
@@ -30,6 +29,9 @@ const creditsLinkBtn = document.getElementById('credits-link-btn') as HTMLButton
 const SETTINGS_DATA_VERSION: string = '0.2';
 
 let settingsPageDebugMode: DebugMode;
+
+// Shared constants file fills the variable
+let FILENAME_SETTINGS_DATA_JSON: string;
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
