@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas HW Reminder</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+
+    <script>var exports = {};</script>
+    <script src="../build/renderer/setupConnect.js" defer></script>
+</head>
+<body>
+    <div id="top-bar">
+        <h1 id="page-title">Connect to Canvas</h1>
+    </div>
+    <div id="setup-login-container" class="">
+        <div id="input-container">
+            <div class="setup-input-label-container">
+                <label class="input-label">Canvas Base URL</label>
+                <input type="url" id="base-url-input" class="connect-input changeable" placeholder="Canvas Base URL">
+            </div>
+            
+            <div class="setup-input-label-container">
+                <label class="input-label">Canvas Access Token</label>
+                <input id="api-token-input" class="connect-input changeable" placeholder="Canvas API Access Token">
+            </div>
+        </div>
+
+        <button id="connect-btn" disabled>Connect to Canvas</button>
+    </div>
+
+    <div id="separator-container">
+        <div class="separator-thick"></div>
+    </div>
+        
+    <div id="setup-profile-container" class="hide">
+        <h1 id="is-this-you-label" class="text-shadow">Is This You?</h1>
+        <img id="profile-icon" class="profile-icon" src="../assets/images/avatar-50.png"></img>
+        <h3 id="profile-name" class="profile-name">First Name and Last Name</h3>
+
+        <div id="yes-no-container">
+            <button id="no-btn" class="profile-btn">No</button>
+            <button id="yes-btn" class="profile-btn">Yes</button>
+        </div>
+    </div>
+
+</body>
+</html>

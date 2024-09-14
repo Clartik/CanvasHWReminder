@@ -37,8 +37,10 @@
     --disabled-background-color: #303030;
 
     --placeholder-text-color: rgb(150, 150, 150);
+    --placeholder-text-color-disabled: rgba(150, 150, 150, 0.164);
 
     --border-radius: 6px;
+    --border-radius-extra: 12px;
 }
 
 body {
@@ -80,6 +82,19 @@ h2 {
     color: var(--text-color);
     padding: 0;
     margin: 0;
+}
+
+h3 {
+    font-family: 'Poppins Regular';
+    color: var(--text-color);
+    padding: 0;
+    margin: 0;
+}
+
+#is-this-you-label {
+    margin: 0;
+    margin-bottom: 5px;
+    padding: 0;
 }
 
 ul {
@@ -124,6 +139,10 @@ input:not(:disabled)::placeholder {
     color: var(--placeholder-text-color);
 }
 
+input::placeholder {
+    color: var(--placeholder-text-color-disabled);
+}
+
 button {
     font-family: 'Poppins Regular';
     background-color: gray;
@@ -165,6 +184,100 @@ select:hover {
 .link-btn-image {
     width: 40px;
     color: white;
+}
+
+.profile-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 5px;
+    border: 5px solid var(--primary-color);
+}
+
+#setup-login-container {
+    padding: 0px 15px;
+    margin-bottom: 5px;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    grid-template-columns: 1 1;
+    grid-template-rows: 2;
+}
+
+#setup-profile-container {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.setup-input-label-container {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 2;
+}
+
+#input-container {
+    display: flex;
+}
+
+.input-label {
+    padding: 5px;
+    font-size: large;
+    font-family: 'Poppins Regular';
+}
+
+.connect-input {
+    width: 300px;
+    height: 25px;
+    background-color: transparent;
+    border-radius: var(--border-radius);
+    padding: 5px;
+}
+
+#connect-btn {
+    flex: 1;
+    width: 250px;
+    height: 40px;
+    border-radius: var(--border-radius-extra);
+    font-size: large;
+    margin: 15px 0px;
+    font-family: 'Poppins Bold';
+    background-color: var(--accent-color);
+    box-shadow: 1px 3px 15px var(--shadow-color);
+    text-align: center;
+
+    transition: 0.1s transform;
+    transition: 0.3s background-color;
+}
+
+#spinner {
+    margin-top: 3.5px;
+
+    animation: rotating 1.3s linear infinite;
+}
+
+@keyframes rotating {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#connect-btn:hover {
+    transform: scale(1.1);
+}
+
+#connect-btn:disabled {
+    background-color: var(--disabled-text-color);
+    pointer-events: none;
 }
 
 .container-column {
@@ -403,6 +516,17 @@ input:checked + .slider:before {
     height: 2px;
 }
 
+#separator-container {
+    margin: 0px 10px;
+}
+
+.separator-thick {
+    background: var(--primary-color);
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+}
+
 .checkbox-container {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -434,6 +558,10 @@ input:checked + .slider:before {
     min-width: fit-content;
 }
 
+.text-shadow {
+    text-shadow: 5px 5px 5px var(--shadow-color);
+}
+
 #page-title {
     text-align: center;
     flex-grow: 1;
@@ -451,6 +579,35 @@ input:checked + .slider:before {
     align-items: center;
     justify-content: center;
     margin-bottom: 10px;
+}
+
+#yes-no-container {
+    display: flex;
+    gap: 15px;
+    margin: 15px;
+}
+
+.profile-btn {
+    width: 80px;
+    height: 40px;
+    font-size: medium;
+    border-radius: var(--border-radius-extra);
+    box-shadow: 1px 3px 10px var(--shadow-color);
+    font-family: 'Poppins Bold';
+
+    transition: all 0.1s;
+}
+
+.profile-btn:hover {
+    transform: scale(1.1);
+}
+
+#yes-btn {
+    background-color: green;
+}
+
+#no-btn {
+    background-color: red;
 }
 
 #load {
@@ -510,4 +667,13 @@ input:checked + .slider:before {
     #class-container {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+}
+
+.hide {
+    display: none !important;
+}
+
+.disable {
+    filter: brightness(50%);
+    pointer-events: none;
 }

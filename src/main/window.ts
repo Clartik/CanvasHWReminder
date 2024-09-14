@@ -4,7 +4,7 @@ import { BrowserWindow } from "electron";
 
 import AppInfo from "./interfaces/appInfo";
 
-function createMainWindow(appInfo: AppInfo): BrowserWindow {
+function createMainWindow(appInfo: AppInfo, htmlPath: string): BrowserWindow {
 	const mainWindow = new BrowserWindow({
 		width: 800,
 		height: 600,
@@ -17,7 +17,7 @@ function createMainWindow(appInfo: AppInfo): BrowserWindow {
 		}
 	});
 	
-	mainWindow.loadFile('./pages/home.html');
+	mainWindow.loadFile(htmlPath);
 
 	mainWindow.webContents.once('did-finish-load', () => {
 		appInfo.isMainWindowLoaded = true;

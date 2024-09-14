@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../assets/css/global.css">
 
     <script>var exports = {};</script>
+    <script src="../build/shared/constants.js" defer></script>
     <script src="../build/renderer/settings.js" defer></script>
 </head>
 <body>
@@ -41,7 +42,9 @@
     
         <div class="settings-option" title="The Amount of Time Before An Assignment Due Date Should You Be Reminded">
             <label>When To Remind You?</label>
-            <select id="when-to-remind-time-dropdown" class="changeable"></select>
+            <select id="when-to-remind-time-dropdown" class="changeable">
+                <option>0</option>
+            </select>
             <select id="when-to-remind-format-dropdown" class="changeable">
                 <option value="day">Days</option>
                 <option value="hour">Hours</option>
@@ -51,7 +54,9 @@
 
         <div class="settings-option" title="The Amount of Time Before An Overdue Assignment Disappears From Homepage">
             <label>How Long Should An Assignment Show Past Due Date?</label>
-            <select id="how-long-past-due-time-dropdown" class="changeable"></select>
+            <select id="how-long-past-due-time-dropdown" class="changeable">
+                <option>0</option>
+            </select>
             <select id="how-long-past-due-format-dropdown" class="changeable">
                 <option value="day">Days</option>
                 <option value="hour">Hours</option>

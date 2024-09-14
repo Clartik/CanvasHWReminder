@@ -59,7 +59,7 @@ const appStatus: AppStatus = {
 	isConnectedToCanvas: true
 }
 
-const CHECK_FOR_UPDATES_TIME_IN_SEC = 10;			// Every Minute
+const CHECK_FOR_UPDATES_TIME_IN_SEC = 10;						// Every Minute
 const NOTIFICATION_DISAPPER_TIME_IN_SEC: number = 6;			// Every 6 Seconds
 
 let mainWindow: BrowserWindow | null = null;
@@ -76,7 +76,7 @@ appMain();
 function createElectronApp() {
 	app.on('ready', async () => {
 		app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
-		Menu.setApplicationMenu(null);
+		// Menu.setApplicationMenu(null);
 
 		const tray = createSystemTray(appInfo, mainWindow);
 		
@@ -88,13 +88,13 @@ function createElectronApp() {
 			return;
 		}
 
-		mainWindow = createMainWindow(appInfo);
+		mainWindow = createMainWindow(appInfo, './pages/setupConnect.html');
 	});
 
 	// MACOS ONLY
 	app.on('activate', async () => {
 		if (BrowserWindow.getAllWindows().length === 0 && app.isReady())
-			mainWindow = createMainWindow(appInfo);
+			mainWindow = createMainWindow(appInfo, './pages/home.html');
 	});
 	
 	app.on('window-all-closed', () => {
