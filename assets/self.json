@@ -1,0 +1,17 @@
+{
+  "id": 181992,
+  "name": "Kartik Yedumbaka",
+  "created_at": "2022-05-02T09: 47: 50-07: 00",
+  "sortable_name": "Yedumbaka, Kartik",
+  "short_name": "Kartik Yedumbaka",
+  "avatar_url": "https: //vcccd.instructure.com/images/messages/avatar-50.png",
+  "last_name": "Yedumbaka",
+  "first_name": "Kartik",
+  "locale": null,
+  "effective_locale": "en",
+  "permissions": {
+    "can_update_name": false,
+    "can_update_avatar": true,
+    "limit_parent_app_web_access": false
+    }
+}

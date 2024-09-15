@@ -37,9 +37,9 @@ class Canvas {
         this.accessToken = accessToken;
     }
 
-    async getSelf(): Promise<Object> {
+    async getSelf(): Promise<User> {
         const url = this.baseURL + 'users/self'
-        return await getAPI(url, this.accessToken);
+        return await getAPI(url, this.accessToken) as User;
     }
 
     async getCourses(enrollment_state?: string, state?: string): Promise<Course[]> {
@@ -106,4 +106,15 @@ class Course {
     }
 }
 
-export { Canvas, Course }
+interface User {
+    readonly id: number;
+    readonly name: string;
+    readonly created_at: string;
+    readonly sortable_name: string;
+    readonly short_name: string;
+    readonly avatar_url: string;
+    readonly last_name: string;
+    readonly first_name: string;
+}
+
+export { Canvas, Course, User }

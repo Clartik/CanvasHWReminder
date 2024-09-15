@@ -30,7 +30,7 @@ global.__baseDir = __dirname;
 
 const debugMode: DebugMode = {
 	active: true,
-	useLocalClassData: true,
+	useLocalClassData: false,
 	devKeybinds: true,
 	saveFetchedClassData: false,
 };
@@ -45,6 +45,8 @@ const appInfo: AppInfo = {
 	isRunning: true,
 	isMainWindowLoaded: false,
 	isMainWindowHidden: false,
+
+	isSetupNeeded: false,
 
 	classData: null,
 	settingsData: null,
@@ -76,9 +78,9 @@ appMain();
 function createElectronApp() {
 	app.on('ready', async () => {
 		app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
-		// Menu.setApplicationMenu(null);
+		Menu.setApplicationMenu(null);
 
-		const tray = createSystemTray(appInfo, mainWindow);
+		const tray = createSystemTray(appInfo, debugMode, mainWindow);
 		
 		while (appInfo.settingsData === null)
 			await sleep(100);
@@ -88,13 +90,13 @@ function createElectronApp() {
 			return;
 		}
 
-		mainWindow = createMainWindow(appInfo, './pages/setupConnect.html');
+		mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 	});
 
 	// MACOS ONLY
 	app.on('activate', async () => {
 		if (BrowserWindow.getAllWindows().length === 0 && app.isReady())
-			mainWindow = createMainWindow(appInfo, './pages/home.html');
+			mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 	});
 	
 	app.on('window-all-closed', () => {
@@ -121,7 +123,8 @@ async function appMain() {
 	appInfo.settingsData = await DataUtil.getSavedSettingsData();
 
 	if (!appInfo.settingsData) {
-		console.error('[Main]: SettingsData is NULL!');
+		console.error('[Main]: SettingsData is NULL! Setup is Needed!');
+		appInfo.isSetupNeeded = true;
 		return;
 	}
 	

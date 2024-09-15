@@ -14,6 +14,7 @@ import SaveManager from './saveManager';
 function getDefaultSettingsData(): SettingsData {
 	return {
 		version: '0.2',
+
 		canvasBaseURL: '',
 		canvasAPIToken: '',
 		whenToRemindTimeValue: '6',
