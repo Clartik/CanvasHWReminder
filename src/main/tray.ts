@@ -2,8 +2,9 @@ import { app as electronApp, Tray, nativeImage, Menu, BrowserWindow } from 'elec
 
 import AppInfo from './interfaces/appInfo';
 import createMainWindow from './window';
+import DebugMode from 'src/shared/interfaces/debugMode';
 
-function createSystemTray(appInfo: AppInfo, mainWindow: BrowserWindow | null): Tray {
+function createSystemTray(appInfo: AppInfo, debugMode: DebugMode, mainWindow: BrowserWindow | null): Tray {
 	const icon = nativeImage.createFromPath('./assets/images/4k.png');
 	const tray = new Tray(icon);
 	
@@ -18,7 +19,7 @@ function createSystemTray(appInfo: AppInfo, mainWindow: BrowserWindow | null): T
 				return;
 
 			appInfo.isMainWindowHidden = false;
-			mainWindow = createMainWindow(appInfo, './pages/home.html');
+			mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 		} },
 		// { label: "Don't Check for Today", type: 'checkbox' },
 		{ label: 'Quit App', type: 'normal', click: () => {
