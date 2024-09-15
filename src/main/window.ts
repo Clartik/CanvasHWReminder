@@ -3,8 +3,9 @@ import * as path from 'path';
 import { BrowserWindow } from "electron";
 
 import AppInfo from "./interfaces/appInfo";
+import DebugMode from 'src/shared/interfaces/debugMode';
 
-function createMainWindow(appInfo: AppInfo, htmlPath: string): BrowserWindow {
+function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: string): BrowserWindow {
 	const mainWindow = new BrowserWindow({
 		width: 800,
 		height: 600,
@@ -13,7 +14,8 @@ function createMainWindow(appInfo: AppInfo, htmlPath: string): BrowserWindow {
 		show: true,
 		webPreferences: {
 			preload: path.join(__baseDir, '../preload/preload.js'),
-			nodeIntegration: true
+			nodeIntegration: true,
+			devTools: debugMode.active
 		}
 	});
 	
