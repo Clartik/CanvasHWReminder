@@ -13,7 +13,8 @@ const API = {
     keyPress: (key: string) => ipcRenderer.send('keyPress', key),
     getDebugMode: () => ipcRenderer.invoke('getDebugMode'),
     onSendAppStatus: (callback: (status: string) => void) => ipcRenderer.on('sendAppStatus', (_event, status: string) => callback(status)),
-    getAppStatus: () => ipcRenderer.invoke('getAppStatus')
+    getAppStatus: () => ipcRenderer.invoke('getAppStatus'),
+    getSelfFromCanvas: (baseUrl: string, apiToken: string) => ipcRenderer.invoke('getSelfFromCanvas', baseUrl, apiToken)
 }
 
 contextBridge.exposeInMainWorld("api", API);
