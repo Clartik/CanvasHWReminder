@@ -78,7 +78,9 @@ appMain();
 function createElectronApp() {
 	app.on('ready', async () => {
 		app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
-		Menu.setApplicationMenu(null);
+
+		if (!debugMode.active)
+			Menu.setApplicationMenu(null);
 
 		const tray = createSystemTray(appInfo, debugMode, mainWindow);
 		
@@ -90,7 +92,7 @@ function createElectronApp() {
 			return;
 		}
 
-		mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+		mainWindow = createMainWindow(appInfo, debugMode, './pages/setupSettings.html');
 	});
 
 	// MACOS ONLY
@@ -128,37 +130,37 @@ async function appMain() {
 		return;
 	}
 	
-	if (net.isOnline())
-		checkCanvasWorker = createCanvasWorker();
+	// if (net.isOnline())
+	// 	checkCanvasWorker = createCanvasWorker();
 	
-	while (!app.isReady() || !appInfo.isMainWindowLoaded)
-		await sleep(100);
+	// while (!app.isReady() || !appInfo.isMainWindowLoaded)
+	// 	await sleep(100);
 
-	while (appInfo.isRunning) {
-		if (!net.isOnline() && appStatus.isOnline) {
-			console.log('[Main]: No Internet!');
+	// while (appInfo.isRunning) {
+	// 	if (!net.isOnline() && appStatus.isOnline) {
+	// 		console.log('[Main]: No Internet!');
 
-			appStatus.isOnline = false;
-			mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
+	// 		appStatus.isOnline = false;
+	// 		mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
 
-			if (checkCanvasWorker !== null) {
-				checkCanvasWorker.terminate();
-				checkCanvasWorker = null;
-				console.log('[Main]: Cancelled Worker (CheckCanvas) Due to No Internet!');
-			}
-		}
-		else if (net.isOnline() && !appStatus.isOnline) {
-			console.log('[Main]: Internet Back!');
+	// 		if (checkCanvasWorker !== null) {
+	// 			checkCanvasWorker.terminate();
+	// 			checkCanvasWorker = null;
+	// 			console.log('[Main]: Cancelled Worker (CheckCanvas) Due to No Internet!');
+	// 		}
+	// 	}
+	// 	else if (net.isOnline() && !appStatus.isOnline) {
+	// 		console.log('[Main]: Internet Back!');
 
-			appStatus.isOnline = true;
-			mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
+	// 		appStatus.isOnline = true;
+	// 		mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
 
-			if (checkCanvasWorker === null)
-				checkCanvasWorker = createCanvasWorker();
-		}
+	// 		if (checkCanvasWorker === null)
+	// 			checkCanvasWorker = createCanvasWorker();
+	// 	}
 
-		await sleep(CHECK_FOR_UPDATES_TIME_IN_SEC * 1000);
-	}
+	// 	await sleep(CHECK_FOR_UPDATES_TIME_IN_SEC * 1000);
+	// }
 };
 
 async function updateClassData(classData: ClassData | null) {
