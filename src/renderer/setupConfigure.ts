@@ -1,0 +1,176 @@
+import SettingsData from "../shared/interfaces/settingsData";
+
+const whenToRemindTimeDropdown = document.getElementById('when-to-remind-time-dropdown')! as HTMLSelectElement;
+const whenToRemindFormatDropdown = document.getElementById('when-to-remind-format-dropdown')! as HTMLSelectElement;
+
+const howLongPastDueTimeDropdown = document.getElementById('how-long-past-due-time-dropdown')! as HTMLSelectElement;
+const howLongPastDueFormatDropdown = document.getElementById('how-long-past-due-format-dropdown')! as HTMLSelectElement;
+
+const launchOnStartCheckbox = document.getElementById('launch-on-start-checkbox')! as HTMLInputElement;
+const minimizeOnLaunchCheckbox = document.getElementById('minimize-on-launch-checkbox')! as HTMLInputElement;
+const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-checkbox')! as HTMLInputElement;
+
+const showExactDueDateCheckbox = document.getElementById('show-exact-due-date-checkbox')! as HTMLInputElement;
+const alwaysExpandAllCourseCardsCheckbox = document.getElementById('always-expand-course-cards-checkbox')! as HTMLInputElement;
+
+const doneBtn = document.getElementById('done-btn')! as HTMLButtonElement;
+
+const DAY_TIME_OPTIONS: Array<string> = [];
+const HOUR_TIME_OPTIONS: Array<string> = [];
+const MINUTE_TIME_OPTIONS: Array<string> = [];
+
+const SETTINGS_DATA_VERSION: string = '0.2';
+
+setupSettingsMain();
+
+async function setupSettingsMain() {
+    populateTimeOptions();
+    populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
+    populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
+
+    setDefaultSettings();
+}
+
+//#region Event Listeners
+
+whenToRemindFormatDropdown.addEventListener('change', (event: Event) => {
+    populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
+});
+
+howLongPastDueFormatDropdown.addEventListener('change', (event: Event) => {
+    populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
+    checkIfTimeDropdownShouldBeHidden(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
+});
+
+doneBtn.addEventListener('click', async (event) => {
+    const options: Electron.MessageBoxOptions = {
+        type: "warning",
+        title: "Done With Setup?",
+        message: "Are You Sure You Are Done Configuring?",
+        buttons: ['Yes', 'No'],
+        defaultId: 0
+    }
+
+    const messageResponse: Electron.MessageBoxReturnValue = await window.api.showMessageDialog(options);
+    
+    const YES_BUTTON_RESPONSE = 0;
+
+    if (messageResponse.response !== YES_BUTTON_RESPONSE)
+        return;
+
+    const settingsDataWithCanvasCredentials = await window.api.getSavedData('settings-data.json') as SettingsData | null;
+
+    if (!settingsDataWithCanvasCredentials) {
+        console.error('Settings Data With Canvas Credentials is NULL!');
+        return;
+    }
+
+    const settingsDataToSave = getSettingsDataToSave(settingsDataWithCanvasCredentials.canvasBaseURL, settingsDataWithCanvasCredentials.canvasAPIToken);
+    console.log(settingsDataToSave);
+    
+    const success = await window.api.writeSavedData('settings-data.json', settingsDataToSave)
+
+    if (!success) {
+        console.warn('Failed to Save Settings Data!');
+        return;
+    }
+
+    window.location.href = '../pages/home.html';
+});
+
+//#endregion
+
+//#region Functions
+
+function populateTimeOptions() {
+    // Includes 1 to 7
+    for (let i = 1; i <= 7; i++) {
+        DAY_TIME_OPTIONS.push('' + i);
+    }
+
+    // Includes 1 to 23
+    for (let i = 1; i <= 23; i++) {
+        HOUR_TIME_OPTIONS.push('' + i);
+    }
+
+    // Includes 1 to 59
+    for (let i = 1; i <= 59; i++) {
+        MINUTE_TIME_OPTIONS.push('' + i);
+    }
+}
+
+function addTimeOptionToDropdownAndPopulateValue(dropdown: HTMLSelectElement, timeElement: string) {
+    let timeOption = document.createElement('option');
+    timeOption.value = timeElement;
+    timeOption.innerText = timeElement;
+    dropdown.appendChild(timeOption);
+}
+
+function populateTimeDropdownWithCorrectOptions(timeDropdown: HTMLSelectElement, formatDropdown: HTMLSelectElement) {
+    timeDropdown.innerHTML = ''            // Clear InnerHTML
+
+    if (formatDropdown.value === 'day') {
+        for (let i = 0; i < DAY_TIME_OPTIONS.length; i++) {
+            const timeElement = DAY_TIME_OPTIONS[i];
+            addTimeOptionToDropdownAndPopulateValue(timeDropdown, timeElement);            
+        }
+    }
+    else if (formatDropdown.value === 'hour') {    
+        for (let i = 0; i < HOUR_TIME_OPTIONS.length; i++) {
+            const timeElement = HOUR_TIME_OPTIONS[i];
+            addTimeOptionToDropdownAndPopulateValue(timeDropdown, timeElement);            
+        }
+    }
+    else if (formatDropdown.value === 'minute') {    
+        for (let i = 0; i < MINUTE_TIME_OPTIONS.length; i++) {
+            const timeElement = MINUTE_TIME_OPTIONS[i];
+            addTimeOptionToDropdownAndPopulateValue(timeDropdown, timeElement);            
+        }
+    }
+}
+
+function checkIfTimeDropdownShouldBeHidden(timeDropdown: HTMLSelectElement, formatDropdown: HTMLSelectElement) {
+    if (formatDropdown.value !== 'never') {
+        timeDropdown.classList.remove('hide');
+        return;
+    }
+
+    timeDropdown.classList.add('hide');
+}
+
+function setDefaultSettings() {
+    whenToRemindFormatDropdown.value = 'hour';
+    populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
+    whenToRemindTimeDropdown.value = '6';
+
+    howLongPastDueFormatDropdown.value = 'hour';
+    populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
+    howLongPastDueTimeDropdown.value = '1';
+
+    minimizeOnCloseCheckbox.checked = true;
+}
+
+function getSettingsDataToSave(canvasBaseURL: string, canvasAPIToken: string): SettingsData {
+    console.log(whenToRemindTimeDropdown.value);
+    console.log(howLongPastDueTimeDropdown.value);
+    return {
+        version: SETTINGS_DATA_VERSION,
+
+        canvasBaseURL: canvasBaseURL,
+        canvasAPIToken: canvasAPIToken,
+
+        whenToRemindTimeValue: whenToRemindTimeDropdown.value,
+        whenToRemindFormatValue: whenToRemindFormatDropdown.value,
+        howLongPastDueTimeValue: howLongPastDueTimeDropdown.value,
+        howLongPastDueFormatValue: howLongPastDueFormatDropdown.value,
+
+        launchOnStart: launchOnStartCheckbox.checked,
+        minimizeOnLaunch: minimizeOnLaunchCheckbox.checked,
+        minimizeOnClose: minimizeOnCloseCheckbox.checked,
+
+        showExactDueDate: showExactDueDateCheckbox.checked,
+        alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked
+    };
+}
+
+//#endregion
