@@ -46,7 +46,7 @@ const appInfo: AppInfo = {
 	isMainWindowLoaded: false,
 	isMainWindowHidden: false,
 
-	isSetupNeeded: false,
+	isSetupNeeded: true,
 
 	classData: null,
 	settingsData: null,
@@ -92,7 +92,7 @@ function createElectronApp() {
 			return;
 		}
 
-		mainWindow = createMainWindow(appInfo, debugMode, './pages/setupSettings.html');
+		mainWindow = createMainWindow(appInfo, debugMode, './pages/setupConnect.html');
 	});
 
 	// MACOS ONLY
@@ -125,8 +125,7 @@ async function appMain() {
 	appInfo.settingsData = await DataUtil.getSavedSettingsData();
 
 	if (!appInfo.settingsData) {
-		console.error('[Main]: SettingsData is NULL! Setup is Needed!');
-		appInfo.isSetupNeeded = true;
+		console.error('[Main]: SettingsData is NULL!');
 		return;
 	}
 	

@@ -29,6 +29,9 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 		if (!appInfo.isRunning)
 			return;
 
+		if (!appInfo.settingsData)
+			appInfo.isRunning = false;
+
 		if (!appInfo.isMainWindowHidden && appInfo.settingsData?.minimizeOnClose) {
 			event.preventDefault();
 			mainWindow?.hide();

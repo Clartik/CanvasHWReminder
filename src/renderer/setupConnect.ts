@@ -1,5 +1,6 @@
 import * as CanvasAPI from "src/main/util/canvasAPI/canvas";
 import IPCGetResult from "src/shared/interfaces/ipcGetResult";
+import SettingsData from "src/shared/interfaces/settingsData";
 
 const setupLoginContainer = document.getElementById('setup-login-container')! as HTMLDivElement;
 const setupProfileContainer = document.getElementById('setup-profile-container')! as HTMLDivElement;
@@ -15,8 +16,12 @@ const profileIcon = document.getElementById('profile-icon')! as HTMLImageElement
 const profileName = document.getElementById('profile-name')! as HTMLHeadingElement;
 
 const separatorContainer = document.getElementById('separator-container')! as HTMLDivElement;
-
 const infoWidgetContainer = document.getElementById('info-widget-container')! as HTMLDivElement;
+
+const infoWarnWidget = document.getElementById('information-warning-container')! as HTMLDivElement;
+
+// Shared constants file fills the variable
+const SETTINGS_DATA_VERSION: string = '0.2';
 
 canvasBaseURLInput.addEventListener('input', checkIfConnectBtnCanBeEnabled);
 canvasAPITokenInput.addEventListener('input', checkIfConnectBtnCanBeEnabled);
@@ -42,6 +47,8 @@ const LOADING_SPINNER_TEMPLATE = `
 `;
 
 //#endregion
+
+//#region Event Listeners
 
 connectBtn.addEventListener('click', async () => {
     if (!canvasBaseURLInput.value || !canvasAPITokenInput.value || !isValidUrl(canvasBaseURLInput.value))
@@ -76,11 +83,24 @@ noBtn.addEventListener('click', () => {
     setupLoginContainer.classList.remove('disable');
     setupProfileContainer.classList.add('hide');
     separatorContainer.classList.add('hide');
+    infoWarnWidget.classList.remove('hide');
 });
 
-yesBtn.addEventListener('click', () => {
-    window.location.href = '../pages/home.html' 
+yesBtn.addEventListener('click', async () => {
+    const settingsDataWithCanvasCredentials = getSettingsDataWithCanvasCredentials();
+    const success = await window.api.writeSavedData('settings-data.json', settingsDataWithCanvasCredentials);
+
+    if (!success) {
+        console.warn('Failed to Save Settings Data!');
+        return;
+    }
+
+    window.location.href = '../pages/setupConfigure.html' 
 })
+
+//#endregion
+
+//#region Functions
 
 function checkIfConnectBtnCanBeEnabled() {
     if (!canvasBaseURLInput.value || !canvasAPITokenInput.value || !isValidUrl(canvasBaseURLInput.value)) {
@@ -121,6 +141,8 @@ async function showInfoWidgetForNoInternet() {
 function postConnectBtnClick() {
     connectBtn.innerHTML = 'Connect to Canvas';  
 
+    infoWarnWidget.classList.add('hide');
+
     infoWidgetContainer.innerHTML = '';
     infoWidgetContainer.classList.remove('hide');
 
@@ -136,3 +158,26 @@ function showProfileIconAndName(profile: CanvasAPI.User) {
     profileIcon.src = profile.avatar_url;
     profileName.innerText = profile.name;
 }
+
+function getSettingsDataWithCanvasCredentials(): SettingsData {
+    return {
+        version: SETTINGS_DATA_VERSION,
+
+        canvasBaseURL: canvasBaseURLInput.value,
+        canvasAPIToken: canvasAPITokenInput.value,
+
+        whenToRemindTimeValue: '',
+        whenToRemindFormatValue: '',
+        howLongPastDueTimeValue: '',
+        howLongPastDueFormatValue: '',
+
+        launchOnStart: false,
+        minimizeOnLaunch: false,
+        minimizeOnClose: false,
+
+        showExactDueDate: false,
+        alwaysExpandAllCourseCards: false
+    }
+}
+
+//#endregion
