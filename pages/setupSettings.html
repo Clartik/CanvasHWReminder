@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas HW Reminder</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+
+    <script>var exports = {};</script>
+    <script src="../build/renderer/setupSettings.js" defer></script>
+</head>
+<body>
+    <div id="top-bar">
+        <a href="setupConnect.html" id="setup-connect-link" class="link-btn-setup" title="Back">
+            <img src="../assets/svg/chevron-left.svg" class="small-link-btn-image">
+        </a>
+        <h1 id="page-title">Configure</h1>
+        <!-- The First a tag is purely to center the h1! -->
+        <a class="link-btn-setup" style="visibility: hidden;">
+            <img src="../assets/svg/chevron-left.svg" class="small-link-btn-image">
+        </a>
+    </div>
+
+    <div id="setup-settings-container">    
+        <div class="setup-settings-option" title="The Amount of Time Before An Assignment Due Date Should You Be Reminded">
+            <p class="select-label">When To Remind You?</p>
+            <div class="multi-select-container">
+                <select id="when-to-remind-time-dropdown" class="changeable">
+                    <option>0</option>
+                </select>
+                <select id="when-to-remind-format-dropdown" class="changeable">
+                    <option value="day">Days</option>
+                    <option value="hour">Hours</option>
+                    <option value="minute">Mins</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="how-long-past-due-time-container" class="setup-settings-option" title="The Amount of Time Before An Overdue Assignment Disappears From Homepage">
+            <p class="select-label">How Long Should An Assignment Show Past Due Date?</p>
+            <div class="multi-select-container">
+                <select id="how-long-past-due-time-dropdown" class="changeable">
+                    <option>0</option>
+                </select>
+                <select id="how-long-past-due-format-dropdown" class="changeable">
+                    <option value="day">Days</option>
+                    <option value="hour">Hours</option>
+                    <option value="minute">Mins</option>
+                    <option value="never">Never</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="checkbox-container">
+            <div class="checkbox-column">
+                <label class="checkbox-label" title="Launch App While Your Computer Boots Up">Launch on System Bootup?</label>
+                <label class="switch">
+                    <input type="checkbox" id="launch-on-start-checkbox" class="changeable">
+                    <span class="slider round"></span>
+                </label>
+                
+                <label class="checkbox-label">Minimize On App Launch?</label>
+                <label class="switch">
+                    <input type="checkbox" id="minimize-on-launch-checkbox" class="changeable">
+                    <span class="slider round"></span>
+                </label>
+
+                <label class="checkbox-label">Minimize On App Close?</label>
+                <label class="switch">
+                    <input type="checkbox" id="minimize-on-close-checkbox" class="changeable">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="checkbox-column">
+                <label class="checkbox-label" title="Show the Exact Due Dates of Assignments (8/22)">Show Exact Due Dates?</label>
+                <label class="switch">
+                    <input type="checkbox" id="show-exact-due-date-checkbox" class="changeable">
+                    <span class="slider round"></span>
+                </label>
+
+                <label class="checkbox-label" title="Always Expand All Course Cards Regardless of If Any Assignments Are Due or Not">Always Expand All Course Cards?</label>
+                <label class="switch">
+                    <input type="checkbox" id="always-expand-course-cards-checkbox" class="changeable">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="information-warning-container">
+        <div class="small-info-widget">
+            <p>All Information is Locally Saved and Never Sent to a Server!</p>
+        </div>
+    </div>
+    
+    <div id="done-btn-container">
+        <button id="done-btn">Complete Setup</button>
+    </div>
+</body>
+</html>

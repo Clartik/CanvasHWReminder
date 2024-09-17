@@ -41,6 +41,7 @@
 
     --border-radius: 6px;
     --border-radius-extra: 12px;
+    --border-radius-widget: 20px;
 }
 
 body {
@@ -145,10 +146,13 @@ input::placeholder {
 
 button {
     font-family: 'Poppins Regular';
-    background-color: gray;
+    background-color: var(--secondary-color);
     color: var(--text-color);
     cursor: pointer;
     border: none;
+    border-radius: var(--border-radius);
+    padding: 5px 10px;
+    box-shadow: 1px 3px 10px var(--shadow-color);
 }
 
 select {
@@ -177,12 +181,28 @@ select:hover {
     transition: transform 0.2s ease;
 }
 
+.link-btn-setup {
+    margin: 2px;
+    padding: 5px;
+    color: var(--text-color);
+    transition: transform 0.15s ease;
+}
+
+.link-btn-setup:hover {
+    transform: scale(1.2);
+}
+
 .link-btn:hover {
     transform: scale(1.2);
 }
 
 .link-btn-image {
     width: 40px;
+    color: white;
+}
+
+.small-link-btn-image {
+    width: 25px;
     color: white;
 }
 
@@ -402,6 +422,66 @@ select:hover {
     /* box-shadow: 1px 3px 15px var(--shadow-color); */
 }
 
+#setup-settings-container {
+    margin: 0px 15px;
+    display: grid;
+    justify-content: center;
+    text-align: center;
+    grid-template-columns: 1;
+}
+
+.select-label {
+    display: block;
+}
+
+.setup-settings-option {
+    margin: 5px;
+    align-items: center;
+}
+
+.multi-select-container {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px;
+}
+
+#done-btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin: 15px;
+}
+
+#information-warning-container {
+    margin: 15px;
+    padding: 10px 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#done-btn {
+    font-size: 1rem;
+    background-color: var(--accent-color);
+    font-family: 'Poppins Bold';
+
+    transition: 0.1s transform;
+}
+
+#done-btn:hover {
+    transform: scale(1.1);
+}
+
+#how-long-past-due-time-container {
+    margin-bottom: 8px;
+}
+
 .checkbox {
     width: 17px;
     height: 17px;
@@ -547,10 +627,18 @@ input:checked + .slider:before {
     column-gap: 15px;
 }
 
+.small-info-widget {
+    background-color: var(--primary-color);
+    padding: 10px 20px;
+    border-radius: var(--border-radius-extra);
+    box-shadow: 1px 3px 10px var(--shadow-color);
+    text-align: center;
+}
+
 .info-widget {
     background-color: var(--primary-color);
     padding: 10px 20px;
-    border-radius: 20px;
+    border-radius: var(--border-radius-widget);
     box-shadow: 1px 3px 10px var(--shadow-color);
     text-align: center;
 }

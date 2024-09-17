@@ -11,7 +11,7 @@ import * as CanvasUtil from '../util/canvasUtil';
 
 const sleep = promisify(setTimeout);
 
-const checkCanvasTimeInSec: number = 10;// 60 * 60;				// Every Hour
+const checkCanvasTimeInSec: number = 60 * 60;				// Every Hour
 
 let isWorkerRunning: boolean = false;
 
