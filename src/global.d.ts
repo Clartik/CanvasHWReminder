@@ -9,6 +9,7 @@ export interface IElectronAPI {
     keyPress: (key: string) => void,
     getDebugMode: () => Promise<Object>,
     onSendAppStatus: (callback: (status: string) => void) => void,
+    sendAppStatus: (status: string) => void, 
     getAppStatus: () => Promise<Object>,
     getSelfFromCanvas: (baseUrl: string, apiToken: string) => Promise<Object>
 }

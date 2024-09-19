@@ -30,7 +30,7 @@ global.__baseDir = __dirname;
 
 const debugMode: DebugMode = {
 	active: true,
-	useLocalClassData: false,
+	useLocalClassData: true,
 	devKeybinds: true,
 	saveFetchedClassData: false,
 };
@@ -46,8 +46,6 @@ const appInfo: AppInfo = {
 	isMainWindowLoaded: false,
 	isMainWindowHidden: false,
 
-	isSetupNeeded: true,
-
 	classData: null,
 	settingsData: null,
 
@@ -57,6 +55,8 @@ const appInfo: AppInfo = {
 
 // Assume By Default Both are Avaiable!
 const appStatus: AppStatus = {
+	isSetupNeeded: false,
+
 	isOnline: true,
 	isConnectedToCanvas: true
 }
@@ -84,15 +84,19 @@ function createElectronApp() {
 
 		const tray = createSystemTray(appInfo, debugMode, mainWindow);
 		
-		while (appInfo.settingsData === null)
+		while (!appInfo.settingsData && !appStatus.isSetupNeeded)
 			await sleep(100);
 	
-		if (appInfo.settingsData.minimizeOnLaunch) {
+		if (appInfo.settingsData?.minimizeOnLaunch) {
 			appInfo.isMainWindowHidden = true;
+			console.log("[Main]: Didn't Start Window Due to Settings!");
 			return;
 		}
 
-		mainWindow = createMainWindow(appInfo, debugMode, './pages/setupConnect.html');
+		if (appStatus.isSetupNeeded)
+			mainWindow = createMainWindow(appInfo, debugMode, './pages/setupConnect.html');
+		else
+			mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 	});
 
 	// MACOS ONLY
@@ -126,40 +130,43 @@ async function appMain() {
 
 	if (!appInfo.settingsData) {
 		console.error('[Main]: SettingsData is NULL!');
+		
+		console.log('[Main]: Setup is Needed!');
+		appStatus.isSetupNeeded = true;
 		return;
 	}
 	
-	// if (net.isOnline())
-	// 	checkCanvasWorker = createCanvasWorker();
+	if (net.isOnline())
+		checkCanvasWorker = createCanvasWorker();
 	
-	// while (!app.isReady() || !appInfo.isMainWindowLoaded)
-	// 	await sleep(100);
+	while (!app.isReady() || !appInfo.isMainWindowLoaded)
+		await sleep(100);
 
-	// while (appInfo.isRunning) {
-	// 	if (!net.isOnline() && appStatus.isOnline) {
-	// 		console.log('[Main]: No Internet!');
+	while (appInfo.isRunning) {
+		if (!net.isOnline() && appStatus.isOnline) {
+			console.log('[Main]: No Internet!');
 
-	// 		appStatus.isOnline = false;
-	// 		mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
+			appStatus.isOnline = false;
+			mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
 
-	// 		if (checkCanvasWorker !== null) {
-	// 			checkCanvasWorker.terminate();
-	// 			checkCanvasWorker = null;
-	// 			console.log('[Main]: Cancelled Worker (CheckCanvas) Due to No Internet!');
-	// 		}
-	// 	}
-	// 	else if (net.isOnline() && !appStatus.isOnline) {
-	// 		console.log('[Main]: Internet Back!');
+			if (checkCanvasWorker !== null) {
+				checkCanvasWorker.terminate();
+				checkCanvasWorker = null;
+				console.log('[Main]: Cancelled Worker (CheckCanvas) Due to No Internet!');
+			}
+		}
+		else if (net.isOnline() && !appStatus.isOnline) {
+			console.log('[Main]: Internet Back!');
 
-	// 		appStatus.isOnline = true;
-	// 		mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
+			appStatus.isOnline = true;
+			mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
 
-	// 		if (checkCanvasWorker === null)
-	// 			checkCanvasWorker = createCanvasWorker();
-	// 	}
+			if (checkCanvasWorker === null)
+				checkCanvasWorker = createCanvasWorker();
+		}
 
-	// 	await sleep(CHECK_FOR_UPDATES_TIME_IN_SEC * 1000);
-	// }
+		await sleep(CHECK_FOR_UPDATES_TIME_IN_SEC * 1000);
+	}
 };
 
 async function updateClassData(classData: ClassData | null) {
@@ -173,11 +180,11 @@ async function updateClassData(classData: ClassData | null) {
 
 	// ClassData Is Different From Cached Classes
 	if (JSON.stringify(classData.classes) === JSON.stringify(appInfo.classData?.classes)) {
-		console.log('[Main]: ClassData Has Not Changed!')
+		console.log('[Main]: ClassData Has Not Updated!')
 		return;
 	}
 
-	console.log('[Main]: ClassData Has Changed!')
+	console.log('[Main]: ClassData Has Updated!')
 
 	if (debugMode.saveFetchedClassData)
 		await SaveManager.writeSavedData(FILENAME_CLASS_DATA_JSON, classData);
@@ -262,11 +269,15 @@ function createCanvasWorker(): Worker {
 		_checkCanvasWorker = WorkerUtil.createWorker('./workers/checkCanvas.js');
 		_checkCanvasWorker.on('message', onCheckCanvasWorkerMessageCallback);
 
+		console.log('[Main]: Starting Worker (CheckCanvas)!');
+
 		_checkCanvasWorker.postMessage(appInfo.settingsData);
 	}
 	else {
 		_checkCanvasWorker = WorkerUtil.createWorker('./workers/checkCanvasDEBUG.js');
 		_checkCanvasWorker.on('message', onCheckCanvasWorkerMessageCallback);
+
+		console.log('[Main]: Starting Worker (CheckCanvas DEBUG)!');
 
 		_checkCanvasWorker.postMessage(app.getPath('userData'));
 	}
@@ -335,4 +346,4 @@ async function outputAppLog() {
 	await SaveManager.writeSavedData('app-log.json', data);
 }
 
-export { updateClassData, startCheckCanvasWorker, outputAppLog }
+export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain }

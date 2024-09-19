@@ -13,19 +13,31 @@ import { Canvas } from "../util/canvasAPI/canvas";
 import SaveManager from "../util/saveManager";
 import { FetchError } from "node-fetch";
 
+function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefined {
+    const senderFileLocations = event.sender.getURL().split('/');
+    const senderHTMLFilename = senderFileLocations.at(-1);
+    return senderHTMLFilename;
+}
+
 function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
     ipcMain.handle('writeSavedData', async (event, filename: string, data: Object) => {
-        console.log(`[Main]: Write Saved Data (${filename}) Event Was Handled!`);
+        const senderHTMLFilename = getSenderHTMLFile(event);
+
+        console.log(`[Main]: (${senderHTMLFilename}) Write Saved Data (${filename}) Event Was Handled!`);
         return await SaveManager.writeSavedData(filename, data);
     })
     
     ipcMain.handle('getSavedData', async (event: any, filename: string) => {
-        console.log(`[Main]: Get Saved Data (${filename}) Event Was Handled!`)
+        const senderHTMLFilename = getSenderHTMLFile(event);
+
+        console.log(`[Main]: (${senderHTMLFilename}) Get Saved Data (${filename}) Event Was Handled!`)
         return await SaveManager.getSavedData(filename);
     });
     
     ipcMain.handle('getCachedData', (event, filename: string): Object | null => {
-        console.log(`[Main]: Get Cached Data (${filename}) Event Was Handled!`)
+        const senderHTMLFilename = getSenderHTMLFile(event);
+        
+        console.log(`[Main]: (${senderHTMLFilename}) Get Cached Data (${filename}) Event Was Handled!`)
     
         if (filename === 'classData') {
             return appInfo.classData;
@@ -38,7 +50,9 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     });
 
     ipcMain.on('updateData', (event, type: string, data: Object | null) => {
-        console.log(`[Main]: Update Data (${type}) Event Was Handled!`)
+        const senderHTMLFilename = getSenderHTMLFile(event);
+
+        console.log(`[Main]: (${senderHTMLFilename}) Update Data (${type}) Event Was Handled!`)
         
         if (type === 'settingsData') {
             appInfo.settingsData = data as SettingsData;

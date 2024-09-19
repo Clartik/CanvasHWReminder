@@ -29,15 +29,17 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 		if (!appInfo.isRunning)
 			return;
 
-		if (!appInfo.settingsData)
+		if (!appInfo.settingsData) {
 			appInfo.isRunning = false;
+			return;
+		}
 
-		if (!appInfo.isMainWindowHidden && appInfo.settingsData?.minimizeOnClose) {
+		if (!appInfo.isMainWindowHidden && appInfo.settingsData.minimizeOnClose) {
 			event.preventDefault();
 			mainWindow?.hide();
 			appInfo.isMainWindowHidden = true;
 		}
-		else if (!appInfo.settingsData?.minimizeOnClose)
+		else if (!appInfo.settingsData.minimizeOnClose)
 			appInfo.isRunning = false;
 	});
 
