@@ -279,8 +279,8 @@ select:hover {
     box-shadow: 1px 3px 15px var(--shadow-color);
     text-align: center;
 
-    transition: 0.1s transform;
-    transition: 0.3s background-color;
+    pointer-events: all;
+    transition: 0.1s transform ease, 0.3s background-color;
 }
 
 #spinner {
@@ -404,10 +404,12 @@ select:hover {
     font-family: 'Poppins Regular';
     border: 3px solid var(--primary-color);
     transition: transform ease 0.1s, box-shadow 0.2s ease;
+
+    box-shadow: none;
 }
 
 .assignment-btn:hover {
-    box-shadow: 1px 3px 8px var(--shadow-color);
+    box-shadow: 1px 3px 10px var(--shadow-color);
 }
 
 .assignment-btn:active {
