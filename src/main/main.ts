@@ -30,7 +30,7 @@ global.__baseDir = __dirname;
 
 const debugMode: DebugMode = {
 	active: true,
-	useLocalClassData: true,
+	useLocalClassData: false,
 	devKeybinds: true,
 	saveFetchedClassData: false,
 };
@@ -130,7 +130,7 @@ async function appMain() {
 
 	if (!appInfo.settingsData) {
 		console.error('[Main]: SettingsData is NULL!');
-		
+
 		console.log('[Main]: Setup is Needed!');
 		appStatus.isSetupNeeded = true;
 		return;
