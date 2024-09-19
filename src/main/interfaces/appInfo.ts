@@ -6,8 +6,6 @@ interface AppInfo {
 	isMainWindowLoaded: boolean,
 	isMainWindowHidden: boolean,
 
-	isSetupNeeded: boolean;
-
 	classData: ClassData | null,
 	settingsData: SettingsData | null,
 

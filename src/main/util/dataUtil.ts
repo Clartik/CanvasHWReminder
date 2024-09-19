@@ -41,7 +41,7 @@ async function getSavedClassData(): Promise<ClassData | null> {
 	}
 }
 
-async function getSavedSettingsData(): Promise<SettingsData> {
+async function getSavedSettingsData(): Promise<SettingsData | null> {
 	const defaultSettingsData: SettingsData = getDefaultSettingsData();
 
 	try {
@@ -50,14 +50,13 @@ async function getSavedSettingsData(): Promise<SettingsData> {
 		if (savedSettingsData.version !== defaultSettingsData.version)
 			console.warn('[Main]: Saved Settings Has New Version!')
 
-		const settingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
-
-		console.log('[Main]: Settings Data is Loaded!');
+		// const settingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
+		console.log('[Main]: Cached Settings Data is Updated!');
 		
-		return settingsData;
+		return savedSettingsData;
 	} catch (error) {
-		console.error('Could Not Retrieve Saved SettingsData, Resorting to Default SettingsData: ' + error);
-		return defaultSettingsData;
+		console.error('[Main]: Could Not Retrieve Saved SettingsData, Resorting to Default SettingsData: ' + error);
+		return null;
 	}
 }
 

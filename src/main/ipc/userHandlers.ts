@@ -7,7 +7,7 @@ import AppStatus from "../../shared/interfaces/appStatus";
 import * as DataUtil from '../util/dataUtil';
 import { openLink } from "../util/misc";
 
-import { outputAppLog } from "../main";
+import { appMain, outputAppLog } from "../main";
 
 function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
 	ipcMain.on('openLink', (event, url: string) => openLink(url));
@@ -33,6 +33,18 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
 			case 'F12':
 				await outputAppLog();
+				break;
+		
+			default:
+				break;
+		}
+	});
+
+	ipcMain.on('sendAppStatus', (event, status: string) => {
+		switch (status) {
+			case 'SETUP COMPLETE':
+				console.log('[Main]: App Setup Complete!');
+				appMain();
 				break;
 		
 			default:

@@ -75,6 +75,7 @@ doneBtn.addEventListener('click', async (event) => {
         return;
     }
 
+    window.api.sendAppStatus('SETUP COMPLETE');
     window.location.href = '../pages/home.html';
 });
 

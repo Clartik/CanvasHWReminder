@@ -1,4 +1,6 @@
 interface AppStatus {
+	isSetupNeeded: boolean,
+	
 	isOnline: boolean,
 	isConnectedToCanvas: boolean
 }
