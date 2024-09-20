@@ -8,6 +8,7 @@ import { ClassData } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
 
 import * as CanvasUtil from '../util/canvasUtil';
+import CheckCanvasParams from '../interfaces/checkCanvasParams';
 
 const sleep = promisify(setTimeout);
 
@@ -15,11 +16,9 @@ const checkCanvasTimeInSec: number = 60 * 60;				// Every Hour
 
 let isWorkerRunning: boolean = false;
 
-parentPort?.on('message', async (settingsData: SettingsData | null) => {
-    if (settingsData === null) {
-        console.error('[CheckCanvas Worker]: Failed to Start Due to SettingsData Being Null!');
-        return;
-    }
+parentPort?.on('message', async (params: CheckCanvasParams) => {
+    const canvasBaseURL = params.canvasBaseURL;
+    const canvasAPIToken = params.canvasAPIToken;
 
     isWorkerRunning = true;
 
@@ -29,7 +28,7 @@ parentPort?.on('message', async (settingsData: SettingsData | null) => {
         let classData: ClassData | null = null;
 
         try {
-            const courses = await CanvasUtil.getCoursesFromCanvas(settingsData);
+            const courses = await CanvasUtil.getCoursesFromCanvas(canvasBaseURL, canvasAPIToken);
             classData = await CanvasUtil.convertToClassData(courses);
         } catch (error) {
             if (error instanceof FetchError) {

@@ -65,8 +65,7 @@ doneBtn.addEventListener('click', async (event) => {
         return;
     }
 
-    const settingsDataToSave = getSettingsDataToSave(settingsDataWithCanvasCredentials.canvasBaseURL, settingsDataWithCanvasCredentials.canvasAPIToken);
-    console.log(settingsDataToSave);
+    const settingsDataToSave = getSettingsDataToSave();
     
     const success = await window.api.writeSavedData('settings-data.json', settingsDataToSave)
 
@@ -151,14 +150,12 @@ function setDefaultSettings() {
     minimizeOnCloseCheckbox.checked = true;
 }
 
-function getSettingsDataToSave(canvasBaseURL: string, canvasAPIToken: string): SettingsData {
-    console.log(whenToRemindTimeDropdown.value);
-    console.log(howLongPastDueTimeDropdown.value);
+function getSettingsDataToSave(): SettingsData {
     return {
         version: SETTINGS_DATA_VERSION,
 
-        canvasBaseURL: canvasBaseURL,
-        canvasAPIToken: canvasAPIToken,
+        // canvasBaseURL: canvasBaseURL,
+        // canvasAPIToken: canvasAPIToken,
 
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,

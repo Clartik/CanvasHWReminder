@@ -15,7 +15,9 @@ const API = {
     onSendAppStatus: (callback: (status: string) => void) => ipcRenderer.on('sendAppStatus', (_event, status: string) => callback(status)),
     sendAppStatus: (status: string) => ipcRenderer.send('sendAppStatus', status), 
     getAppStatus: () => ipcRenderer.invoke('getAppStatus'),
-    getSelfFromCanvas: (baseUrl: string, apiToken: string) => ipcRenderer.invoke('getSelfFromCanvas', baseUrl, apiToken)
+    getSelfFromCanvas: (baseUrl: string, apiToken: string) => ipcRenderer.invoke('getSelfFromCanvas', baseUrl, apiToken),
+    saveSecureText: (key: string, text: string) => ipcRenderer.send('saveSecureText', key, text),
+    getSecureText: (key: string) => ipcRenderer.invoke('getSecureText', key)
 }
 
 contextBridge.exposeInMainWorld("api", API);

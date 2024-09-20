@@ -3,11 +3,8 @@ import SettingsData from "../../shared/interfaces/settingsData";
 
 import * as CanvasAPI from '../util/canvasAPI/canvas'
 
-async function getCoursesFromCanvas(settingsData: SettingsData): Promise<CanvasAPI.Course[]> {
-	if (settingsData === null)
-		return [];
-
-	const canvas = new CanvasAPI.Canvas(settingsData.canvasBaseURL, settingsData.canvasAPIToken)
+async function getCoursesFromCanvas(canvasBaseURL: string, canvasAPIToken: string): Promise<CanvasAPI.Course[]> {
+	const canvas = new CanvasAPI.Canvas(canvasBaseURL, canvasAPIToken)
 	const courses = await canvas.getCourses('active');
 
 	return courses;

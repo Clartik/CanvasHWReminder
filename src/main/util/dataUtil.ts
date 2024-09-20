@@ -1,8 +1,11 @@
+import * as keytar from 'keytar';
+
 import AppInfo from '../interfaces/appInfo';
 import DebugMode from "../../shared/interfaces/debugMode";
 
 import { ClassData } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
+import { APP_NAME } from "../../shared/constants";
 
 import * as CanvasUtil from './canvasUtil'
 
@@ -13,10 +16,10 @@ import SaveManager from './saveManager';
 
 function getDefaultSettingsData(): SettingsData {
 	return {
-		version: '0.2',
+		version: '0.3',
 
-		canvasBaseURL: '',
-		canvasAPIToken: '',
+		// canvasBaseURL: '',
+		// canvasAPIToken: '',
 		whenToRemindTimeValue: '6',
 		whenToRemindFormatValue: 'hour',
 		howLongPastDueTimeValue: '30',
@@ -29,6 +32,10 @@ function getDefaultSettingsData(): SettingsData {
 		showExactDueDate: false,
 		alwaysExpandAllCourseCards: false,
 	}
+}
+
+async function getSecureText(key: string): Promise<string | null> {
+	return await keytar.getPassword(APP_NAME, key);
 }
 
 async function getSavedClassData(): Promise<ClassData | null> {
@@ -47,8 +54,10 @@ async function getSavedSettingsData(): Promise<SettingsData | null> {
 	try {
 		const savedSettingsData = await SaveManager.getSavedData('settings-data.json') as SettingsData;
 
-		if (savedSettingsData.version !== defaultSettingsData.version)
+		if (savedSettingsData.version >= defaultSettingsData.version)
 			console.warn('[Main]: Saved Settings Has New Version!')
+		else
+			console.warn('[Main]: Saved Settings Has Old Version!')
 
 		// const settingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
 		console.log('[Main]: Cached Settings Data is Updated!');
@@ -84,14 +93,22 @@ async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
 			return;
 
 		try {
-            const courses = await CanvasUtil.getCoursesFromCanvas(appInfo.settingsData);
-            classData = await CanvasUtil.convertToClassData(courses);
+			const canvasBaseURL: string | null = await getSecureText('CanvasBaseURL');
+			const canvasAPIToken: string | null = await getSecureText('CanvasAPIToken');
+
+			if (!canvasBaseURL || !canvasAPIToken) {
+				console.error('[DEBUG MODE]: Canvas Credentials are NULL!');				
+                throw Error;
+			}
+
+			const courses = await CanvasUtil.getCoursesFromCanvas(canvasBaseURL, canvasAPIToken);
+			classData = await CanvasUtil.convertToClassData(courses);
         } catch (error) {
-            console.error('[DEVMODE]: Failed to Get Class Data From Canvas -', error);
+            console.error('[DEBUG MODE]: Failed to Get Class Data From Canvas -', error);
         }
 	}
 	
 	await updateClassData(classData);
 }
 
-export { getDefaultSettingsData, getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData }
+export { getDefaultSettingsData, getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText }

@@ -13,7 +13,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node-fetch": "^2.6.11",
-    "electron": "^32.0.2",
+    "electron": "^32.1.1",
+    "keytar": "^7.9.0",
     "node-fetch": "^2.7.0",
     "typescript": "^5.5.4"
   },

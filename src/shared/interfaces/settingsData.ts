@@ -1,8 +1,8 @@
 interface SettingsData {
     readonly version: string;
 
-    readonly canvasBaseURL: string;
-    readonly canvasAPIToken: string;
+    // readonly canvasBaseURL: string;
+    // readonly canvasAPIToken: string;
 
     readonly whenToRemindTimeValue: string;
     readonly whenToRemindFormatValue: string;

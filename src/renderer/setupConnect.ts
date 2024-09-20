@@ -87,13 +87,15 @@ noBtn.addEventListener('click', () => {
 });
 
 yesBtn.addEventListener('click', async () => {
-    const settingsDataWithCanvasCredentials = getSettingsDataWithCanvasCredentials();
-    const success = await window.api.writeSavedData('settings-data.json', settingsDataWithCanvasCredentials);
+    // const settingsDataWithCanvasCredentials = getSettingsDataWithCanvasCredentials();
+    // const success = await window.api.writeSavedData('settings-data.json', settingsDataWithCanvasCredentials);
+    
+    // if (!success) {
+    //     console.warn('Failed to Save Settings Data!');
+    //     return;
+    // }
 
-    if (!success) {
-        console.warn('Failed to Save Settings Data!');
-        return;
-    }
+    saveSecureData();
 
     window.location.href = '../pages/setupConfigure.html' 
 })
@@ -163,8 +165,8 @@ function getSettingsDataWithCanvasCredentials(): SettingsData {
     return {
         version: SETTINGS_DATA_VERSION,
 
-        canvasBaseURL: canvasBaseURLInput.value,
-        canvasAPIToken: canvasAPITokenInput.value,
+        // canvasBaseURL: canvasBaseURLInput.value,
+        // canvasAPIToken: canvasAPITokenInput.value,
 
         whenToRemindTimeValue: '',
         whenToRemindFormatValue: '',
@@ -178,6 +180,11 @@ function getSettingsDataWithCanvasCredentials(): SettingsData {
         showExactDueDate: false,
         alwaysExpandAllCourseCards: false
     }
+}
+
+function saveSecureData() {
+    window.api.saveSecureText('CanvasBaseURL', canvasBaseURLInput.value);
+    window.api.saveSecureText('CanvasAPIToken', canvasAPITokenInput.value);
 }
 
 //#endregion

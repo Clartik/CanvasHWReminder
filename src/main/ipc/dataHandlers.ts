@@ -1,3 +1,6 @@
+import { FetchError } from "node-fetch";
+import * as keytar from 'keytar';
+
 import { app, ipcMain } from "electron";
 
 import AppInfo from '../interfaces/appInfo';
@@ -5,13 +8,14 @@ import AppStatus from "../../shared/interfaces/appStatus";
 import DebugMode from "../../shared/interfaces/debugMode";
 import SettingsData from "../../shared/interfaces/settingsData";
 import IPCGetResult from "../../shared/interfaces/ipcGetResult";
+import { APP_NAME } from "../../shared/constants";
 
 import { startCheckCanvasWorker } from "../main";
 
 import { Canvas } from "../util/canvasAPI/canvas";
 
 import SaveManager from "../util/saveManager";
-import { FetchError } from "node-fetch";
+import { getSecureText } from "../util/dataUtil";
 
 function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefined {
     const senderFileLocations = event.sender.getURL().split('/');
@@ -49,7 +53,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         return null;
     });
 
-    ipcMain.on('updateData', (event, type: string, data: Object | null) => {
+    ipcMain.on('updateData', async (event, type: string, data: Object | null) => {
         const senderHTMLFilename = getSenderHTMLFile(event);
 
         console.log(`[Main]: (${senderHTMLFilename}) Update Data (${type}) Event Was Handled!`)
@@ -61,7 +65,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
                 openAtLogin: appInfo.settingsData?.launchOnStart
             });
 
-            startCheckCanvasWorker();
+            await startCheckCanvasWorker();
         }
     });
     
@@ -78,6 +82,16 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             console.error('[Main]: Failed to Get Self From Canvas Due to Invalid Canvas Credentials - ', error);
             return { data: null, error: 'INVALID CANVAS CREDENTIALS' };
         }
+    });
+
+    ipcMain.on('saveSecureText', async (event, key: string, text: string) => {
+        console.log(`[Main]: Using Secure Text to Save (${key})`);
+
+        await keytar.setPassword(APP_NAME, key, text);
+    });
+
+    ipcMain.handle('getSecureText', async (event, key: string): Promise<string | null> => {
+        return await getSecureText(key);
     });
 }
 

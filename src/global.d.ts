@@ -11,7 +11,9 @@ export interface IElectronAPI {
     onSendAppStatus: (callback: (status: string) => void) => void,
     sendAppStatus: (status: string) => void, 
     getAppStatus: () => Promise<Object>,
-    getSelfFromCanvas: (baseUrl: string, apiToken: string) => Promise<Object>
+    getSelfFromCanvas: (baseUrl: string, apiToken: string) => Promise<Object>,
+    saveSecureText: (key: string, text: string) => void,
+    getSecureText: (key: string) => Promise<string | null>
 }
 
 declare global {

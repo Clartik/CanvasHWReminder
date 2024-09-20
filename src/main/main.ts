@@ -20,9 +20,10 @@ import { ClassData, Assignment } from "../shared/interfaces/classData";
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
-import { FILENAME_CLASS_DATA_JSON } from '../shared/constants';
+import { APP_NAME, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
 
 import SaveManager from './util/saveManager';
+import CheckCanvasParams from './interfaces/checkCanvasParams';
 
 const sleep = promisify(setTimeout);
 
@@ -76,8 +77,8 @@ appMain();
 //#region App Setup
 
 function createElectronApp() {
-	app.on('ready', async () => {
-		app.setAppUserModelId('Canvas HW Reminder');		// Windows Specific Command to Show the App Name in Notification
+	app.whenReady().then(async () => {
+		app.setAppUserModelId(APP_NAME);		// Windows Specific Command to Show the App Name in Notification
 
 		if (!debugMode.active)
 			Menu.setApplicationMenu(null);
@@ -128,16 +129,31 @@ function createElectronApp() {
 async function appMain() {
 	appInfo.settingsData = await DataUtil.getSavedSettingsData();
 
+	const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
+	const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
+
 	if (!appInfo.settingsData) {
 		console.error('[Main]: SettingsData is NULL!');
 
 		console.log('[Main]: Setup is Needed!');
 		appStatus.isSetupNeeded = true;
+
+		mainWindow?.webContents.loadFile('./pages/home.html');
+		return;
+	}
+
+	if (!canvasBaseURL || !canvasAPIToken) {
+		console.error('[Main]: Canvas Credentials are NULL!');
+
+		console.log('[Main]: Setup is Needed!');
+		appStatus.isSetupNeeded = true;
+
+		mainWindow?.webContents.loadFile('./pages/home.html');
 		return;
 	}
 	
 	if (net.isOnline())
-		checkCanvasWorker = createCanvasWorker();
+		checkCanvasWorker = await createCanvasWorker();
 	
 	while (!app.isReady() || !appInfo.isMainWindowLoaded)
 		await sleep(100);
@@ -162,7 +178,7 @@ async function appMain() {
 			mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
 
 			if (checkCanvasWorker === null)
-				checkCanvasWorker = createCanvasWorker();
+				checkCanvasWorker = await createCanvasWorker();
 		}
 
 		await sleep(CHECK_FOR_UPDATES_TIME_IN_SEC * 1000);
@@ -262,7 +278,7 @@ async function showNotification(nextAssignment: Assignment) {
 
 // #endregion
 
-function createCanvasWorker(): Worker {
+async function createCanvasWorker(): Promise<Worker> {
     let _checkCanvasWorker: Worker;
 
 	if (!debugMode.useLocalClassData) {
@@ -271,7 +287,10 @@ function createCanvasWorker(): Worker {
 
 		console.log('[Main]: Starting Worker (CheckCanvas)!');
 
-		_checkCanvasWorker.postMessage(appInfo.settingsData);
+		const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
+		const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
+
+		_checkCanvasWorker.postMessage({ canvasBaseURL, canvasAPIToken });
 	}
 	else {
 		_checkCanvasWorker = WorkerUtil.createWorker('./workers/checkCanvasDEBUG.js');
@@ -323,12 +342,12 @@ async function onShowNotificationWorkerMessageCallback(result: WorkerResult) {
 	showNotification(result.data as Assignment);
 }
 
-function startCheckCanvasWorker() {
+async function startCheckCanvasWorker() {
 	if (checkCanvasWorker !== null)
 		return;
 
 	appStatus.isConnectedToCanvas = true;
-	checkCanvasWorker = createCanvasWorker();
+	checkCanvasWorker = await createCanvasWorker();
 }
 
 async function outputAppLog() {

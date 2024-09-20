@@ -26,6 +26,8 @@ const changeableElements = document.getElementsByClassName('changeable');
 
 const creditsLinkBtn = document.getElementById('credits-link-btn') as HTMLButtonElement;
 
+const WEBSITE_LINK = 'https://www.youtube.com/@kartech6079';
+
 let settingsPageDebugMode: DebugMode;
 
 // Shared constants file fills the variable
@@ -53,14 +55,16 @@ async function settingsMain() {
 
     const settingsData: SettingsData | null = await settingsPageGetCachedSettingsData();
 
-    if (settingsData !== null)
+    if (settingsData !== null) {
         populateElementsWithData(settingsData);
+        await populateElemntsWithSecureData();
+    }
 }
 
 //#region Event Handlers
 
 creditsLinkBtn.addEventListener('click', () => {
-    window.api.openLink('https://www.youtube.com/@kartech6079');
+    window.api.openLink(WEBSITE_LINK);
 })
 
 canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
@@ -119,8 +123,10 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
         const YES_BUTTON_RESPONSE = 0;
 
         if (messageResponse.response === YES_BUTTON_RESPONSE) {
+            saveSecureData();
+
             const settingsData = getSettingsDataToSave();
-            const success = await window.api.writeSavedData(FILENAME_SETTINGS_DATA_JSON, settingsData);
+            const success = await window.api.writeSavedData('settings-data.json', settingsData);
 
             if (success)
                 window.api.updateData('settingsData', settingsData);
@@ -150,8 +156,8 @@ function populateElementsWithData(settingsData: SettingsData) {
     if (settingsData === null)
         return;
 
-    canvasBaseURLInput.value = settingsData.canvasBaseURL;
-    canvasAPITokenInput.value = settingsData.canvasAPIToken;
+    // canvasBaseURLInput.value = settingsData.canvasBaseURL;
+    // canvasAPITokenInput.value = settingsData.canvasAPIToken;
 
     launchOnStartCheckbox.checked = settingsData.launchOnStart;
     minimizeOnLaunchCheckbox.checked = settingsData.minimizeOnLaunch;
@@ -170,12 +176,20 @@ function populateElementsWithData(settingsData: SettingsData) {
     howLongPastDueTimeDropdown.value = settingsData.howLongPastDueTimeValue;
 };
 
+async function populateElemntsWithSecureData() {
+    const canvasBaseURL: string | null = await window.api.getSecureText('CanvasBaseURL');
+    const canvasAPIToken: string | null = await window.api.getSecureText('CanvasAPIToken');
+
+    canvasBaseURLInput.value = canvasBaseURL ?? '';
+    canvasAPITokenInput.value = canvasAPIToken ?? '';
+}
+
 function getSettingsDataToSave(): SettingsData {
     return {
         version: SETTINGS_DATA_VERSION,
 
-        canvasBaseURL: canvasBaseURLInput.value,
-        canvasAPIToken: canvasAPITokenInput.value,
+        // canvasBaseURL: canvasBaseURLInput.value,
+        // canvasAPIToken: canvasAPITokenInput.value,
 
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,
@@ -189,6 +203,11 @@ function getSettingsDataToSave(): SettingsData {
         showExactDueDate: showExactDueDateCheckbox.checked,
         alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked
     };
+}
+
+function saveSecureData() {
+    window.api.saveSecureText('CanvasBaseURL', canvasBaseURLInput.value);
+    window.api.saveSecureText('CanvasAPIToken', canvasAPITokenInput.value);
 }
 
 function populateTimeOptions() {
