@@ -19,11 +19,11 @@
 }
 
 :root {
-    --accent-color: hsl(0, 100%, 63%);
+    --accent-color: rgb(255, 66, 66);
     --accent-color-hover: hsl(0, 100%, 40%);
     --accent-color-press: hsl(0, 100%, 30%);
 
-    --primary-color: hsl(212, 49%, 33%);
+    --primary-color: rgb(43, 81, 125);
     --primary-color-hover: hsl(212, 49%, 25%);
     --primary-color-press: hsl(212, 49%, 18%);
 
@@ -31,7 +31,8 @@
     --secondary-color-hover: hsl(0, 0%, 28%);
 
     --text-color: white;
-    --background-color: #272727;
+    --background-color: rgb(39, 39, 39);
+    --bottom-bar-color: rgba(39, 39, 39, 0.9);
     --shadow-color: black;
     --disabled-text-color: rgb(121, 121, 121);
     --disabled-background-color: #303030;
@@ -76,6 +77,7 @@ span {
 h1 {
     font-family: 'Poppins Bold';
     color: var(--text-color);
+    text-align: center;
 }
 
 h2 {
@@ -283,8 +285,52 @@ select:hover {
     transition: 0.1s transform ease, 0.3s background-color;
 }
 
+#welcome-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#welcome-icon {
+    width: 256px;
+    height: 256px;
+
+    filter: drop-shadow(5px 5px 10px var(--shadow-color));
+}
+
+#welcome-label {
+    text-shadow: 5px 5px 5px var(--shadow-color);
+}
+
+#welcome-btn {
+    font-family: 'Poppins Bold';
+    font-size: large;
+    padding: 8px 25px;
+    border-radius: var(--border-radius-extra);
+    background-color: var(--accent-color);
+
+    transition: 0.1s transform;
+}
+
+#welcome-btn:hover {
+    transform: scale(1.1);
+}
+
 #spinner {
     margin-top: 1px;
+
+    animation: rotating 1.3s linear infinite;
+}
+
+#setup-spinner {
+    margin-top: 0;
 
     animation: rotating 1.3s linear infinite;
 }
@@ -452,12 +498,13 @@ select:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     text-align: center;
-    margin: 15px;
+    padding: 15px;
+    background-color: var(--bottom-bar-color);
 }
 
 #information-warning-container {
@@ -469,6 +516,8 @@ select:hover {
 }
 
 #done-btn {
+    width: 155px;
+    height: 35px;
     font-size: 1rem;
     background-color: var(--accent-color);
     font-family: 'Poppins Bold';
@@ -731,7 +780,7 @@ input:checked + .slider:before {
 }
 
 #credits-container {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     display: flex;
     justify-content: center;
@@ -739,8 +788,10 @@ input:checked + .slider:before {
     text-align: center;
     left: 0;
     right: 0;
-    margin-bottom: 10px;
+    padding: 10px;
+    /* margin-bottom: 10px; */
     gap: 10px;
+    background-color: var(--bottom-bar-color);
 }
 
 #credits-link-btn {

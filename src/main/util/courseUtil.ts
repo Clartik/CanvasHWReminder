@@ -226,7 +226,7 @@ function getNotification(nextAssignment: Assignment): Notification | null {
 	const notification = new Notification({
 		title: `${nextAssignment.name} is ${timeTillDueDate}!`,
 		body: 'Click on the Notification to Head to the Posting',
-		icon: './assets/images/4k.png',
+		icon: './assets/images/icon.ico',
 	});
 
 	notification.addListener('click', () => openLink(nextAssignment.html_url));

@@ -31,7 +31,7 @@ global.__baseDir = __dirname;
 
 const debugMode: DebugMode = {
 	active: true,
-	useLocalClassData: false,
+	useLocalClassData: true,
 	devKeybinds: true,
 	saveFetchedClassData: false,
 };
@@ -95,7 +95,7 @@ function createElectronApp() {
 		}
 
 		if (appStatus.isSetupNeeded)
-			mainWindow = createMainWindow(appInfo, debugMode, './pages/setupConnect.html');
+			mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 		else
 			mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 	});
@@ -138,7 +138,7 @@ async function appMain() {
 		console.log('[Main]: Setup is Needed!');
 		appStatus.isSetupNeeded = true;
 
-		mainWindow?.webContents.loadFile('./pages/home.html');
+		mainWindow?.webContents.loadFile('./pages/welcome.html');
 		return;
 	}
 
@@ -148,7 +148,7 @@ async function appMain() {
 		console.log('[Main]: Setup is Needed!');
 		appStatus.isSetupNeeded = true;
 
-		mainWindow?.webContents.loadFile('./pages/home.html');
+		mainWindow?.webContents.loadFile('./pages/welcome.html');
 		return;
 	}
 	

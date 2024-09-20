@@ -21,6 +21,14 @@ const MINUTE_TIME_OPTIONS: Array<string> = [];
 
 const SETTINGS_DATA_VERSION: string = '0.2';
 
+const LOADING_SPINNER_TEMPLATE = `
+    <img id="setup-spinner" src="../assets/svg/spinner.svg" width="25px">
+`;
+
+async function sleep(ms: number): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, ms));
+}
+
 setupSettingsMain();
 
 async function setupSettingsMain() {
@@ -58,12 +66,8 @@ doneBtn.addEventListener('click', async (event) => {
     if (messageResponse.response !== YES_BUTTON_RESPONSE)
         return;
 
-    const settingsDataWithCanvasCredentials = await window.api.getSavedData('settings-data.json') as SettingsData | null;
-
-    if (!settingsDataWithCanvasCredentials) {
-        console.error('Settings Data With Canvas Credentials is NULL!');
-        return;
-    }
+    doneBtn.innerHTML = LOADING_SPINNER_TEMPLATE;
+    await sleep(1.5 * 1000);
 
     const settingsDataToSave = getSettingsDataToSave();
     
