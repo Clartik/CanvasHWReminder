@@ -1,5 +1,7 @@
 import { Worker } from 'worker_threads'
 import { promisify } from 'util'
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
 import { app, BrowserWindow, net, Notification, Menu } from 'electron'
 
@@ -29,11 +31,16 @@ const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
+const envFilepath = path.resolve(__dirname + '../../../.env')
+
+if (process.env.NODE_ENV == 'development')
+	dotenv.config({ path: envFilepath });
+
 const debugMode: DebugMode = {
-	active: true,
-	useLocalClassData: true,
-	devKeybinds: true,
-	saveFetchedClassData: false,
+	active: process.env.DEBUG_ACTIVE === 'true',
+	useLocalClassData: process.env.DEBUG_USE_LOCAL_CLASS_DATA === 'true',
+	devKeybinds: process.env.DEBUG_KEYBINDS === 'true',
+	saveFetchedClassData: process.env.DEBUG_SAVE_FETCHED_CLASS_DATA === 'true',
 };
 
 if (!debugMode.active) {
@@ -46,6 +53,8 @@ const appInfo: AppInfo = {
 	isRunning: true,
 	isMainWindowLoaded: false,
 	isMainWindowHidden: false,
+
+	mainWindow: null,
 
 	classData: null,
 	settingsData: null,
@@ -65,7 +74,7 @@ const appStatus: AppStatus = {
 const CHECK_FOR_UPDATES_TIME_IN_SEC = 10;						// Every Minute
 const NOTIFICATION_DISAPPER_TIME_IN_SEC: number = 6;			// Every 6 Seconds
 
-let mainWindow: BrowserWindow | null = null;
+let systemTray: Electron.Tray;
 
 let checkCanvasWorker: Worker | null = null;
 let waitForNotificationWorker: Worker | null = null;
@@ -83,27 +92,27 @@ function createElectronApp() {
 		if (!debugMode.active)
 			Menu.setApplicationMenu(null);
 
-		const tray = createSystemTray(appInfo, debugMode, mainWindow);
+		systemTray = createSystemTray(appInfo, debugMode);
 		
 		while (!appInfo.settingsData && !appStatus.isSetupNeeded)
 			await sleep(100);
 	
 		if (appInfo.settingsData?.minimizeOnLaunch) {
 			appInfo.isMainWindowHidden = true;
-			console.log("[Main]: Didn't Start Window Due to Settings!");
+			console.log("[Main]: Didn't Start Main Window Due to Settings!");
 			return;
 		}
 
 		if (appStatus.isSetupNeeded)
-			mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
+			appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 		else
-			mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+			appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 	});
 
 	// MACOS ONLY
 	app.on('activate', async () => {
 		if (BrowserWindow.getAllWindows().length === 0 && app.isReady())
-			mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+			appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 	});
 	
 	app.on('window-all-closed', () => {
@@ -120,6 +129,10 @@ function createElectronApp() {
 
 		app.quit();
 	});
+
+	app.on('before-quit', () => {
+		systemTray.destroy();
+	})
 }
 
 //#endregion
@@ -138,7 +151,7 @@ async function appMain() {
 		console.log('[Main]: Setup is Needed!');
 		appStatus.isSetupNeeded = true;
 
-		mainWindow?.webContents.loadFile('./pages/welcome.html');
+		appInfo.mainWindow?.webContents.loadFile('./pages/welcome.html');
 		return;
 	}
 
@@ -148,7 +161,7 @@ async function appMain() {
 		console.log('[Main]: Setup is Needed!');
 		appStatus.isSetupNeeded = true;
 
-		mainWindow?.webContents.loadFile('./pages/welcome.html');
+		appInfo.mainWindow?.webContents.loadFile('./pages/welcome.html');
 		return;
 	}
 	
@@ -163,7 +176,7 @@ async function appMain() {
 			console.log('[Main]: No Internet!');
 
 			appStatus.isOnline = false;
-			mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
+			appInfo.mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
 
 			if (checkCanvasWorker !== null) {
 				checkCanvasWorker.terminate();
@@ -175,7 +188,7 @@ async function appMain() {
 			console.log('[Main]: Internet Back!');
 
 			appStatus.isOnline = true;
-			mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
+			appInfo.mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
 
 			if (checkCanvasWorker === null)
 				checkCanvasWorker = await createCanvasWorker();
@@ -191,7 +204,7 @@ async function updateClassData(classData: ClassData | null) {
 
 	if (!appStatus.isConnectedToCanvas) {
 		appStatus.isConnectedToCanvas = true;
-		mainWindow?.webContents.send('sendAppStatus', 'CANVAS LOGIN SUCCESS');
+		appInfo.mainWindow?.webContents.send('sendAppStatus', 'CANVAS LOGIN SUCCESS');
 	}
 
 	// ClassData Is Different From Cached Classes
@@ -206,7 +219,7 @@ async function updateClassData(classData: ClassData | null) {
 		await SaveManager.writeSavedData(FILENAME_CLASS_DATA_JSON, classData);
 
 	appInfo.classData = classData;
-	mainWindow?.webContents.send('updateData', 'classes', classData);
+	appInfo.mainWindow?.webContents.send('updateData', 'classes', classData);
 
 	findNextAssignmentAndStartWorker();
 }
@@ -314,7 +327,7 @@ async function onCheckCanvasWorkerMessageCallback(result: WorkerResult) {
 
 			case 'INVALID CANVAS CREDENTIALS':
 				appStatus.isConnectedToCanvas = false;
-				mainWindow?.webContents.send('sendAppStatus', 'INVALID CANVAS CREDENTIALS');
+				appInfo.mainWindow?.webContents.send('sendAppStatus', 'INVALID CANVAS CREDENTIALS');
 
 				checkCanvasWorker?.terminate();
 				checkCanvasWorker = null;

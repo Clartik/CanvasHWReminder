@@ -4,8 +4,8 @@ import AppInfo from './interfaces/appInfo';
 import createMainWindow from './window';
 import DebugMode from 'src/shared/interfaces/debugMode';
 
-function createSystemTray(appInfo: AppInfo, debugMode: DebugMode, mainWindow: BrowserWindow | null): Tray {
-	const icon = nativeImage.createFromPath('./assets/images/4k.png');
+function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
+	const icon = nativeImage.createFromPath('./assets/images/icon.ico');
 	const tray = new Tray(icon);
 	
 	const contextMenu = Menu.buildFromTemplate([
@@ -15,11 +15,11 @@ function createSystemTray(appInfo: AppInfo, debugMode: DebugMode, mainWindow: Br
 			if (!appInfo.isMainWindowHidden)
 				return;
 
-			if (mainWindow !== null)
+			if (appInfo.mainWindow !== null)
 				return;
 
 			appInfo.isMainWindowHidden = false;
-			mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+			appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html')
 		} },
 		// { label: "Don't Check for Today", type: 'checkbox' },
 		{ label: 'Quit App', type: 'normal', click: () => {

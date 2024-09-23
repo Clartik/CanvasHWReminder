@@ -2,3 +2,4 @@ node_modules
 build/**
 .vscode
 assets/svg/fontawesome-free-6.6.0-desktop
+out/
