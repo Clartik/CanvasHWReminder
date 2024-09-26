@@ -1,6 +1,5 @@
 import { Worker } from 'worker_threads'
 import { promisify } from 'util'
-import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 import { app, BrowserWindow, net, Notification, Menu } from 'electron'
@@ -25,7 +24,8 @@ import * as WorkerUtil from './util/workerUtil';
 import { APP_NAME, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
 
 import SaveManager from './util/saveManager';
-import CheckCanvasParams from './interfaces/checkCanvasParams';
+
+import { openLink } from "./util/misc";
 
 const sleep = promisify(setTimeout);
 
@@ -33,8 +33,10 @@ global.__baseDir = __dirname;
 
 const envFilepath = path.resolve(__dirname + '../../../.env')
 
-if (process.env.NODE_ENV == 'development')
-	dotenv.config({ path: envFilepath });
+require('dotenv').config({ path: envFilepath });
+
+if (require('electron-squirrel-startup'))
+	app.quit();
 
 const debugMode: DebugMode = {
 	active: process.env.DEBUG_ACTIVE === 'true',
@@ -86,6 +88,8 @@ appMain();
 //#region App Setup
 
 function createElectronApp() {
+	SaveManager.init(app.getPath('userData'));
+
 	app.whenReady().then(async () => {
 		app.setAppUserModelId(APP_NAME);		// Windows Specific Command to Show the App Name in Notification
 
@@ -267,6 +271,26 @@ function findNextAssignmentAndStartWorker() {
 	waitForNotificationWorker.postMessage(waitOnNotificationParams);
 }
 
+function getNotification(nextAssignment: Assignment): Electron.Notification | null {
+	if (nextAssignment.due_at === null)
+		return null;
+
+	const currentDate = new Date();
+	const nextAssignmentDueDate = new Date(nextAssignment.due_at);
+
+	const timeTillDueDate: string = CourseUtil.getTimeTillDueDate(currentDate, nextAssignmentDueDate);
+
+	const notification = new Notification({
+		title: `${nextAssignment.name} is ${timeTillDueDate}!`,
+		body: 'Click on the Notification to Head to the Posting',
+		icon: './assets/images/icon.ico',
+	});
+
+	notification.addListener('click', () => openLink(nextAssignment.html_url));
+
+	return notification;
+}
+
 async function showNotification(nextAssignment: Assignment) {
 	waitForNotificationWorker?.terminate();
 	waitForNotificationWorker = null;
@@ -274,7 +298,7 @@ async function showNotification(nextAssignment: Assignment) {
 	while (!app.isReady() || !appInfo.isMainWindowLoaded)
 		await sleep(100);
 	
-	const notification: Notification | null = CourseUtil.getNotification(nextAssignment);
+	const notification: Notification | null = getNotification(nextAssignment);
 
 	if (notification)
 		notification.show();

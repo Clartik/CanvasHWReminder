@@ -54,9 +54,9 @@ async function getSavedSettingsData(): Promise<SettingsData | null> {
 	try {
 		const savedSettingsData = await SaveManager.getSavedData('settings-data.json') as SettingsData;
 
-		if (savedSettingsData.version >= defaultSettingsData.version)
+		if (savedSettingsData.version > defaultSettingsData.version)
 			console.warn('[Main]: Saved Settings Has New Version!')
-		else
+		else if (savedSettingsData.version < defaultSettingsData.version)
 			console.warn('[Main]: Saved Settings Has Old Version!')
 
 		// const settingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };

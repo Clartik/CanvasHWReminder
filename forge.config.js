@@ -3,13 +3,16 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
+    name: "Canvas HW Reminder",
+    icon: "./assets/images/icon.png",
     asar: true,
   },
-  rebuildConfig: {},
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        setupIcon: "./assets/images/icon.ico",
+      },
     },
     {
       name: '@electron-forge/maker-zip',

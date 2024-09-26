@@ -1,9 +1,5 @@
-import { Notification } from "electron";
-
 import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
-
-import { openLink } from "./misc";
 
 function getUpcomingAssignments(classData: ClassData): Array<Assignment> {
 	if (classData.classes.length <= 0)
@@ -214,25 +210,5 @@ function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsD
 	return secondsToWait;
 }
 
-function getNotification(nextAssignment: Assignment): Notification | null {
-	if (nextAssignment.due_at === null)
-		return null;
-
-	const currentDate = new Date();
-	const nextAssignmentDueDate = new Date(nextAssignment.due_at);
-
-	const timeTillDueDate: string = getTimeTillDueDate(currentDate, nextAssignmentDueDate);
-
-	const notification = new Notification({
-		title: `${nextAssignment.name} is ${timeTillDueDate}!`,
-		body: 'Click on the Notification to Head to the Posting',
-		icon: './assets/images/icon.ico',
-	});
-
-	notification.addListener('click', () => openLink(nextAssignment.html_url));
-
-	return notification;
-}
-
 export { getUpcomingAssignments, getNextAssignment, filterUpcomingAssignmentsToRemoveRemindedAssignments, 
-    getTimeTillDueDate, getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getNotification, getTimeDiffInSeconds }
+    getTimeTillDueDate, getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds }

@@ -3,20 +3,25 @@ import * as path from 'path';
 
 import { promisify } from 'util'
 
-import { app } from 'electron';
-
 const writeFileAsync = promisify(fs.writeFile);
 const readFileAsync = promisify(fs.readFile);
 
 class SaveManager {
+    static saveData: string = '';
+
+    static init(userDataPath: string) {
+        this.saveData = userDataPath;
+
+        console.log('[SaveManager]: Initialized Save Data!');
+    }
+
     static getLocalPath(filename: string): string {
         const filepath = path.join(__baseDir, filename);
         return filepath;
     }
 
     static getSavePath(filename: string): string {
-        const userDataPath: string = app.getPath("userData");
-        return `${userDataPath}\\${filename}`;
+        return `${this.saveData}\\${filename}`;
     }
 
     static async getLocalData(filename: string): Promise<Object> {

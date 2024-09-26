@@ -1,4 +1,3 @@
-import { FetchError } from "node-fetch";
 import * as keytar from 'keytar';
 
 import { app, ipcMain } from "electron";
