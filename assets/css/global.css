@@ -85,6 +85,39 @@ h2 {
     color: var(--text-color);
     padding: 0;
     margin: 0;
+    text-align: center;
+}
+
+#credit-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.flex-break { 
+    flex-basis: 100%;
+}
+
+#credit-author-label {
+    flex: 1;
+}
+
+.website-link-btn {
+    background-color: transparent;
+    box-shadow: none;
+
+    margin: 0px 5px;
+    margin-top: 5px;
+
+    transition: transform 0.1s;
+}
+
+.website-link-btn:hover {
+    /* background-color: var(--secondary-color); */
+    /* background-color: transparent; */
+    /* box-shadow: none; */
+    transform: scale(1.15);
 }
 
 h3 {
@@ -94,18 +127,50 @@ h3 {
     margin: 0;
 }
 
+#website-btn {
+    background-color: var(--primary-color);
+
+    transition: transform 0.1s;
+}
+
+#website-btn:hover {
+    transform: scale(1.05);
+}
+
 #is-this-you-label {
     margin: 0;
     /* margin-bottom: 5px; */
     padding: 0;
 }
 
+.credits-header-title {
+    margin: 5px;
+}
+
 ul {
     list-style-type: none;
 }
 
+li {
+    color: var(--text-color);
+    font-family: 'Poppins Regular';
+}
+
+.credits-list {
+    margin: 3px;
+}
+
+.credits-list-container {
+    margin: 0;
+    padding: 0;
+}
+
 a {
     color: inherit;
+}
+
+#copyright-label {
+    font-size: medium;
 }
 
 p {
@@ -127,6 +192,7 @@ input {
     background-color: var(--secondary-color);
     color: var(--text-color);
     border: none;
+    border-radius: var(--border-radius);
     box-shadow: 1px 3px 10px var(--shadow-color);
     padding: 3px;
 
@@ -206,6 +272,11 @@ select:hover {
 .small-link-btn-image {
     width: 25px;
     color: white;
+}
+
+.container {
+    text-align: center;
+    padding: 15px;
 }
 
 .profile-icon {
@@ -794,6 +865,20 @@ input:checked + .slider:before {
     background-color: var(--bottom-bar-color);
 }
 
+.bottom-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    text-align: center;
+    margin: 10px;
+    background-color: var(--bottom-bar-color);
+}
+
+.credits-header {
+    margin: 10px;
+}
+
 #credits-link-btn {
     border-radius: var(--border-radius);
     padding: 3px 8px;
@@ -807,6 +892,10 @@ input:checked + .slider:before {
 
 #credits-link-btn:active {
     background-color: var(--primary-color-press);
+}
+
+#credits-author-label {
+    margin-top: 1px;
 }
 
 @media (min-width: 900px) {

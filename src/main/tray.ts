@@ -8,11 +8,16 @@ import DebugMode from 'src/shared/interfaces/debugMode';
 
 function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 	let iconPath: string;
+	let trayTitle: string;
 
-	if (debugMode.active)
+	if (debugMode.active) {
 		iconPath = path.join('./assets/images/icon.ico');
-	else
+		trayTitle = 'Canvas HW Reminder (DEBUG)'
+	}
+	else {
 		iconPath = path.join('./resources/icon.ico');
+		trayTitle = 'Canvas HW Reminder';
+	}
 
 	const icon = nativeImage.createFromPath(iconPath);
 	const tray = new Tray(icon);
@@ -39,8 +44,8 @@ function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 
 	tray.setContextMenu(contextMenu);
 
-	tray.setToolTip('Canvas HW Reminder');
-	tray.setTitle('Canvas HW Reminder');
+	tray.setToolTip(trayTitle);
+	tray.setTitle(trayTitle);
 
 	return tray;
 }

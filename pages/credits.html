@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas HW Reminder</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+
+    <script>var exports = {};</script>
+    <script src="../build/shared/constants.js" defer></script>
+    <script src="../build/renderer/credits.js" defer></script>
+</head>
+<body>
+    <div id="top-bar">
+        <!-- The First A tag is purely to center the h1! -->
+        <a href="settings.html" id="settings-link" class="link-btn"  title="Settings">
+            <img src="../assets/svg/chevron-left.svg" alt="Settings Icon" class="small-link-btn-image">
+        </a>
+        <h1 id="page-title">Credits</h1>
+        <a id="settings-link" class="link-btn" style="visibility: hidden">
+            <img src="../assets/svg/chevron-left.svg" alt="Settings Icon" class="small-link-btn-image">
+        </a>
+    </div>
+    <div id="credit-links">
+        <h2 id="credit-author-label">Developed By Kartik Yedumbaka</h2>
+        <div class="flex-break"></div>
+        <button id="github-btn" class="website-link-btn"><img src="../assets/svg/github.svg" alt="GitHub Link" width="30px" height="30px"></button>
+        <button id="website-btn">Link to Website</button>
+        <button id="youtube-btn" class="website-link-btn"><img src="../assets/svg/youtube.svg" alt="Youtube Link" width="30px" height="30px"></button>
+    </div>
+
+
+    <div class="container">
+        
+        <div class="credits-header">
+            <h3 class="credits-header-title">Please Note</h3>
+            <div class="separator"></div>
+        </div>
+
+        <p>
+            This App is Not Affliated With Canvas or Instructure. This is a Completely Independent, Third-Party Application 
+            Developed By A Solo Developer. This App Uses the Canvas LMS API Soley to Retrieve Information Such as 
+            Your Courses, Assignments, Name, and Profile Icon. No Personal Data is Ever Collected or Sent to a Server. 
+            Canvas Credentials Are Securely Saved On-Device and All User Settings Are Saved Locally. Please Verify All 
+            Assignment Detials, as Canvas HW Reminder is Not Responsible for Any Missed Deadlines. 
+            <br>
+            <br>If You Encounter Any Issues, Please Contact Kartik at "yg.kartik@gmail.com". <br>
+            Thank You for Using the App! :D
+        </p>
+
+        <div class="credits-header">
+            <h3 class="credits-header-title">Third Party Libraries</h3>
+            <div class="separator"></div>
+        </div>
+        
+        <ul class="credits-list-container">
+            <li class="credits-list">Canvas LMS API</li>
+            <li class="credits-list">Electron (MIT License)</li>
+            <li class="credits-list">Electron Forge (MIT License)</li>
+            <li class="credits-list">Typescript (Apache License)</li>
+            <li class="credits-list">Keytar (MIT License)</li>
+            <li class="credits-list">Dotenv (BSD-2-Clause license)</li>
+            <li class="credits-list">Node-Fetch (MIT License)</li>
+        </ul>
+
+        <div class="credits-header">
+            <h3 class="credits-header-title">Icon and Graphics</h3>
+            <div class="separator"></div>
+        </div>
+
+        <ul class="credits-list-container">
+            <li class="credits-list">Font Awesome Icons (CC By 4.0 License)</li>
+            <li class="credits-list">Poppins Font (Open Font License)</li>
+        </ul>
+
+        <div class="credits-header">
+            <h3 class="credits-header-title">Special Thanks</h3>
+            <div class="separator"></div>
+        </div>
+
+         <ul class="credits-list-container">
+            <li class="credit-slist">Mahavir Dondeti for Consult</li>
+            <li class="credit-slist">Sean Jarecky for Consult</li>
+        </ul>
+
+        <div class="credits-header">
+            <div class="separator"></div>
+        </div>
+        
+        <p id="copyright-label">© 2024 Canvas HW Reminder. All Rights Reserved.</p>
+    </div>
+</body>
+</html>

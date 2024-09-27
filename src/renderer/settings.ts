@@ -64,7 +64,7 @@ async function settingsMain() {
 //#region Event Handlers
 
 creditsLinkBtn.addEventListener('click', () => {
-    window.api.openLink(WEBSITE_LINK);
+    window.location.href = './credits.html';
 })
 
 canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
