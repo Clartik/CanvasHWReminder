@@ -4,6 +4,9 @@ import * as path from 'path';
 
 import { app, BrowserWindow, net, Notification, Menu } from 'electron'
 
+if (require('electron-squirrel-startup'))
+	app.quit();
+
 import handleIPCRequests from './ipc/index';
 
 import createSystemTray from './tray'
@@ -31,12 +34,9 @@ const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
-const envFilepath = path.resolve(__dirname + '../../../.env')
+const envFilepath = path.resolve(__dirname + '../../../.env');
 
 require('dotenv').config({ path: envFilepath });
-
-if (require('electron-squirrel-startup'))
-	app.quit();
 
 const debugMode: DebugMode = {
 	active: process.env.DEBUG_ACTIVE === 'true',

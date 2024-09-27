@@ -7,12 +7,12 @@ const writeFileAsync = promisify(fs.writeFile);
 const readFileAsync = promisify(fs.readFile);
 
 class SaveManager {
-    static saveData: string = '';
+    static saveDataPath: string = '';
 
     static init(userDataPath: string) {
-        this.saveData = userDataPath;
+        this.saveDataPath = userDataPath;
 
-        console.log('[SaveManager]: Initialized Save Data!');
+        console.log('[SaveManager]: Initialized Save Data Path!');
     }
 
     static getLocalPath(filename: string): string {
@@ -21,7 +21,7 @@ class SaveManager {
     }
 
     static getSavePath(filename: string): string {
-        return `${this.saveData}\\${filename}`;
+        return `${this.saveDataPath}\\${filename}`;
     }
 
     static async getLocalData(filename: string): Promise<Object> {

@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 import { app as electronApp, Tray, nativeImage, Menu, BrowserWindow } from 'electron';
 
 import AppInfo from './interfaces/appInfo';
@@ -5,7 +7,14 @@ import createMainWindow from './window';
 import DebugMode from 'src/shared/interfaces/debugMode';
 
 function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
-	const icon = nativeImage.createFromPath('./assets/images/icon.ico');
+	let iconPath: string;
+
+	if (debugMode.active)
+		iconPath = path.join('./assets/images/icon.ico');
+	else
+		iconPath = path.join('./resources/icon.ico');
+
+	const icon = nativeImage.createFromPath(iconPath);
 	const tray = new Tray(icon);
 	
 	const contextMenu = Menu.buildFromTemplate([

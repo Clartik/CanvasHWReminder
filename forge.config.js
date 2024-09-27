@@ -6,6 +6,9 @@ module.exports = {
     name: "Canvas HW Reminder",
     icon: "./assets/images/icon.png",
     asar: true,
+    extraResource: [
+      "./assets/images/icon.ico"
+    ]
   },
   makers: [
     {
