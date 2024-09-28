@@ -30,6 +30,8 @@ async function sleep(ms: number): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+connectMain();
+
 //#region TEMPLATES
 
 const INFO_WIDGET_TEMPLATE_NO_INTERNET: string = `
@@ -87,14 +89,6 @@ noBtn.addEventListener('click', () => {
 });
 
 yesBtn.addEventListener('click', async () => {
-    // const settingsDataWithCanvasCredentials = getSettingsDataWithCanvasCredentials();
-    // const success = await window.api.writeSavedData('settings-data.json', settingsDataWithCanvasCredentials);
-    
-    // if (!success) {
-    //     console.warn('Failed to Save Settings Data!');
-    //     return;
-    // }
-
     saveSecureData();
 
     window.location.href = '../pages/setupConfigure.html' 
@@ -103,6 +97,19 @@ yesBtn.addEventListener('click', async () => {
 //#endregion
 
 //#region Functions
+
+async function connectMain() {
+    const canvasBaseUrl: string | null = await window.api.getSecureText('CanvasBaseURL');
+    const canvasAPIToken: string | null = await window.api.getSecureText('CanvasAPIToken');
+
+    if (!canvasBaseUrl || !canvasAPIToken)
+        return;
+
+    canvasBaseURLInput.value = canvasBaseUrl;
+    canvasAPITokenInput.value = canvasAPIToken;
+
+    checkIfConnectBtnCanBeEnabled();
+}
 
 function checkIfConnectBtnCanBeEnabled() {
     if (!canvasBaseURLInput.value || !canvasAPITokenInput.value || !isValidUrl(canvasBaseURLInput.value)) {
@@ -159,27 +166,6 @@ function showProfileIconAndName(profile: CanvasAPI.User) {
         
     profileIcon.src = profile.avatar_url;
     profileName.innerText = profile.name;
-}
-
-function getSettingsDataWithCanvasCredentials(): SettingsData {
-    return {
-        version: SETTINGS_DATA_VERSION,
-
-        // canvasBaseURL: canvasBaseURLInput.value,
-        // canvasAPIToken: canvasAPITokenInput.value,
-
-        whenToRemindTimeValue: '',
-        whenToRemindFormatValue: '',
-        howLongPastDueTimeValue: '',
-        howLongPastDueFormatValue: '',
-
-        launchOnStart: false,
-        minimizeOnLaunch: false,
-        minimizeOnClose: false,
-
-        showExactDueDate: false,
-        alwaysExpandAllCourseCards: false
-    }
 }
 
 function saveSecureData() {
