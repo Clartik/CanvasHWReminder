@@ -7,6 +7,11 @@ import { app, BrowserWindow, net, Notification, Menu } from 'electron'
 if (require('electron-squirrel-startup'))
 	app.quit();
 
+const isLocked = app.requestSingleInstanceLock();
+
+if (!isLocked)
+	app.quit();
+
 import handleIPCRequests from './ipc/index';
 
 import createSystemTray from './tray'
@@ -35,11 +40,12 @@ const sleep = promisify(setTimeout);
 global.__baseDir = __dirname;
 
 const envFilepath = path.resolve(__dirname + '../../../.env');
+// const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
 
 require('dotenv').config({ path: envFilepath });
 
 const debugMode: DebugMode = {
-	active: process.env.DEBUG_ACTIVE === 'true',
+	active: process.env.DEBUG_MODE === 'true',
 	useLocalClassData: process.env.DEBUG_USE_LOCAL_CLASS_DATA === 'true',
 	devKeybinds: process.env.DEBUG_KEYBINDS === 'true',
 	saveFetchedClassData: process.env.DEBUG_SAVE_FETCHED_CLASS_DATA === 'true',
@@ -52,6 +58,8 @@ if (!debugMode.active) {
 }
 
 const appInfo: AppInfo = {
+	isDevelopment: process.env.NODE_ENV === 'dev',
+
 	isRunning: true,
 	isMainWindowLoaded: false,
 	isMainWindowHidden: false,
@@ -93,7 +101,7 @@ function createElectronApp() {
 	app.whenReady().then(async () => {
 		app.setAppUserModelId(APP_NAME);		// Windows Specific Command to Show the App Name in Notification
 
-		if (!debugMode.active)
+		if (!appInfo.isDevelopment)
 			Menu.setApplicationMenu(null);
 
 		systemTray = createSystemTray(appInfo, debugMode);
@@ -393,6 +401,7 @@ async function outputAppLog() {
 	const data: AppLog = {
 		appInfo: appInfo,
 		appStatus: appStatus,
+		debugMode: debugMode,
 		workers: {
 			checkCanvasWorker: checkCanvasWorker !== null ? 'Running' : 'Not Running', 
 			waitForNotificationWorker: waitForNotificationWorker !== null ? 'Running' : 'Not Running'

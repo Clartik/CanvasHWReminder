@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canvas HW Reminder</title>
     <link rel="stylesheet" href="../assets/css/global.css">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">
 
     <script>var exports = {};</script>
-    <script src="../build/shared/constants.js" defer></script>
     <script src="../build/renderer/settings.js" defer></script>
 </head>
 <body>
@@ -17,7 +17,7 @@
         </a>
         <h1 id="page-title">Settings</h1>
         <!-- The First a tag is purely to center the h1! -->
-        <a id="settings-link" class="link-btn" style="visibility: hidden;">
+        <a id="settings-link" class="link-btn invisible">
             <img src="../assets/svg/house.svg" class="link-btn-image">
         </a>
     </div>
@@ -25,11 +25,8 @@
     <div id="settings-container">
         <div class="settings-option">
             <label>Your Canvas Base URL:</label>
-            <div style="display: inline; min-width: fit-content;">
-
-                <input type="text" id="canvas-base-url-input" class="changeable" disabled placeholder="https://vcccd.instructure.com/">
-                <button id="canvas-base-url-btn" class="input-btn changeable">Edit</button>
-            </div>
+            <input type="text" id="canvas-base-url-input" class="changeable" disabled placeholder="https://vcccd.instructure.com/">
+            <button id="canvas-base-url-btn" class="input-btn changeable">Edit</button>
         </div>
 
         <div class="settings-option">

@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">
+
     <title>Canvas HW Reminder</title>
     <link rel="stylesheet" href="../assets/css/global.css">
 
@@ -16,7 +18,7 @@
             <img src="../assets/svg/gear.svg" alt="Settings Icon" class="link-btn-image">
         </a>
         <h1 id="page-title">Canvas HW Reminder</h1>
-        <a id="settings-link" class="link-btn" style="visibility: hidden">
+        <a id="settings-link" class="link-btn invisible">
             <img src="../assets/svg/gear.svg" alt="Settings Icon" class="link-btn-image">
         </a>
         
@@ -101,5 +103,6 @@
             </li>
         </ul> -->
     </div>
+    <!-- <p id="bottom-text" class="bottom-text hide">Text</p> -->
   </body>
 </html>

@@ -1,5 +1,6 @@
 import AppStatus from "../../shared/interfaces/appStatus";
 import AppInfo from "./appInfo";
+import DebugMode from "../../shared/interfaces/debugMode";
 
 interface WorkerInfo {
     readonly checkCanvasWorker: string;
@@ -9,6 +10,7 @@ interface WorkerInfo {
 interface AppLog {
     readonly appInfo: AppInfo,
     readonly appStatus: AppStatus,
+    readonly debugMode: DebugMode,
     readonly workers: WorkerInfo,
 }
 

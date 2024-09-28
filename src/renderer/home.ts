@@ -72,6 +72,8 @@ let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
 let settingsData: SettingsData | null;
 let homepageDebugMode: DebugMode;
 
+type BottomTextType = "Info" | "Error";
+
 homeMain();
 
 // Main Function
@@ -139,7 +141,7 @@ window.api.onUpdateData((type: string, data: Object | null) => {
         const classData = data as ClassData | null;
         
         if (classData !== null) {
-            console.log('Received Updated ClassData!')
+            console.log('Received Updated ClassData!');
 
             clearLoadingOrErrorContainer();
 
@@ -245,10 +247,6 @@ function createAssignmentElement(): HTMLLIElement {
     let assignmentElement = document.createElement('li');
     assignmentElement.innerHTML = ASSIGNMENT_TEMPLATE;
     return assignmentElement;
-}
-
-function isInt(n: number): boolean {
-    return n % 1 === 0;
 }
 
 async function getCachedClassData(): Promise<ClassData | null> {

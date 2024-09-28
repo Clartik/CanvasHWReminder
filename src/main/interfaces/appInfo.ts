@@ -2,6 +2,8 @@ import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
 
 interface AppInfo {
+	isDevelopment: boolean,
+
 	isRunning: boolean,
 	isMainWindowLoaded: boolean,
 	isMainWindowHidden: boolean,

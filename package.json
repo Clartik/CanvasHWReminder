@@ -12,7 +12,7 @@
     "start": "npm run build && electron .",
     "forge-start": "electron-forge start",
     "package": "npm run build && electron-forge package",
-    "make": "npm run build && electron-forge make"
+    "make": "npm run build && electron-forge make --enable-logging"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.5.0",

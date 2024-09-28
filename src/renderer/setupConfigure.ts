@@ -19,7 +19,7 @@ const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
 const MINUTE_TIME_OPTIONS: Array<string> = [];
 
-const SETTINGS_DATA_VERSION: string = '0.2';
+const SETTINGS_DATA_VERSION: string = '0.3';
 
 const LOADING_SPINNER_TEMPLATE = `
     <img id="setup-spinner" src="../assets/svg/spinner.svg" width="25px">

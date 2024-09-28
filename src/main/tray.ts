@@ -10,7 +10,7 @@ function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 	let iconPath: string;
 	let trayTitle: string;
 
-	if (debugMode.active) {
+	if (appInfo.isDevelopment) {
 		iconPath = path.join('./assets/images/icon.ico');
 		trayTitle = 'Canvas HW Reminder (DEBUG)'
 	}

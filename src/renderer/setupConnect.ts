@@ -21,7 +21,7 @@ const infoWidgetContainer = document.getElementById('info-widget-container')! as
 const infoWarnWidget = document.getElementById('information-warning-container')! as HTMLDivElement;
 
 // Shared constants file fills the variable
-const SETTINGS_DATA_VERSION: string = '0.2';
+const SETTINGS_DATA_VERSION: string = '0.3';
 
 canvasBaseURLInput.addEventListener('input', checkIfConnectBtnCanBeEnabled);
 canvasAPITokenInput.addEventListener('input', checkIfConnectBtnCanBeEnabled);

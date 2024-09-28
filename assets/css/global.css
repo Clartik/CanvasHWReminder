@@ -277,6 +277,7 @@ select:hover {
 .container {
     text-align: center;
     padding: 15px;
+    padding-top: 0px;
 }
 
 .profile-icon {
@@ -865,18 +866,31 @@ input:checked + .slider:before {
     background-color: var(--bottom-bar-color);
 }
 
-.bottom-bar {
+.bottom-text {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     text-align: center;
-    margin: 10px;
+    padding: 5px;
     background-color: var(--bottom-bar-color);
+}
+
+.error.bottom-text {
+    color: var(--accent-color);
+}
+
+.info.bottom-text {
+    color: var(--accent-color);
 }
 
 .credits-header {
     margin: 10px;
+    margin-top: 20px;
+}
+
+.invisible {
+    visibility: hidden;
 }
 
 #credits-link-btn {
