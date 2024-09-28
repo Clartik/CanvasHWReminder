@@ -7,11 +7,6 @@ import { app, BrowserWindow, net, Notification, Menu } from 'electron'
 if (require('electron-squirrel-startup'))
 	app.quit();
 
-const isLocked = app.requestSingleInstanceLock();
-
-if (!isLocked)
-	app.quit();
-
 import handleIPCRequests from './ipc/index';
 
 import createSystemTray from './tray'
@@ -71,6 +66,8 @@ const appInfo: AppInfo = {
 
 	nextAssignment: null,
 	assignmentsThatHaveBeenReminded: [],
+
+	lastCanvasCheckTime: "Never"
 }
 
 // Assume By Default Both are Avaiable!
@@ -96,6 +93,13 @@ appMain();
 //#region App Setup
 
 function createElectronApp() {
+	const isLocked = app.requestSingleInstanceLock();
+
+	if (!isLocked && !appInfo.isDevelopment) {
+		console.log('[Main]: Another Instance of App Exists! Exiting this Instance!');
+		app.quit();
+	}
+
 	SaveManager.init(app.getPath('userData'));
 
 	app.whenReady().then(async () => {
@@ -111,14 +115,11 @@ function createElectronApp() {
 	
 		if (appInfo.settingsData?.minimizeOnLaunch) {
 			appInfo.isMainWindowHidden = true;
-			console.log("[Main]: Didn't Start Main Window Due to Settings!");
+			console.log("[Main]: Main Window Didn't Show Due to Setting");
 			return;
 		}
 
-		if (appStatus.isSetupNeeded)
-			appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
-		else
-			appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+		launchMainWindowWithCorrectPage();
 	});
 
 	// MACOS ONLY
@@ -209,6 +210,13 @@ async function appMain() {
 		await sleep(CHECK_FOR_UPDATES_TIME_IN_SEC * 1000);
 	}
 };
+
+function launchMainWindowWithCorrectPage() {
+	if (appStatus.isSetupNeeded)
+		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
+	else
+		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+}
 
 async function updateClassData(classData: ClassData | null) {
 	if (classData === null)
@@ -350,6 +358,8 @@ async function createCanvasWorker(): Promise<Worker> {
 }
 
 async function onCheckCanvasWorkerMessageCallback(result: WorkerResult) {
+	appInfo.lastCanvasCheckTime = new Date().toLocaleString();
+
 	if (result.error !== null) {
 		switch (result.error) {
 			case 'INTERNET OFFLINE':
@@ -411,4 +421,4 @@ async function outputAppLog() {
 	await SaveManager.writeSavedData('app-log.json', data);
 }
 
-export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain }
+export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage }

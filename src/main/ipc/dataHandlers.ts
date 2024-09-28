@@ -14,7 +14,7 @@ import { startCheckCanvasWorker } from "../main";
 import { Canvas } from "../util/canvasAPI/canvas";
 
 import SaveManager from "../util/saveManager";
-import { getSecureText } from "../util/dataUtil";
+import * as DataUtil from '../util/dataUtil';
 
 function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefined {
     const senderFileLocations = event.sender.getURL().split('/');
@@ -60,9 +60,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         if (type === 'settingsData') {
             appInfo.settingsData = data as SettingsData;
 
-            app.setLoginItemSettings({
-                openAtLogin: appInfo.settingsData?.launchOnStart
-            });
+            DataUtil.configureAppSettings(appInfo.settingsData);
 
             await startCheckCanvasWorker();
         }
@@ -90,7 +88,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     });
 
     ipcMain.handle('getSecureText', async (event, key: string): Promise<string | null> => {
-        return await getSecureText(key);
+        return await DataUtil.getSecureText(key);
     });
 }
 

@@ -5,6 +5,7 @@ import { app as electronApp, Tray, nativeImage, Menu, BrowserWindow } from 'elec
 import AppInfo from './interfaces/appInfo';
 import createMainWindow from './window';
 import DebugMode from 'src/shared/interfaces/debugMode';
+import { launchMainWindowWithCorrectPage } from './main';
 
 function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 	let iconPath: string;
@@ -23,7 +24,7 @@ function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 	const tray = new Tray(icon);
 	
 	const contextMenu = Menu.buildFromTemplate([
-		{ label: 'Canvas HW Reminder', type: 'normal', enabled: false },
+		{ label: trayTitle, type: 'normal', enabled: false },
 		{ type: 'separator' },
 		{ label: 'Show App', type: 'normal', click: () => {
 			if (!appInfo.isMainWindowHidden)
@@ -33,7 +34,7 @@ function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 				return;
 
 			appInfo.isMainWindowHidden = false;
-			appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html')
+			launchMainWindowWithCorrectPage();
 		} },
 		// { label: "Don't Check for Today", type: 'checkbox' },
 		{ label: 'Quit App', type: 'normal', click: () => {

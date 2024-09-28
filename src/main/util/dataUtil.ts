@@ -10,29 +10,10 @@ import { APP_NAME } from "../../shared/constants";
 import * as CanvasUtil from './canvasUtil'
 
 import { updateClassData } from '../main';
-import { FILENAME_CLASS_DATA_JSON } from '../../shared/constants';
+import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION } from '../../shared/constants';
 
 import SaveManager from './saveManager';
-
-function getDefaultSettingsData(): SettingsData {
-	return {
-		version: '0.3',
-
-		// canvasBaseURL: '',
-		// canvasAPIToken: '',
-		whenToRemindTimeValue: '6',
-		whenToRemindFormatValue: 'hour',
-		howLongPastDueTimeValue: '30',
-		howLongPastDueFormatValue: 'minute',
-		
-		launchOnStart: false,
-		minimizeOnLaunch: false,
-		minimizeOnClose: true,
-
-		showExactDueDate: false,
-		alwaysExpandAllCourseCards: false,
-	}
-}
+import { app } from 'electron';
 
 async function getSecureText(key: string): Promise<string | null> {
 	return await keytar.getPassword(APP_NAME, key);
@@ -49,22 +30,17 @@ async function getSavedClassData(): Promise<ClassData | null> {
 }
 
 async function getSavedSettingsData(): Promise<SettingsData | null> {
-	const defaultSettingsData: SettingsData = getDefaultSettingsData();
-
 	try {
 		const savedSettingsData = await SaveManager.getSavedData('settings-data.json') as SettingsData;
 
-		if (savedSettingsData.version > defaultSettingsData.version)
-			console.warn('[Main]: Saved Settings Has New Version!')
-		else if (savedSettingsData.version < defaultSettingsData.version)
+		if (savedSettingsData.version < SETTINGS_DATA_VERSION)
 			console.warn('[Main]: Saved Settings Has Old Version!')
 
-		// const settingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
 		console.log('[Main]: Cached Settings Data is Updated!');
 		
 		return savedSettingsData;
 	} catch (error) {
-		console.error('[Main]: Could Not Retrieve Saved SettingsData, Resorting to Default SettingsData: ' + error);
+		console.error('[Main]: Could Not Retrieve Saved SettingsData: ' + error);
 		return null;
 	}
 }
@@ -104,11 +80,19 @@ async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
 			const courses = await CanvasUtil.getCoursesFromCanvas(canvasBaseURL, canvasAPIToken);
 			classData = await CanvasUtil.convertToClassData(courses);
         } catch (error) {
-            console.error('[DEBUG MODE]: Failed to Get Class Data From Canvas -', error);
+            console.error('[DEBUG MODE]: Failed to Get Class Data From Canvas: ', error);
         }
 	}
 	
 	await updateClassData(classData);
 }
 
-export { getDefaultSettingsData, getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText }
+function configureAppSettings(settingsData: SettingsData) {
+	app.setLoginItemSettings({
+		openAtLogin: settingsData.launchOnStart
+	});
+
+	console.log('[Main]: Set App to Launch on System Bootup');
+}
+
+export { getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, configureAppSettings }

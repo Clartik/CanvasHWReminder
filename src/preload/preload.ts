@@ -13,7 +13,7 @@ const API = {
     keyPress: (key: string) => ipcRenderer.send('keyPress', key),
     getDebugMode: () => ipcRenderer.invoke('getDebugMode'),
     onSendAppStatus: (callback: (status: string) => void) => ipcRenderer.on('sendAppStatus', (_event, status: string) => callback(status)),
-    sendAppStatus: (status: string) => ipcRenderer.send('sendAppStatus', status), 
+    sendAppStatus: (status: string, data?: Object) => ipcRenderer.send('sendAppStatus', status, data ?? null), 
     getAppStatus: () => ipcRenderer.invoke('getAppStatus'),
     getSelfFromCanvas: (baseUrl: string, apiToken: string) => ipcRenderer.invoke('getSelfFromCanvas', baseUrl, apiToken),
     saveSecureText: (key: string, text: string) => ipcRenderer.send('saveSecureText', key, text),

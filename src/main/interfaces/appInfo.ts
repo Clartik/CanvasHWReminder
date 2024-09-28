@@ -15,6 +15,8 @@ interface AppInfo {
 
 	nextAssignment: Assignment | null,
 	assignmentsThatHaveBeenReminded: Array<Assignment>,
+
+	lastCanvasCheckTime: string
 }
 
 export default AppInfo;

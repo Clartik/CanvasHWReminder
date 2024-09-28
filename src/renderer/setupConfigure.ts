@@ -78,7 +78,8 @@ doneBtn.addEventListener('click', async (event) => {
         return;
     }
 
-    window.api.sendAppStatus('SETUP COMPLETE');
+    window.api.sendAppStatus('SETUP COMPLETE', settingsDataToSave);
+
     window.location.href = '../pages/home.html';
 });
 
@@ -151,6 +152,8 @@ function setDefaultSettings() {
     populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
     howLongPastDueTimeDropdown.value = '1';
 
+    launchOnStartCheckbox.checked = true;
+    minimizeOnLaunchCheckbox.checked = true;
     minimizeOnCloseCheckbox.checked = true;
 }
 

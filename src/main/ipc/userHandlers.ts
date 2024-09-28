@@ -1,4 +1,4 @@
-import { ipcMain, dialog, BrowserWindow  } from "electron";
+import { ipcMain, dialog, BrowserWindow, app } from "electron";
 
 import AppInfo from "../interfaces/appInfo";
 import DebugMode from "../../shared/interfaces/debugMode";
@@ -8,6 +8,7 @@ import * as DataUtil from '../util/dataUtil';
 import { openLink } from "../util/misc";
 
 import { appMain, outputAppLog } from "../main";
+import SettingsData from "src/shared/interfaces/settingsData";
 
 function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
 	ipcMain.on('openLink', (event, url: string) => openLink(url));
@@ -40,10 +41,15 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 		}
 	});
 
-	ipcMain.on('sendAppStatus', (event, status: string) => {
+	ipcMain.on('sendAppStatus', (event, status: string, data: Object | null) => {
 		switch (status) {
 			case 'SETUP COMPLETE':
+				const settingsData = data as SettingsData;
+
+				DataUtil.configureAppSettings(settingsData);
+
 				console.log('[Main]: App Setup Complete!');
+
 				appMain();
 				break;
 		
