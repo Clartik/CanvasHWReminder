@@ -11,25 +11,42 @@ module.exports = {
     ]
   },
   makers: [
-    {
-      name: '@electron-forge/maker-squirrel',
-      config: {
-        icon: './assets/images/icon.ico',
-        setupIcon: "./assets/images/icon.ico",
-      },
-    },
-    {
-      name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
-    },
-    {
-      name: '@electron-forge/maker-deb',
-      config: {},
-    },
-    {
-      name: '@electron-forge/maker-rpm',
-      config: {},
-    },
+    // {
+    //   name: '@electron-forge/maker-squirrel',
+    //   config: {
+    //     icon: './assets/images/icon.ico',
+    //     setupIcon: "./assets/images/icon.ico",
+    //   },
+    // },
+    // {
+    //   name: '@electron-forge/maker-wix',
+    //   config: {
+    //     appUserModelId: "Canvas HW Reminder",
+    //     description: "Canavs HW Reminder",
+    //     exe: "Canavs HW Reminder",
+    //     icon: './assets/images/icon.ico',
+    //     manufacturer: "Clartik",
+    //     name: "Canvas HW Reminder",
+    //     programFilesFolderName: "Canvas HW Reminder",
+    //     shortName: "CanvasHWReminder",
+    //     shortcutFolderName: "Canvas HW Reminder",
+    //     ui: {
+    //       chooseDirectory: true
+    //     }
+    //   },
+    // },
+    // {
+    //   name: '@electron-forge/maker-zip',
+    //   platforms: ['darwin'],
+    // },
+    // {
+    //   name: '@electron-forge/maker-deb',
+    //   config: {},
+    // },
+    // {
+    //   name: '@electron-forge/maker-rpm',
+    //   config: {},
+    // },
   ],
   plugins: [
     {
