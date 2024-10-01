@@ -44,6 +44,11 @@ const INFO_WIDGET_TEMPLATE_CANVAS_INCORRECT_LOGIN: string = `
     <p>Please Check Your Base URL or Access Token Are Accurate</p>
 `;
 
+const INFO_WIDGET_TEMPLATE_ERROR: string = `
+    <h2>An Error Occurred While Trying to Connect to Canvas</h2>
+    <p>Please Check Your Credentials Are Accurate and You Are Connected to Internet</p>
+`;
+
 const LOADING_SPINNER_TEMPLATE = `
     <img id="spinner" src="../assets/svg/spinner.svg" width="30px">
 `;
@@ -64,21 +69,31 @@ connectBtn.addEventListener('click', async () => {
     }
     
     const result: IPCGetResult = await window.api.getSelfFromCanvas(canvasBaseURLInput.value, canvasAPITokenInput.value) as IPCGetResult;
-    
-    postConnectBtnClick();
-    
-    switch (result.error) {  
-        case 'INVALID CANVAS CREDENTIALS':
-            const infoWidgetInvalidCredentials = createInfoWidget(INFO_WIDGET_TEMPLATE_CANVAS_INCORRECT_LOGIN);
-            infoWidgetContainer.appendChild(infoWidgetInvalidCredentials);
-            return;
-            
-        default:
-            break;
+
+    if (result.error) {
+        postConnectBtnClick();
+
+        switch (result.error) {  
+            case 'INVALID CANVAS CREDENTIALS':
+                const infoWidgetInvalidCredentials = createInfoWidget(INFO_WIDGET_TEMPLATE_CANVAS_INCORRECT_LOGIN);
+                infoWidgetContainer.appendChild(infoWidgetInvalidCredentials);
+                return;
+                
+            default:
+                const infoWidgetError = createInfoWidget(INFO_WIDGET_TEMPLATE_ERROR);
+                infoWidgetContainer.appendChild(infoWidgetError);
+                return;
+        }
     }
     
-    if (result.data)
-        showProfileIconAndName(result.data as CanvasAPI.User);
+    if (!result.data) {
+        postConnectBtnClick();
+        const infoWidgetError = createInfoWidget(INFO_WIDGET_TEMPLATE_ERROR);
+        infoWidgetContainer.appendChild(infoWidgetError);
+        return;
+    }
+        
+    showProfileIconAndName(result.data as CanvasAPI.User);
 });
 
 noBtn.addEventListener('click', () => {
@@ -159,11 +174,15 @@ function postConnectBtnClick() {
 }
 
 function showProfileIconAndName(profile: CanvasAPI.User) {
-    infoWidgetContainer.classList.add('hide');
+    profileIcon.addEventListener('load', () => {
+        postConnectBtnClick();
+
+        infoWidgetContainer.classList.add('hide');
     
-    setupLoginContainer.classList.add('disable');
-    setupProfileContainer.classList.remove('hide');
-        
+        setupLoginContainer.classList.add('disable');
+        setupProfileContainer.classList.remove('hide');
+    });
+    
     profileIcon.src = profile.avatar_url;
     profileName.innerText = profile.name;
 }

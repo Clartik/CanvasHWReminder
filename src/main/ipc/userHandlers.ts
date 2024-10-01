@@ -44,6 +44,8 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 	ipcMain.on('sendAppStatus', (event, status: string, data: Object | null) => {
 		switch (status) {
 			case 'SETUP COMPLETE':
+				appStatus.isSetupNeeded = false;
+
 				const settingsData = data as SettingsData;
 
 				DataUtil.configureAppSettings(settingsData);

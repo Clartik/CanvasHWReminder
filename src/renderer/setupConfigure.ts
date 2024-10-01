@@ -25,6 +25,8 @@ const LOADING_SPINNER_TEMPLATE = `
     <img id="setup-spinner" src="../assets/svg/spinner.svg" width="25px">
 `;
 
+const FAKE_WAIT_SEC_FOR_COMPLETING_SETUP: number = 1;
+
 async function sleep(ms: number): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -67,7 +69,7 @@ doneBtn.addEventListener('click', async (event) => {
         return;
 
     doneBtn.innerHTML = LOADING_SPINNER_TEMPLATE;
-    await sleep(1.5 * 1000);
+    await sleep(FAKE_WAIT_SEC_FOR_COMPLETING_SETUP * 1000);
 
     const settingsDataToSave = getSettingsDataToSave();
     

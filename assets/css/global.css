@@ -924,5 +924,9 @@ input:checked + .slider:before {
 
 .disable {
     filter: brightness(50%);
-    pointer-events: none;
+    pointer-events: none !important;
+}
+
+#setup-login-container.disable #connect-btn {
+    pointer-events: none !important;
 }
