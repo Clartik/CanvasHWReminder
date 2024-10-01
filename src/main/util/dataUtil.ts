@@ -92,7 +92,7 @@ function configureAppSettings(settingsData: SettingsData) {
 		openAtLogin: settingsData.launchOnStart
 	});
 
-	console.log('[Main]: Set App to Launch on System Bootup');
+	console.log('[Main]: Configured App to Launch on System Bootup');
 }
 
 export { getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, configureAppSettings }

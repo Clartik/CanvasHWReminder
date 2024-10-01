@@ -109,7 +109,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
         const options: Electron.MessageBoxOptions = {
             type: "warning",
             title: "Save Settings?",
-            message: "Do You Want to Save?",
+            message: "Do you want to save?",
             buttons: ['Yes', 'No'],
             defaultId: 0
         }

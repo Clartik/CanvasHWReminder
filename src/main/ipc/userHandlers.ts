@@ -50,7 +50,7 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
 				DataUtil.configureAppSettings(settingsData);
 
-				console.log('[Main]: App Setup Complete!');
+				console.log('[Setup]: App Setup is Complete!');
 
 				appMain();
 				break;

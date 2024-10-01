@@ -2,7 +2,7 @@ import { Worker } from 'worker_threads'
 import { promisify } from 'util'
 import * as path from 'path';
 
-import { app, BrowserWindow, net, Notification, Menu } from 'electron'
+import { app, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
 
 if (require('electron-squirrel-startup'))
 	app.quit();
@@ -405,6 +405,8 @@ async function startCheckCanvasWorker() {
 	checkCanvasWorker = await createCanvasWorker();
 }
 
+import { shell } from 'electron';
+
 async function outputAppLog() {
 	console.log('[Main]: Outputting App Log to File!');
 
@@ -419,6 +421,26 @@ async function outputAppLog() {
 	};
 
 	await SaveManager.writeSavedData('app-log.json', data);
+
+	if (!appInfo.mainWindow)
+		return;
+
+	const messageResponse: Electron.MessageBoxReturnValue = await dialog.showMessageBox(appInfo.mainWindow, {
+		type: "info",
+		title: "Saved App Log",
+		message: "Outputted App Log",
+		buttons: ['Show File', 'Ok'],
+		defaultId: 1,
+		cancelId: 1,
+		noLink: true
+	});
+
+	const SHOW_BUTTON_RESPONSE = 0;
+
+	if (messageResponse.response === SHOW_BUTTON_RESPONSE) {
+		const appLogFilePath: string = SaveManager.getSavePath('app-log.json');
+		shell.showItemInFolder(appLogFilePath);
+	}
 }
 
 export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage }
