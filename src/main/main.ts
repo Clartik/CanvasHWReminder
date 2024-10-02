@@ -4,8 +4,7 @@ import * as path from 'path';
 
 import { app, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
 
-if (require('electron-squirrel-startup'))
-	app.quit();
+import { updateElectronApp } from 'update-electron-app';
 
 import handleIPCRequests from './ipc/index';
 
@@ -51,6 +50,9 @@ if (!debugMode.active) {
 	debugMode.devKeybinds = false;
 	debugMode.saveFetchedClassData = false;
 }
+
+if (!debugMode.active)
+	updateElectronApp();
 
 const appInfo: AppInfo = {
 	isDevelopment: process.env.NODE_ENV === 'dev',

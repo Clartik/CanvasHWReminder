@@ -173,6 +173,7 @@ window.api.onSendAppStatus(async (status: string) => {
         case "INTERNET ONLINE":
             clearLoadingOrErrorContainer();
 
+            // Means no classes are in view
             if (classBoxes === undefined) {
                 loadingOrErrorContainer.innerHTML = LOADING_CIRCLE_TEMPLATE;
             }
@@ -188,6 +189,7 @@ window.api.onSendAppStatus(async (status: string) => {
         case "INTERNET OFFLINE":
             clearLoadingOrErrorContainer();
 
+            // Means no classes are in view
             if (classBoxes === undefined) {
                 const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_NO_INTERNET_ON_BOOT)
                 loadingOrErrorContainer.appendChild(infoWidget);
@@ -300,6 +302,14 @@ function generateAllClassItems(classAmount: number): void {
     }
 }
 
+function addRightClickToUnremind(assignmentElement: HTMLLIElement) {
+    assignmentElement.addEventListener('contextmenu', (event) => {
+       event.preventDefault();
+       
+       
+    });
+}
+
 function populateClassItemWithData(classes: Array<Class>): void {
     for (let classIndex = 0; classIndex < classes.length; classIndex++) {
         const currentClass: Class = classes[classIndex];
@@ -340,8 +350,9 @@ function populateClassItemWithData(classes: Array<Class>): void {
                     
                 classHeaders[classIndex].classList.add('active');
                 classBoxes[classIndex].classList.remove('collapse');
-                // expandElement(classBoxes[classIndex]);
             }
+
+            assignmentElement
         }
 
         if (currentClass.assignments.length === 0) {
@@ -519,7 +530,7 @@ function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): string 
         });
         
         const formattedDueDate: string = dateTimeFormatter.format(assignmentDueDate);
-        return `Was Due on ${formattedDueDate}`
+        return `Was due on ${formattedDueDate}`
     }
 
     const isTimeDiffWithinHowLongPastDueRange: boolean = timeDiffInSec > 0 && timeDiffInSec <= howLongPastDueInSec;
@@ -532,7 +543,7 @@ function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): string 
         });
         
         const formattedDueDate: string = dateTimeFormatter.format(assignmentDueDate);
-        return `Was Due at ${formattedDueDate}`
+        return `Was due at ${formattedDueDate}`
     }
 
     return 'Overdue';
