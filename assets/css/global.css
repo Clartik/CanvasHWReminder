@@ -487,8 +487,10 @@ select:hover {
     border-radius: 0px 0px var(--border-radius) var(--border-radius);
     padding-right: 10px;
     padding-bottom: 10px;
-    opacity: 1;
+    padding-top: 5px;
+    padding-inline-start: 40px;
     margin: 0;
+    opacity: 1;
     transition: opacity 0.3s ease;
     align-self: flex-start;
     height: auto;
@@ -503,9 +505,20 @@ select:hover {
     transition: none;
 }
 
-.class-box li {
-    padding: 5px 0px 0px 0px;
+.assignment-item {
+    padding: 2.5px 5px;
     color: var(--accent-color);
+    border-radius: var(--border-radius);
+
+    transition: background-color 0.1s ease;
+}
+
+.assignment-item:hover {
+    background-color: var(--secondary-color-hover);
+}
+
+.assignment-item.dont-remind {
+    filter: brightness(50%);
 }
 
 .assignment-label {
@@ -935,3 +948,4 @@ input:checked + .slider:before {
 .top-margin-5 {
     margin-top: 10px;
 }
+

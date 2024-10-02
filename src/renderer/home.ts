@@ -68,6 +68,7 @@ let isCheckingForUpdates = true;
 const checkForUpdatesTimeInSec: number = 60;                // Every Minute
 
 let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
+const assignmentElementsThatShouldntRemind: HTMLLIElement[] = [];
 
 let settingsData: SettingsData | null;
 let homepageDebugMode: DebugMode;
@@ -245,6 +246,8 @@ function createClassItem(): HTMLDivElement {
 
 function createAssignmentElement(): HTMLLIElement {
     let assignmentElement = document.createElement('li');
+    assignmentElement.classList.add('assignment-item');
+    assignmentElement.title = 'Right Click to Toggle Whether Assignment Should Remind You or Not'
     assignmentElement.innerHTML = ASSIGNMENT_TEMPLATE;
     return assignmentElement;
 }
@@ -302,11 +305,46 @@ function generateAllClassItems(classAmount: number): void {
     }
 }
 
-function addRightClickToUnremind(assignmentElement: HTMLLIElement) {
+function addRightClickToUnremind(assignmentElement: HTMLLIElement, assignmentTitle: string) {
     assignmentElement.addEventListener('contextmenu', (event) => {
-       event.preventDefault();
-       
-       
+        event.preventDefault();
+
+        const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
+
+        if (assignmentLabel.innerText === 'No Assignments Due')
+            return;
+
+        if (assignmentLabel.innerText.includes('Overdue'))
+            return;
+        
+        assignmentElement.classList.toggle('dont-remind');
+
+        const isAlreadyUnreminded = assignmentElementsThatShouldntRemind.includes(assignmentElement)
+
+        if (!isAlreadyUnreminded) {
+            assignmentElementsThatShouldntRemind.push(assignmentElement);
+            console.log(`Assignment (${assignmentTitle}) Will Not Remind`);
+
+            window.api.showMessageDialog({
+                title: "Assignment Won't Remind You",
+                message: `You will not be reminded for your "${assignmentTitle}" assignment`
+            });
+        }
+        else {
+            const index = assignmentElementsThatShouldntRemind.indexOf(assignmentElement);
+
+            // only splice array when item is found
+            if (index <= -1)
+                return;
+
+            assignmentElementsThatShouldntRemind.splice(index, 1);
+            console.log(`Assignment (${assignmentLabel.innerHTML}) Will Remind`);
+
+            window.api.showMessageDialog({
+                title: "Assignment Will Remind You",
+                message: `You will be reminded for your "${assignmentTitle}" assignment`
+            });
+        }
     });
 }
 
@@ -330,6 +368,8 @@ function populateClassItemWithData(classes: Array<Class>): void {
             assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 
             if (timeTillDueDate !== 'Overdue') {
+                assignmentElement.title = '';
+
                 const assignmentElementThatIsDue: AssignmentElementThatIsDue = {
                     assignment: assignment,
                     label: assignmentLabel
@@ -352,12 +392,14 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 classBoxes[classIndex].classList.remove('collapse');
             }
 
-            assignmentElement
+            addRightClickToUnremind(assignmentElement, assignment.name);
         }
 
         if (currentClass.assignments.length === 0) {
             const noAssignmentsDueElement = createAssignmentElement();
             classBoxes[classIndex].append(noAssignmentsDueElement);
+
+            noAssignmentsDueElement.title = '';
 
             const assignmentLabel = noAssignmentsDueElement.querySelector('.assignment-label')! as HTMLParagraphElement;
             assignmentLabel.innerText = 'No Assignments Due';
@@ -369,31 +411,6 @@ function populateClassItemWithData(classes: Array<Class>): void {
         }
     }
 }
-
-function expandElement(element: HTMLElement) {
-    const startHeight = element.scrollHeight; // Get the current height
-  
-    // Set the height to 0 initially for a clean start
-    element.style.height = '0px';
-
-    element.offsetHeight;
-  
-    // Set the element height to its scrollHeight to expand
-    element.style.height = startHeight + 'px';
-}
-  
-function collapseElement(element: HTMLElement) {
-    // Get the current height
-    const startHeight = element.scrollHeight;
-
-    // Set the height to the current height to start collapsing
-    element.style.height = startHeight + 'px';
-
-    element.offsetHeight;
-
-    // Set the height to 0 to collapse
-    element.style.height = '0px';
-}  
 
 function addClickEventsToClassItem(): void {
     for (let i = 0; i < classHeaders.length; i++) {
