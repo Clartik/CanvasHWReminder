@@ -136,14 +136,14 @@ function createElectronApp() {
 		
 		if (appInfo.isRunning)
 			return;
-	
-		checkCanvasWorker?.terminate();
-		waitForNotificationWorker?.terminate();
 
 		app.quit();
 	});
 
 	app.on('before-quit', () => {
+		checkCanvasWorker?.terminate();
+		waitForNotificationWorker?.terminate();
+
 		systemTray.destroy();
 	})
 }
@@ -428,7 +428,7 @@ async function outputAppLog() {
 	const messageResponse: Electron.MessageBoxReturnValue = await dialog.showMessageBox(appInfo.mainWindow, {
 		type: "info",
 		title: "Saved App Log",
-		message: "Outputted App Log",
+		message: "Outputted App Log to File",
 		buttons: ['Show File', 'Ok'],
 		defaultId: 1,
 		cancelId: 1,

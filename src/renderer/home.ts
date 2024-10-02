@@ -72,8 +72,6 @@ let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
 let settingsData: SettingsData | null;
 let homepageDebugMode: DebugMode;
 
-type BottomTextType = "Info" | "Error";
-
 homeMain();
 
 // Main Function
@@ -399,11 +397,9 @@ function addClickEventsToClassItem(): void {
 
             if (classBox.classList.contains('collapse')) {
                 classBox?.classList.remove('collapse');
-                // expandElement(classBox);
             }
             else {
                 classBox?.classList.add('collapse');
-                // collapseElement(classBox);
             }
         });
     }
@@ -473,10 +469,6 @@ function getTimeTillDueDate(date1: Date, date2: Date): string {
 
     if (secondsDiff > 0) {
         return `Due in < 1 Minute`
-        // if (secondsDiff > 1)
-        //     return `Due in ${secondsDiff} Seconds`
-        // else
-        //     return `Due in 1 Second`
     }
 
     return 'Due Soon'

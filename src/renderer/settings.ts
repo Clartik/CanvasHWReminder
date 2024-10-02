@@ -152,9 +152,6 @@ function populateElementsWithData(settingsData: SettingsData) {
     if (settingsData === null)
         return;
 
-    // canvasBaseURLInput.value = settingsData.canvasBaseURL;
-    // canvasAPITokenInput.value = settingsData.canvasAPIToken;
-
     launchOnStartCheckbox.checked = settingsData.launchOnStart;
     minimizeOnLaunchCheckbox.checked = settingsData.minimizeOnLaunch;
     minimizeOnCloseCheckbox.checked = settingsData.minimizeOnClose;
@@ -183,9 +180,6 @@ async function populateElemntsWithSecureData() {
 function getSettingsDataToSave(): SettingsData {
     return {
         version: SETTINGS_DATA_VERSION,
-
-        // canvasBaseURL: canvasBaseURLInput.value,
-        // canvasAPIToken: canvasAPITokenInput.value,
 
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,
@@ -231,7 +225,7 @@ function addTimeOptionToDropdownAndPopulateValue(dropdown: HTMLSelectElement, ti
 }
 
 function populateTimeDropdownWithCorrectOptions(timeDropdown: HTMLSelectElement, formatDropdown: HTMLSelectElement) {
-    timeDropdown.innerHTML = ''            // Clear InnerHTML
+    timeDropdown.innerHTML = ''
 
     if (formatDropdown.value === 'day') {
         for (let i = 0; i < DAY_TIME_OPTIONS.length; i++) {

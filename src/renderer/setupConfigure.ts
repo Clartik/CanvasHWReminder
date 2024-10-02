@@ -56,7 +56,7 @@ doneBtn.addEventListener('click', async (event) => {
     const options: Electron.MessageBoxOptions = {
         type: "warning",
         title: "Done With Setup?",
-        message: "Are You Sure You Are Done Configuring?",
+        message: "Are you sure you are done configuring?",
         buttons: ['Yes', 'No'],
         defaultId: 0
     }

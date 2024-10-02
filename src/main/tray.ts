@@ -5,7 +5,18 @@ import { app as electronApp, Tray, nativeImage, Menu, BrowserWindow } from 'elec
 import AppInfo from './interfaces/appInfo';
 import createMainWindow from './window';
 import DebugMode from 'src/shared/interfaces/debugMode';
-import { launchMainWindowWithCorrectPage } from './main';
+import { launchMainWindowWithCorrectPage, outputAppLog } from './main';
+
+function showApp(appInfo: AppInfo) {
+	if (!appInfo.isMainWindowHidden)
+		return;
+
+	if (appInfo.mainWindow !== null)
+		return;
+
+	appInfo.isMainWindowHidden = false;
+	launchMainWindowWithCorrectPage();
+}
 
 function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 	let iconPath: string;
@@ -26,17 +37,8 @@ function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 	const contextMenu = Menu.buildFromTemplate([
 		{ label: trayTitle, type: 'normal', enabled: false },
 		{ type: 'separator' },
-		{ label: 'Show App', type: 'normal', click: () => {
-			if (!appInfo.isMainWindowHidden)
-				return;
-
-			if (appInfo.mainWindow !== null)
-				return;
-
-			appInfo.isMainWindowHidden = false;
-			launchMainWindowWithCorrectPage();
-		} },
-		// { label: "Don't Check for Today", type: 'checkbox' },
+		{ label: 'Show App', type: 'normal', click: () => showApp(appInfo) },
+		{ label: 'Log to File', type: 'normal', click: async () => await outputAppLog() },
 		{ label: 'Quit App', type: 'normal', click: () => {
 			appInfo.isRunning = false;
 			electronApp.quit();
@@ -47,6 +49,8 @@ function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 
 	tray.setToolTip(trayTitle);
 	tray.setTitle(trayTitle);
+
+	tray.addListener('double-click', () => showApp(appInfo));
 
 	return tray;
 }
