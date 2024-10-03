@@ -8,6 +8,12 @@ module.exports = {
     asar: true,
     extraResource: [
       "./assets/images/icon.ico"
+    ],
+    protocols: [
+      {
+        name: "Canvas HW Reminder",
+        schemes: ['canvas-hw-reminder']
+      }
     ]
   },
   makers: [

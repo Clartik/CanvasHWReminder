@@ -195,6 +195,35 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
     return 'No Time'
 }
 
+function getExactDueDate(date1: Date, date2: Date): string {
+    let secondsDiff = getTimeDiffInSeconds(date1, date2);
+	let minuteDiff = secondsDiff / 60;
+	let hourDiff = minuteDiff / 60;
+	let dateDiff = hourDiff / 24;
+
+    dateDiff = Math.floor(dateDiff);
+
+    const timeFormatter = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
+
+    const formattedTime: string = timeFormatter.format(date2);
+
+    if (dateDiff > 0) {
+        const dateFormatter = new Intl.DateTimeFormat('en-US', {
+            month: 'numeric',
+            day: "numeric"
+        });
+
+        const formattedDate: string = dateFormatter.format(date2);
+        return `Due on ${formattedDate} ${formattedTime}`;
+    }
+    
+    return `Due at ${formattedTime}`;
+}
+
 function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsData: SettingsData): number {
 	const currentDate = new Date();
 	const nextAssignmentDueDate = new Date(nextAssignmentDueAt);
@@ -211,4 +240,4 @@ function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsD
 }
 
 export { getUpcomingAssignments, getNextAssignment, filterUpcomingAssignmentsToRemoveRemindedAssignments, 
-    getTimeTillDueDate, getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds }
+    getTimeTillDueDate, getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds, getExactDueDate }

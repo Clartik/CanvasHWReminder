@@ -2,7 +2,7 @@ import { Worker } from 'worker_threads'
 import { promisify } from 'util'
 import * as path from 'path';
 
-import { app, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
+import { app, shell, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
 
 import { updateElectronApp } from 'update-electron-app';
 
@@ -23,11 +23,11 @@ import { ClassData, Assignment } from "../shared/interfaces/classData";
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
-import { APP_NAME, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
+import { FILENAME_CLASS_DATA_JSON } from '../shared/constants';
 
 import SaveManager from './util/saveManager';
 
-import { openLink } from "./util/misc";
+import { getIconPath, openLink } from "./util/misc";
 
 const sleep = promisify(setTimeout);
 
@@ -62,6 +62,7 @@ const appInfo: AppInfo = {
 	isMainWindowHidden: false,
 
 	mainWindow: null,
+	notification: null,
 
 	classData: null,
 	settingsData: null,
@@ -95,17 +96,40 @@ appMain();
 //#region App Setup
 
 function createElectronApp() {
-	const isLocked = app.requestSingleInstanceLock();
-
-	if (!isLocked && !appInfo.isDevelopment) {
-		console.log('[Main]: Another Instance of App Exists! Exiting this Instance!');
-		app.quit();
-	}
-
 	SaveManager.init(app.getPath('userData'));
 
+	const isLocked = app.requestSingleInstanceLock();
+
+	if (!isLocked) {
+		console.log('[Main]: Another Instance of App Exists! Exiting this Instance!');
+		app.quit();
+		return;
+	}
+
+	if (appInfo.isDevelopment && process.platform === 'win32')
+		app.setAsDefaultProtocolClient('canvas-hw-reminder', process.execPath, [path.resolve(process.argv[1])]);
+	else
+		app.setAsDefaultProtocolClient('canvas-hw-reminder');
+
+	// Listen for protocol URL when the app is already running (OS X Specific)
+	app.on('open-url', (event, url) => {
+		event.preventDefault(); // Prevent the default action
+		handleProtocol(url);
+  	});
+
+	app.on('second-instance', (event, argv) => {
+		const protocolUrl = argv.find((arg) => arg.startsWith('canvas-hw-reminder:'));
+		
+		if (protocolUrl)
+			handleProtocol(protocolUrl);
+	})
+
 	app.whenReady().then(async () => {
-		app.setAppUserModelId(APP_NAME);		// Windows Specific Command to Show the App Name in Notification
+		if (process.platform === 'win32')
+			app.setAppUserModelId(app.name);		// Windows Specific Command to Show the App Name in Notification
+
+		if (process.argv.length > 1)
+			console.log(process.argv[1])
 
 		if (!appInfo.isDevelopment)
 			Menu.setApplicationMenu(null);
@@ -183,8 +207,9 @@ async function appMain() {
 	if (net.isOnline())
 		checkCanvasWorker = await createCanvasWorker();
 	
-	while (!app.isReady() || !appInfo.isMainWindowLoaded)
+	while (!app.isReady()) {
 		await sleep(100);
+	}
 
 	while (appInfo.isRunning) {
 		if (!net.isOnline() && appStatus.isOnline) {
@@ -276,17 +301,7 @@ function findNextAssignmentAndStartWorker() {
 		waitForNotificationWorker =  null;
 	}
 
-	const waitOnNotificationParams: WaitOnNotificationParams = {
-		nextAssignment: appInfo.nextAssignment, 
-		settingsData: appInfo.settingsData
-	};
-
-	console.log('[Main]: Starting Worker (WaitOnNotification)!');
-
-	waitForNotificationWorker = WorkerUtil.createWorker('./workers/waitForNotification.js');
-	waitForNotificationWorker.on('message', onShowNotificationWorkerMessageCallback);
-
-	waitForNotificationWorker.postMessage(waitOnNotificationParams);
+	startWaitOnNotificationWorker();
 }
 
 function getNotification(nextAssignment: Assignment): Electron.Notification | null {
@@ -298,28 +313,84 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 
 	const timeTillDueDate: string = CourseUtil.getTimeTillDueDate(currentDate, nextAssignmentDueDate);
 
+	const exactDueDate: string = CourseUtil.getExactDueDate(currentDate, nextAssignmentDueDate);
+
+	const iconRelativePath: string = getIconPath(appInfo.isDevelopment);
+
+	const iconAbsPath: string = path.join(__dirname, '../../assets/images/icon.ico');
+
+	// TODO: ALL OS!!!
 	const notification = new Notification({
-		title: `${nextAssignment.name} is ${timeTillDueDate}!`,
-		body: 'Click on the Notification to Head to the Posting',
-		icon: './assets/images/icon.ico',
+		toastXml: `
+		<toast scenario="reminder" launch="canvas-hw-reminder:action=navigate?key=value" activationType="protocol">
+			<visual>
+				<binding template="ToastGeneric">
+				    <image placement="appLogoOverride" hint-crop="circle" src="${iconAbsPath}"/>
+					<text>${nextAssignment.name} is ${timeTillDueDate}!</text>
+					<text>${exactDueDate}</text>
+				</binding>
+			</visual>
+			<actions>
+				<action
+					content="See Post"
+					arguments="canvas-hw-reminder:action=see-post"
+					activationType="protocol"/>
+
+				<!-- <action
+					content="Remind Later"
+					arguments="canvas-hw-reminder:action=remind-later"
+					activationType="protocol"/> -->
+
+				<action
+					content="Dismiss"
+					arguments="canvas-hw-reminder:action=dismiss"
+					activationType="protocol"/>
+			</actions>
+		</toast>`
 	});
 
-	notification.addListener('click', () => openLink(nextAssignment.html_url));
-
 	return notification;
+}
+
+function handleProtocol(url: string) {
+	const parsedURL = new URL(url);
+	const action: string = parsedURL.pathname.split('action=')[1];
+
+	switch (action) {
+		case 'see-post':
+			if (!appInfo.nextAssignment)
+				return;
+
+			console.log('[Notification]: Opening Post for Next Assignment');
+
+			openLink(appInfo.nextAssignment.html_url);
+			break;
+
+		case 'dismiss':
+			if (!appInfo.notification)
+				return;
+			
+			console.log('[Notification]: Dismissing Notification');
+			
+			appInfo.notification.close();
+			break;
+	
+		default:
+			break;
+	}
 }
 
 async function showNotification(nextAssignment: Assignment) {
 	waitForNotificationWorker?.terminate();
 	waitForNotificationWorker = null;
 
-	while (!app.isReady() || !appInfo.isMainWindowLoaded)
+	while (!app.isReady())
 		await sleep(100);
 	
-	const notification: Notification | null = getNotification(nextAssignment);
+	appInfo.notification = getNotification(nextAssignment);
 
-	if (notification)
-		notification.show();
+	if (appInfo.notification)
+		appInfo.notification.show();
 	else
 		console.error('[Main]: Failed to Show Notification!');
 
@@ -400,14 +471,35 @@ async function onShowNotificationWorkerMessageCallback(result: WorkerResult) {
 }
 
 async function startCheckCanvasWorker() {
-	if (checkCanvasWorker !== null)
+	if (checkCanvasWorker !== null) {
+		console.log('[Main]: Settings Changed, Terminated Old Worker (WaitOnNotificaiton)');
+		startWaitOnNotificationWorker();
 		return;
+	}
 
 	appStatus.isConnectedToCanvas = true;
 	checkCanvasWorker = await createCanvasWorker();
 }
 
-import { shell } from 'electron';
+function startWaitOnNotificationWorker() {
+	if (!appInfo.nextAssignment)
+		return;
+
+	if (!appInfo.settingsData)
+		return;
+
+	const waitOnNotificationParams: WaitOnNotificationParams = {
+		nextAssignment: appInfo.nextAssignment, 
+		settingsData: appInfo.settingsData
+	};
+
+	console.log('[Main]: Starting Worker (WaitOnNotification)!');
+
+	waitForNotificationWorker = WorkerUtil.createWorker('./workers/waitForNotification.js');
+	waitForNotificationWorker.on('message', onShowNotificationWorkerMessageCallback);
+
+	waitForNotificationWorker.postMessage(waitOnNotificationParams);
+}
 
 async function outputAppLog() {
 	console.log('[Main]: Outputting App Log to File!');

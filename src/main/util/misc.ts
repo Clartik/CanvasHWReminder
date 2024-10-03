@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 import { shell, dialog } from 'electron';
 
 function openLink(url: string) {
@@ -8,4 +10,15 @@ function openLink(url: string) {
 	}
 }
 
-export { openLink };
+function getIconPath(isDevelopment: boolean) {
+	if (isDevelopment) {
+		const iconPath = './assets/images/icon.ico';
+		return iconPath;
+	}
+	else {
+		const iconPath = './resources/icon.ico';
+		return iconPath;
+	}
+}
+
+export { openLink, getIconPath };
