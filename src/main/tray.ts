@@ -41,10 +41,10 @@ function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 	const contextMenu = Menu.buildFromTemplate([
 		{ label: trayTitle, type: 'normal', enabled: false },
 		{ type: 'separator' },
+		{ label: 'Log to File', type: 'normal', click: async () => await outputAppLog() },
+		{ type: 'separator' },
 		{ label: 'Show App', type: 'normal', click: () => showApp(appInfo) },
 		{ label: 'Quit App', type: 'normal', click: () => quitApp(appInfo) },
-		{ type: 'separator' },
-		{ label: 'Log to File', type: 'normal', click: async () => await outputAppLog() },
 	])
 
 	tray.setContextMenu(contextMenu);

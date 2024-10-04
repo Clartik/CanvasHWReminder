@@ -34,8 +34,8 @@ const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
-const envFilepath = path.resolve(__dirname + '../../../.env');
-// const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
+// const envFilepath = path.resolve(__dirname + '../../../.env');
+const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
 
 require('dotenv').config({ path: envFilepath });
 
@@ -51,9 +51,6 @@ if (!debugMode.active) {
 	debugMode.devKeybinds = false;
 	debugMode.saveFetchedClassData = false;
 }
-
-if (!debugMode.active)
-	updateElectronApp();
 
 const appInfo: AppInfo = {
 	isDevelopment: process.env.NODE_ENV === 'dev',
@@ -74,6 +71,9 @@ const appInfo: AppInfo = {
 
 	lastCanvasCheckTime: "Never"
 }
+
+if (!appInfo.isDevelopment)
+	updateElectronApp();
 
 // Assume By Default Both are Avaiable!
 const appStatus: AppStatus = {
@@ -329,7 +329,14 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 	const exactDueDate: string = CourseUtil.getExactDueDate(currentDate, nextAssignmentDueDate);
 
 	const iconRelativePath: string = getIconPath(appInfo.isDevelopment);
-	const iconAbsPath: string = path.join(__dirname, `../../${iconRelativePath}`);
+
+	let iconAbsPath: string;
+
+	if (appInfo.isDevelopment)
+		iconAbsPath = path.join(__dirname, `../../${iconRelativePath}`);
+	else {
+		iconAbsPath = path.join(__dirname, `../../../../${iconRelativePath}`);
+	}
 
 	const notificationTitle = `${nextAssignment.name} is ${timeTillDueDate}!`;
 

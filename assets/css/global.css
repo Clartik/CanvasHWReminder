@@ -522,6 +522,11 @@ select:hover {
     filter: brightness(50%);
 }
 
+#version-label {
+    margin: 10px;
+    text-align: center;
+}
+
 .assignment-label {
     font-family: 'Poppins Light';
     overflow: hidden;
