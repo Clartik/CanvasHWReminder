@@ -221,7 +221,7 @@ function getExactDueDate(date1: Date, date2: Date): string {
         return `Due on ${formattedDate} ${formattedTime}`;
     }
     
-    return `Due at ${formattedTime}`;
+    return `Due Today at ${formattedTime}`;
 }
 
 function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsData: SettingsData): number {

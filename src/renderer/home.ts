@@ -528,7 +528,7 @@ function getExactDueDate(date1: Date, date2: Date): string {
         return `Due on ${formattedDate} ${formattedTime}`;
     }
     
-    return `Due at ${formattedTime}`;
+    return `Due Today at ${formattedTime}`;
 }
 
 function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): string {

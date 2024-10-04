@@ -114,14 +114,14 @@ function createElectronApp() {
 	// Listen for protocol URL when the app is already running (OS X Specific)
 	app.on('open-url', (event, url) => {
 		event.preventDefault(); // Prevent the default action
-		handleProtocol(url);
+		handleURLProtocol(url);
   	});
 
 	app.on('second-instance', (event, argv) => {
 		const protocolUrl = argv.find((arg) => arg.startsWith('canvas-hw-reminder:'));
 		
 		if (protocolUrl)
-			handleProtocol(protocolUrl);
+			handleURLProtocol(protocolUrl);
 	})
 
 	app.whenReady().then(async () => {
@@ -316,43 +316,56 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 	const exactDueDate: string = CourseUtil.getExactDueDate(currentDate, nextAssignmentDueDate);
 
 	const iconRelativePath: string = getIconPath(appInfo.isDevelopment);
+	const iconAbsPath: string = path.join(__dirname, `../../${iconRelativePath}`);
 
-	const iconAbsPath: string = path.join(__dirname, '../../assets/images/icon.ico');
+	const notificationTitle = `${nextAssignment.name} is ${timeTillDueDate}!`;
 
-	// TODO: ALL OS!!!
-	const notification = new Notification({
-		toastXml: `
-		<toast scenario="reminder" launch="canvas-hw-reminder:action=navigate?key=value" activationType="protocol">
-			<visual>
-				<binding template="ToastGeneric">
-				    <image placement="appLogoOverride" hint-crop="circle" src="${iconAbsPath}"/>
-					<text>${nextAssignment.name} is ${timeTillDueDate}!</text>
-					<text>${exactDueDate}</text>
-				</binding>
-			</visual>
-			<actions>
-				<action
-					content="See Post"
-					arguments="canvas-hw-reminder:action=see-post"
-					activationType="protocol"/>
+	if (process.platform === 'win32') {
+		const notification = new Notification({
+			toastXml: `
+			<toast scenario="reminder" launch="canvas-hw-reminder:action=navigate?key=value" activationType="protocol">
+				<visual>
+					<binding template="ToastGeneric">
+						<image placement="appLogoOverride" hint-crop="circle" src="${iconAbsPath}"/>
+						<text>${notificationTitle}</text>
+						<text>${exactDueDate}</text>
+					</binding>
+				</visual>
+				<actions>
+					<action
+						content="See Post"
+						arguments="canvas-hw-reminder:action=see-post"
+						activationType="protocol"/>
+	
+					<!-- <action
+						content="Remind Later"
+						arguments="canvas-hw-reminder:action=remind-later"
+						activationType="protocol"/> -->
+	
+					<action
+						content="Dismiss"
+						arguments="canvas-hw-reminder:action=dismiss"
+						activationType="protocol"/>
+				</actions>
+			</toast>`
+		});	
 
-				<!-- <action
-					content="Remind Later"
-					arguments="canvas-hw-reminder:action=remind-later"
-					activationType="protocol"/> -->
+		return notification;
+	}
+	else {
+		const notification = new Notification({
+			title: notificationTitle,
+			body: 'Click on the Notification to Head to the Posting',
+			icon: iconRelativePath
+		})
 
-				<action
-					content="Dismiss"
-					arguments="canvas-hw-reminder:action=dismiss"
-					activationType="protocol"/>
-			</actions>
-		</toast>`
-	});
-
-	return notification;
+		notification.addListener('click', () => openLink(nextAssignment.html_url));
+		
+		return notification;
+	}
 }
 
-function handleProtocol(url: string) {
+function handleURLProtocol(url: string) {
 	const parsedURL = new URL(url);
 	const action: string = parsedURL.pathname.split('action=')[1];
 
