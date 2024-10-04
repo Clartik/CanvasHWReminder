@@ -94,10 +94,19 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     });
 
     ipcMain.on('disableAssignmentReminder', (event, assignment: Assignment) => {
+        for (let i = 0; i < appInfo.assignmentsToNotRemind.length; i++) {
+            const assignmentToNotRemind = appInfo.assignmentsToNotRemind[i];
+            
+            if (assignment.name !== assignmentToNotRemind.name)
+                continue;
+
+            console.warn(`[Main]: Assignment (${assignment.name}) is Already in the Don't Remind List`);
+            return;
+        }
+
         appInfo.assignmentsToNotRemind.push(assignment)
 
         console.log(`[Main]: Added Assignment (${assignment.name}) To Don't Remind List`);
-
         console.log(`[Main]: Restarting Find Next Assignment Coroutine`);
 
         findNextAssignmentAndStartWorker();
@@ -119,6 +128,10 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
         console.log(`[Main]: Could Not Remove Assignment (${assignment.name}) From Don't Remind List Because It Doesn't Exist!`);
     });
+
+    ipcMain.handle('getAssignmentsNotToRemind', (event) => {
+        return appInfo.assignmentsToNotRemind;
+    })
 }
 
 export default handleFileRequests;

@@ -68,7 +68,7 @@ let isCheckingForUpdates = true;
 const checkForUpdatesTimeInSec: number = 60;                // Every Minute
 
 let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
-const assignmentElementsThatShouldntRemind: HTMLLIElement[] = [];
+let assignmentElementsNotToRemind: HTMLLIElement[] = [];
 
 let settingsData: SettingsData | null;
 let homepageDebugMode: DebugMode;
@@ -134,6 +134,8 @@ async function homeMain() {
         }
     }
 };
+
+//#region Event Handlers
 
 window.api.onUpdateData((type: string, data: Object | null) => {
     if (type === 'classes') {
@@ -224,6 +226,8 @@ window.api.onSendAppStatus(async (status: string) => {
     }
 });
 
+//#endregion
+
 //#region Functions
 
 async function sleep(ms: number): Promise<void> {
@@ -274,7 +278,7 @@ async function homepageGetCachedSettingsData(): Promise<SettingsData | null> {
     return cachedSettingsData;
 }
 
-function loadElementsWithData(classes: Class[]): void {    
+async function loadElementsWithData(classes: Class[]): Promise<void> {    
     generateAllClassItems(classes.length);
 
     // These Elements Are Not Generated Until After the Previous Function Runs
@@ -283,6 +287,10 @@ function loadElementsWithData(classes: Class[]): void {
     classBoxes = document.getElementsByClassName("class-box") as HTMLCollectionOf<HTMLUListElement>;
 
     populateClassItemWithData(classes);
+
+    const assignmentsNotToRemind = await window.api.getAssignmentsNotToRemind();
+    configureAssignmentsRemindStatus(assignmentsNotToRemind);
+
     addClickEventsToClassItem();
 };
 
@@ -292,6 +300,9 @@ function clearLoadingOrErrorContainer(): void {
 
 function clearElementsFromData(): void {
     classContainer.innerHTML = ''
+    
+    assignmentElementsThatAreDue = [];
+    assignmentElementsNotToRemind = [];
 }
 
 function generateAllClassItems(classAmount: number): void {
@@ -319,34 +330,34 @@ function addRightClickToUnremind(assignmentElement: HTMLLIElement, assignment: A
         
         assignmentElement.classList.toggle('dont-remind');
 
-        const isAlreadyUnreminded = assignmentElementsThatShouldntRemind.includes(assignmentElement)
+        const isAlreadyUnreminded = assignmentElementsNotToRemind.includes(assignmentElement)
 
         if (!isAlreadyUnreminded) {
-            assignmentElementsThatShouldntRemind.push(assignmentElement);
+            assignmentElementsNotToRemind.push(assignmentElement);
             console.log(`Assignment (${assignment.name}) Will Not Remind`);
 
             window.api.disableAssignmentReminder(assignment);
 
             window.api.showMessageDialog({
                 title: "Assignment Won't Remind You",
-                message: `You will not be reminded for your "${assignment.name}" assignment`
+                message: `You will not be reminded for your "${assignment.name}" Assignment`
             });
         }
         else {
-            const index = assignmentElementsThatShouldntRemind.indexOf(assignmentElement);
+            const index = assignmentElementsNotToRemind.indexOf(assignmentElement);
 
             // only splice array when item is found
             if (index <= -1)
                 return;
 
-            assignmentElementsThatShouldntRemind.splice(index, 1);
+            assignmentElementsNotToRemind.splice(index, 1);
             console.log(`Assignment (${assignmentLabel.innerHTML}) Will Remind`);
 
             window.api.enableAssignmentReminder(assignment);
 
             window.api.showMessageDialog({
                 title: "Assignment Will Remind You",
-                message: `You will be reminded for your "${assignment.name}" assignment`
+                message: `You will be reminded for your "${assignment.name}" Assignment`
             });
         }
     });
@@ -396,6 +407,10 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 classBoxes[classIndex].classList.remove('collapse');
             }
 
+            if (assignmentElementsNotToRemind.includes(assignmentElement)) {
+                assignmentElement.classList.add('dont-remind');
+            }
+
             addRightClickToUnremind(assignmentElement, assignment);
         }
 
@@ -413,6 +428,22 @@ function populateClassItemWithData(classes: Array<Class>): void {
             classHeaders[classIndex].classList.add('active');
             classBoxes[classIndex].classList.remove('collapse');
         }
+    }
+}
+
+function configureAssignmentsRemindStatus(assignmentsNotToRemind: Assignment[]) {
+    for (const assignmentNotToRemind of assignmentsNotToRemind) {
+        for (const classBox of classBoxes) {
+            for (const assignmentElement of classBox.children) {
+                const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
+
+                if (!assignmentLabel.innerText.includes(assignmentNotToRemind.name))
+                    continue;
+
+                assignmentElement.classList.add('dont-remind');
+                assignmentElementsNotToRemind.push(assignmentElement as HTMLLIElement);
+            }
+        }   
     }
 }
 
