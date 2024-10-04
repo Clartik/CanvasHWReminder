@@ -3,9 +3,9 @@ import * as keytar from 'keytar';
 import AppInfo from '../interfaces/appInfo';
 import DebugMode from "../../shared/interfaces/debugMode";
 
-import { ClassData } from "../../shared/interfaces/classData";
+import { Assignment, ClassData } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
-import { APP_NAME } from "../../shared/constants";
+import { APP_NAME, FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON } from "../../shared/constants";
 
 import * as CanvasUtil from './canvasUtil'
 
@@ -14,6 +14,7 @@ import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION } from '../../shared/co
 
 import SaveManager from './saveManager';
 import { app } from 'electron';
+import AssignmentsDontRemindData from '../interfaces/assignmentsDontRemind';
 
 async function getSecureText(key: string): Promise<string | null> {
 	return await keytar.getPassword(APP_NAME, key);
@@ -42,6 +43,19 @@ async function getSavedSettingsData(): Promise<SettingsData | null> {
 	} catch (error) {
 		console.error('[Main]: Could Not Retrieve Saved SettingsData: ' + error);
 		return null;
+	}
+}
+
+async function getAssignmentsNotToRemindData(): Promise<Assignment[]> {
+	try {
+		const assignmentsDontRemindData = await SaveManager.getSavedData(FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON) as AssignmentsDontRemindData;
+
+		console.log('[Main]: Cached Assignments Dont Remind Data is Loaded!');
+		
+		return assignmentsDontRemindData.assignmentsNotToRemind;
+	} catch (error) {
+		console.error('[Main]: Could Not Retrieve Saved Assignments Dont Remind Data: ' + error);
+		return [];
 	}
 }
 
@@ -95,4 +109,5 @@ function configureAppSettings(settingsData: SettingsData) {
 	console.log('[Main]: Configured App to Launch on System Bootup');
 }
 
-export { getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, configureAppSettings }
+export { getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
+	configureAppSettings, getAssignmentsNotToRemindData }

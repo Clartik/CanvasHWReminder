@@ -23,11 +23,12 @@ import { ClassData, Assignment } from "../shared/interfaces/classData";
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
-import { FILENAME_CLASS_DATA_JSON } from '../shared/constants';
+import { FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
 
 import SaveManager from './util/saveManager';
 
 import { getIconPath, openLink } from "./util/misc";
+import AssignmentsDontRemindData from './interfaces/assignmentsDontRemind';
 
 const sleep = promisify(setTimeout);
 
@@ -167,7 +168,13 @@ function createElectronApp() {
 		app.quit();
 	});
 
-	app.on('before-quit', () => {
+	app.on('before-quit', async () => {
+		const data: AssignmentsDontRemindData = {
+			assignmentsNotToRemind: appInfo.assignmentsToNotRemind
+		}
+
+		await SaveManager.writeSavedData(FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON, data);
+
 		checkCanvasWorker?.terminate();
 		waitForNotificationWorker?.terminate();
 
@@ -204,6 +211,8 @@ async function appMain() {
 		appInfo.mainWindow?.webContents.loadFile('./pages/welcome.html');
 		return;
 	}
+
+	appInfo.assignmentsToNotRemind = await DataUtil.getAssignmentsNotToRemindData();
 	
 	if (net.isOnline())
 		checkCanvasWorker = await createCanvasWorker();
