@@ -1,6 +1,6 @@
 import * as keytar from 'keytar';
 
-import { app, ipcMain } from "electron";
+import { ipcMain } from "electron";
 
 import AppInfo from '../interfaces/appInfo';
 import AppStatus from "../../shared/interfaces/appStatus";
@@ -9,12 +9,14 @@ import SettingsData from "../../shared/interfaces/settingsData";
 import IPCGetResult from "../../shared/interfaces/ipcGetResult";
 import { APP_NAME } from "../../shared/constants";
 
-import { startCheckCanvasWorker } from "../main";
+import { findNextAssignmentAndStartWorker, startCheckCanvasWorker } from "../main";
 
 import { Canvas } from "../util/canvasAPI/canvas";
 
 import SaveManager from "../util/saveManager";
 import * as DataUtil from '../util/dataUtil';
+
+import { Assignment } from 'src/shared/interfaces/classData';
 
 function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefined {
     const senderFileLocations = event.sender.getURL().split('/');
@@ -89,6 +91,33 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
     ipcMain.handle('getSecureText', async (event, key: string): Promise<string | null> => {
         return await DataUtil.getSecureText(key);
+    });
+
+    ipcMain.on('disableAssignmentReminder', (event, assignment: Assignment) => {
+        appInfo.assignmentsToNotRemind.push(assignment)
+
+        console.log(`[Main]: Added Assignment (${assignment.name}) To Don't Remind List`);
+
+        console.log(`[Main]: Restarting Find Next Assignment Coroutine`);
+
+        findNextAssignmentAndStartWorker();
+    });
+
+    ipcMain.on('enableAssignmentReminder', (event, assignment: Assignment) => {
+        for (let i = 0; i < appInfo.assignmentsToNotRemind.length; i++) {
+            const assignmentToNotRemind = appInfo.assignmentsToNotRemind[i];
+            
+            if (assignment.name !== assignmentToNotRemind.name)
+                continue;
+
+            appInfo.assignmentsToNotRemind.splice(i, 1);
+
+            console.log(`[Main]: Removed Assignment (${assignment.name}) From Don't Remind List `);
+
+            return;
+        }
+
+        console.log(`[Main]: Could Not Remove Assignment (${assignment.name}) From Don't Remind List Because It Doesn't Exist!`);
     });
 }
 

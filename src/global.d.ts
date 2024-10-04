@@ -1,3 +1,5 @@
+import { Assignment } from "./shared/interfaces/classData"
+
 export interface IElectronAPI {
     openLink: (url: string) => void,
     showMessageDialog: (options: Electron.MessageBoxOptions) => Promise<Electron.MessageBoxReturnValue>
@@ -13,7 +15,9 @@ export interface IElectronAPI {
     getAppStatus: () => Promise<Object>,
     getSelfFromCanvas: (baseUrl: string, apiToken: string) => Promise<Object>,
     saveSecureText: (key: string, text: string) => void,
-    getSecureText: (key: string) => Promise<string | null>
+    getSecureText: (key: string) => Promise<string | null>,
+    disableAssignmentReminder: (assignment: Assignment) => void,
+    enableAssignmentReminder: (assignment: Assignment) => void
 }
 
 declare global {

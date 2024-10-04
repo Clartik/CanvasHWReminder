@@ -90,7 +90,7 @@ function getWhenToRemindInSeconds(settingsData: SettingsData): number {
 	return 0;
 }
 
- function filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments: Assignment[], assignmentsThatHaveBeenReminded: Assignment[]) {
+function filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments: Assignment[], assignmentsThatHaveBeenReminded: Assignment[]): Assignment[] {
 	for (const assignmentThatHasBeenReminded of assignmentsThatHaveBeenReminded) {
 		for (const upcomingAssignment of upcomingAssignments) {
 			if (upcomingAssignment.name !== assignmentThatHasBeenReminded.name)
@@ -100,9 +100,31 @@ function getWhenToRemindInSeconds(settingsData: SettingsData): number {
 
 			if (indexToRemove > -1)
 				upcomingAssignments.splice(indexToRemove, 1);
+			else
+				console.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments That Have Been Reminded');
 		}	
 	}
- }
+
+	return upcomingAssignments;
+}
+
+function filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignments: Assignment[], assignmentsToNotRemind: Assignment[]): Assignment[] {
+	for (const assignmentNotToRemind of assignmentsToNotRemind) {
+		for (const upcomingAssignment of upcomingAssignments) {
+			if (upcomingAssignment.name !== assignmentNotToRemind.name)
+				continue;
+
+			const indexToRemove: number = upcomingAssignments.indexOf(upcomingAssignment);
+
+			if (indexToRemove > -1)
+				upcomingAssignments.splice(indexToRemove, 1);
+			else
+				console.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments Not To Remind');
+		}	
+	}
+
+	return upcomingAssignments;
+}
 
 function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 	if (date1 > date2)
@@ -240,4 +262,5 @@ function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsD
 }
 
 export { getUpcomingAssignments, getNextAssignment, filterUpcomingAssignmentsToRemoveRemindedAssignments, 
-    getTimeTillDueDate, getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds, getExactDueDate }
+	filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind, getTimeTillDueDate, 
+	getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds, getExactDueDate }

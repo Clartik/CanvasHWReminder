@@ -69,6 +69,7 @@ const appInfo: AppInfo = {
 
 	nextAssignment: null,
 	assignmentsThatHaveBeenReminded: [],
+	assignmentsToNotRemind: [],
 
 	lastCanvasCheckTime: "Never"
 }
@@ -278,8 +279,11 @@ function findNextAssignmentAndStartWorker() {
 	if (!appInfo.settingsData)
 		return;
 
-	const upcomingAssignments = CourseUtil.getUpcomingAssignments(appInfo.classData);
-	CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
+	let upcomingAssignments = CourseUtil.getUpcomingAssignments(appInfo.classData);
+
+	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
+	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignments, appInfo.assignmentsToNotRemind);
+
 	const possibleNextAssignment: Assignment | null = CourseUtil.getNextAssignment(upcomingAssignments);
 
 	if (possibleNextAssignment === null) {
@@ -485,8 +489,11 @@ async function onShowNotificationWorkerMessageCallback(result: WorkerResult) {
 
 async function startCheckCanvasWorker() {
 	if (checkCanvasWorker !== null) {
-		console.log('[Main]: Settings Changed, Terminated Old Worker (WaitOnNotificaiton)');
-		startWaitOnNotificationWorker();
+		console.log('[Main]: Settings Have Changed. Restarting Find Next Assignment Coroutine');
+
+		appInfo.nextAssignment = null;				// Otherwise app will not restart worker because of it being the same assignment
+		findNextAssignmentAndStartWorker();
+
 		return;
 	}
 
@@ -550,4 +557,5 @@ async function outputAppLog() {
 	}
 }
 
-export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage }
+export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage,
+	findNextAssignmentAndStartWorker }

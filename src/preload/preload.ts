@@ -1,3 +1,5 @@
+import { Assignment } from "src/shared/interfaces/classData";
+
 const { contextBridge, ipcRenderer } = require('electron');
 
 type UpdateDataCallback = (type: string, data: Object | null) => void;
@@ -17,7 +19,9 @@ const API = {
     getAppStatus: () => ipcRenderer.invoke('getAppStatus'),
     getSelfFromCanvas: (baseUrl: string, apiToken: string) => ipcRenderer.invoke('getSelfFromCanvas', baseUrl, apiToken),
     saveSecureText: (key: string, text: string) => ipcRenderer.send('saveSecureText', key, text),
-    getSecureText: (key: string) => ipcRenderer.invoke('getSecureText', key)
+    getSecureText: (key: string) => ipcRenderer.invoke('getSecureText', key),
+    disableAssignmentReminder: (assignment: Assignment) => ipcRenderer.send('disableAssignmentReminder', assignment),
+    enableAssignmentReminder: (assignment: Assignment) => ipcRenderer.send('enableAssignmentReminder', assignment),
 }
 
 contextBridge.exposeInMainWorld("api", API);

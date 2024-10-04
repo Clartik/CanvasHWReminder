@@ -305,7 +305,7 @@ function generateAllClassItems(classAmount: number): void {
     }
 }
 
-function addRightClickToUnremind(assignmentElement: HTMLLIElement, assignmentTitle: string) {
+function addRightClickToUnremind(assignmentElement: HTMLLIElement, assignment: Assignment) {
     assignmentElement.addEventListener('contextmenu', (event) => {
         event.preventDefault();
 
@@ -323,11 +323,13 @@ function addRightClickToUnremind(assignmentElement: HTMLLIElement, assignmentTit
 
         if (!isAlreadyUnreminded) {
             assignmentElementsThatShouldntRemind.push(assignmentElement);
-            console.log(`Assignment (${assignmentTitle}) Will Not Remind`);
+            console.log(`Assignment (${assignment.name}) Will Not Remind`);
+
+            window.api.disableAssignmentReminder(assignment);
 
             window.api.showMessageDialog({
                 title: "Assignment Won't Remind You",
-                message: `You will not be reminded for your "${assignmentTitle}" assignment`
+                message: `You will not be reminded for your "${assignment.name}" assignment`
             });
         }
         else {
@@ -340,9 +342,11 @@ function addRightClickToUnremind(assignmentElement: HTMLLIElement, assignmentTit
             assignmentElementsThatShouldntRemind.splice(index, 1);
             console.log(`Assignment (${assignmentLabel.innerHTML}) Will Remind`);
 
+            window.api.enableAssignmentReminder(assignment);
+
             window.api.showMessageDialog({
                 title: "Assignment Will Remind You",
-                message: `You will be reminded for your "${assignmentTitle}" assignment`
+                message: `You will be reminded for your "${assignment.name}" assignment`
             });
         }
     });
@@ -392,7 +396,7 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 classBoxes[classIndex].classList.remove('collapse');
             }
 
-            addRightClickToUnremind(assignmentElement, assignment.name);
+            addRightClickToUnremind(assignmentElement, assignment);
         }
 
         if (currentClass.assignments.length === 0) {
