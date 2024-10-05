@@ -102,7 +102,7 @@ class Course {
             params.append('order_by', order_by);
 
         let url = this.baseURL + `courses/${this.id}/assignments?` + params.toString();
-        return await getAPI(url, this.accessToken);
+        return await getAPI(url, this.accessToken) as AssignmentData[];
     }
 }
 

@@ -301,7 +301,7 @@ function findNextAssignmentAndStartWorker() {
 		return
 	}
 
-	if (possibleNextAssignment.name === appInfo.nextAssignment?.name) {
+	if (possibleNextAssignment.id === appInfo.nextAssignment?.id) {
 		console.log('[Main]: Possible Next Assignment is the Same As the Current Next Assignment!');	
 		return;
 	}

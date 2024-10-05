@@ -93,7 +93,7 @@ function getWhenToRemindInSeconds(settingsData: SettingsData): number {
 function filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments: Assignment[], assignmentsThatHaveBeenReminded: Assignment[]): Assignment[] {
 	for (const assignmentThatHasBeenReminded of assignmentsThatHaveBeenReminded) {
 		for (const upcomingAssignment of upcomingAssignments) {
-			if (upcomingAssignment.name !== assignmentThatHasBeenReminded.name)
+			if (upcomingAssignment.id !== assignmentThatHasBeenReminded.id)
 				continue;
 
 			const indexToRemove: number = upcomingAssignments.indexOf(upcomingAssignment);
@@ -111,7 +111,7 @@ function filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignment
 function filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignments: Assignment[], assignmentsToNotRemind: Assignment[]): Assignment[] {
 	for (const assignmentNotToRemind of assignmentsToNotRemind) {
 		for (const upcomingAssignment of upcomingAssignments) {
-			if (upcomingAssignment.name !== assignmentNotToRemind.name)
+			if (upcomingAssignment.id !== assignmentNotToRemind.id)
 				continue;
 
 			const indexToRemove: number = upcomingAssignments.indexOf(upcomingAssignment);

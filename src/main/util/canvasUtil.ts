@@ -31,6 +31,7 @@ async function convertToClassData(courses: CanvasAPI.Course[]): Promise<ClassDat
 
 		for (const upcomingAssignment of upcomingAssignments) {
 			const assignment: Assignment = {
+				id: upcomingAssignment.id,
 				name: upcomingAssignment.name,
 				points: upcomingAssignment.points_possible,
 				html_url: upcomingAssignment.html_url,

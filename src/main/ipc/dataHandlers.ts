@@ -97,7 +97,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         for (let i = 0; i < appInfo.assignmentsToNotRemind.length; i++) {
             const assignmentToNotRemind = appInfo.assignmentsToNotRemind[i];
             
-            if (assignment.name !== assignmentToNotRemind.name)
+            if (assignment.id !== assignmentToNotRemind.id)
                 continue;
 
             console.warn(`[Main]: Assignment (${assignment.name}) is Already in the Don't Remind List`);
@@ -117,7 +117,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         for (let i = 0; i < appInfo.assignmentsToNotRemind.length; i++) {
             const assignmentToNotRemind = appInfo.assignmentsToNotRemind[i];
             
-            if (assignment.name !== assignmentToNotRemind.name)
+            if (assignment.id !== assignmentToNotRemind.id)
                 continue;
 
             appInfo.assignmentsToNotRemind.splice(i, 1);

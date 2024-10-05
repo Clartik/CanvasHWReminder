@@ -9,6 +9,7 @@ interface Class {
 }
 
 interface Assignment {
+    readonly id: number;
     readonly name: string;
     readonly points: Number;
     readonly html_url: string;
