@@ -45,6 +45,10 @@
     --border-radius-widget: 20px;
 }
 
+img {
+    user-select: none;
+}
+
 body {
     margin: 0;
     background-color: var(--background-color);
@@ -224,6 +228,10 @@ button {
     box-shadow: 1px 3px 10px var(--shadow-color);
 }
 
+#setup-pages-separator {
+    margin: 15px 0px;   
+}
+
 select {
     font-family: 'Poppins Regular';
     border: none;
@@ -341,6 +349,13 @@ select:hover {
     background-color: transparent;
     border-radius: var(--border-radius);
     padding: 5px;
+    outline: none;
+
+    transition: outline 0s;
+}
+
+.connect-input:focus {
+    outline: 3px var(--primary-color) solid;
 }
 
 #connect-btn {
@@ -962,10 +977,11 @@ input:checked + .slider:before {
 }
 
 #next-btn {
-    margin: 5px;
+    margin: 8px;
     font-size: 0.9em;
     background-color: var(--accent-color);
     padding: 5px 15px;
+    font-family: "Poppins Bold";
 
     transition: 0.1s transform ease, 0.3s background-color;
 }
@@ -994,5 +1010,6 @@ input:checked + .slider:before {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 5px;
+    padding: 5px;
+    background-color: var(--bottom-bar-color);
 }
