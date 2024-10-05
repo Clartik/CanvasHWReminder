@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">
+
+    <title>Canvas HW Reminder</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+
+    <script>var exports = {};</script>
+    <script src="../build/renderer/setupAPIToken.js" defer></script>
+</head>
+<body>
+    <div id="top-bar">
+        <!-- The First A tag is purely to center the h1! -->
+        <a href="setupBaseURL.html" id="settings-link" class="link-btn" title="Back">
+            <img src="../assets/svg/chevron-left.svg" alt="Back Icon" class="small-link-btn-image">
+        </a>
+        <h1 id="page-title">Setup Canvas Access Token</h1>
+        <a id="settings-link" class="link-btn invisible">
+            <img src="../assets/svg/chevron-left.svg" alt="Back Icon" class="small-link-btn-image">
+        </a>        
+    </div>
+    <div class="container">
+        <video id="video" src="../assets/videos/Main_4.mp4" width="450px" controls></video>
+
+        <div class="separator-container">
+            <div class="separator-thick"></div>
+        </div>
+
+        <div id="setup-base-url-container">
+            <div class="setup-input-label-container">
+                <label class="input-label">Canvas Access Token</label>
+                <input id="api-token-input" class="connect-input changeable" placeholder="Canvas API Access Token">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-bar">
+        <button id="next-btn" disabled>Next</button>
+    </div>
+</body>
+</html>

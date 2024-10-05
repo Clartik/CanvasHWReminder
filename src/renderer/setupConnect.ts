@@ -1,6 +1,5 @@
 import * as CanvasAPI from "src/main/util/canvasAPI/canvas";
 import IPCGetResult from "src/shared/interfaces/ipcGetResult";
-import SettingsData from "src/shared/interfaces/settingsData";
 
 const setupLoginContainer = document.getElementById('setup-login-container')! as HTMLDivElement;
 const setupProfileContainer = document.getElementById('setup-profile-container')! as HTMLDivElement;
@@ -127,12 +126,16 @@ async function connectMain() {
 }
 
 function checkIfConnectBtnCanBeEnabled() {
-    if (!canvasBaseURLInput.value || !canvasAPITokenInput.value || !isValidUrl(canvasBaseURLInput.value)) {
+    if (!canvasBaseURLInput.value || !canvasAPITokenInput.value || !isValidUrl(canvasBaseURLInput.value) || !isValidCanvasUrl(canvasBaseURLInput.value)) {
         connectBtn.disabled = true;
         return;
     }
 
     connectBtn.disabled = false;
+}
+
+function isValidCanvasUrl(url: string): boolean {
+    return url.includes('instructure');
 }
 
 function isValidUrl(url: string) {

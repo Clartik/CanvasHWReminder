@@ -247,8 +247,8 @@ select:hover {
 .link-btn {
     padding: 5px;
     color: var(--text-color);
-    transition: transform 0.2s ease;
-}
+    transition: transform 0.15s ease;
+} 
 
 .link-btn-setup {
     margin: 2px;
@@ -346,7 +346,7 @@ select:hover {
 #connect-btn {
     flex: 1;
     width: 250px;
-    height: 40px;
+    height: 45px;
     border-radius: var(--border-radius-extra);
     font-size: large;
     font-family: 'Poppins Bold';
@@ -397,7 +397,7 @@ select:hover {
 }
 
 #spinner {
-    margin-top: 1px;
+    margin-top: 3px;
 
     animation: rotating 1.3s linear infinite;
 }
@@ -554,6 +554,10 @@ select:hover {
 
 .assignment-btn:active {
     background-color: var(--accent-color-press);
+}
+
+#setup-base-url-container {
+    margin: 10px;
 }
 
 .settings-option {
@@ -957,3 +961,38 @@ input:checked + .slider:before {
     margin-top: 10px;
 }
 
+#next-btn {
+    margin: 5px;
+    font-size: 0.9em;
+    background-color: var(--accent-color);
+    padding: 5px 15px;
+
+    transition: 0.1s transform ease, 0.3s background-color;
+}
+
+#next-btn:hover {
+    transform: scale(1.1);
+}
+
+#next-btn:disabled {
+    background-color: var(--disabled-text-color);
+    pointer-events: none;
+}
+
+#video {
+    margin: 10px;
+    border-radius: var(--border-radius-extra);
+    border: none;
+    box-shadow: 1px 3px 10px var(--shadow-color);
+}
+
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+}
