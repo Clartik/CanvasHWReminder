@@ -560,7 +560,7 @@ function getExactDueDate(date1: Date, date2: Date): string {
         });
 
         const formattedDate: string = dateFormatter.format(date2);
-        return `Due on ${formattedDate} ${formattedTime}`;
+        return `Due on ${formattedDate} at ${formattedTime}`;
     }
     
     return `Due Today at ${formattedTime}`;

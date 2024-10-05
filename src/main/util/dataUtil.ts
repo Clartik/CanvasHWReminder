@@ -59,6 +59,27 @@ async function getAssignmentsNotToRemindData(): Promise<Assignment[]> {
 	}
 }
 
+function cleanUpUnnecessaryAssignmentsNotToRemind(assignmentsNotToRemind: Assignment[]): Assignment[] {
+	for (let i = 0; i < assignmentsNotToRemind.length; i++) {
+		const assignmentNotToRemind = assignmentsNotToRemind[i];
+		
+		if (!assignmentNotToRemind.due_at)
+			continue;
+
+		const assignmentDueDate = new Date(assignmentNotToRemind.due_at);
+		const todayDate = new Date();
+
+		if (assignmentDueDate > todayDate)
+			continue;
+
+		console.log(`[Main]: Deleting Expired Assignment Not To Remind (${assignmentNotToRemind.name})`);
+
+		assignmentsNotToRemind.splice(i, 1);
+	}
+
+	return assignmentsNotToRemind;
+}
+
 async function reloadSettingsData(appInfo: AppInfo, debugMode: DebugMode) {
 	if (!debugMode.devKeybinds)
 		return;
@@ -110,4 +131,4 @@ function configureAppSettings(settingsData: SettingsData) {
 }
 
 export { getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
-	configureAppSettings, getAssignmentsNotToRemindData }
+	configureAppSettings, getAssignmentsNotToRemindData, cleanUpUnnecessaryAssignmentsNotToRemind }

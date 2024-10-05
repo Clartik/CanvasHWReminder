@@ -34,8 +34,8 @@ const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
-// const envFilepath = path.resolve(__dirname + '../../../.env');
-const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
+const envFilepath = path.resolve(__dirname + '../../../.env');
+// const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
 
 require('dotenv').config({ path: envFilepath });
 
@@ -213,6 +213,7 @@ async function appMain() {
 	}
 
 	appInfo.assignmentsToNotRemind = await DataUtil.getAssignmentsNotToRemindData();
+	appInfo.assignmentsToNotRemind = DataUtil.cleanUpUnnecessaryAssignmentsNotToRemind(appInfo.assignmentsToNotRemind);
 	
 	if (net.isOnline())
 		checkCanvasWorker = await createCanvasWorker();
