@@ -27,15 +27,15 @@ import { FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON, FILENAME_CLASS_DATA_JSON } 
 
 import SaveManager from './util/saveManager';
 
-import { getIconPath, openLink } from "./util/misc";
+import { openLink } from "./util/misc";
 import AssignmentsDontRemindData from './interfaces/assignmentsDontRemind';
 
 const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
-const envFilepath = path.resolve(__dirname + '../../../.env');
-// const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
+// const envFilepath = path.resolve(__dirname + '../../../.env');
+const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
 
 require('dotenv').config({ path: envFilepath });
 
@@ -124,6 +124,16 @@ function createElectronApp() {
 		
 		if (protocolUrl)
 			handleURLProtocol(protocolUrl);
+
+		if (appInfo.mainWindow) {
+			if (appInfo.mainWindow.isMinimizable())
+				appInfo.mainWindow.restore();
+
+			appInfo.mainWindow.focus();
+		}
+		else {
+			launchMainWindowWithCorrectPage();
+		}
 	})
 
 	app.whenReady().then(async () => {
@@ -133,7 +143,7 @@ function createElectronApp() {
 		if (process.argv.length > 1)
 			console.log(process.argv[1])
 
-		if (!appInfo.isDevelopment)
+		if (!debugMode.active)
 			Menu.setApplicationMenu(null);
 
 		systemTray = createSystemTray(appInfo, debugMode);
@@ -330,7 +340,7 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 
 	const exactDueDate: string = CourseUtil.getExactDueDate(currentDate, nextAssignmentDueDate);
 
-	const iconRelativePath: string = getIconPath(appInfo.isDevelopment);
+	const iconRelativePath: string = './assets/images/icon.ico';
 
 	let iconAbsPath: string;
 

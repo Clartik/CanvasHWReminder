@@ -19,8 +19,9 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 			devTools: debugMode.active
 		}
 	});
-	
+
 	mainWindow.loadFile(htmlPath);
+	appInfo.isMainWindowHidden = false;
 
 	mainWindow.webContents.once('did-finish-load', () => {
 		appInfo.isMainWindowLoaded = true;

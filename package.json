@@ -16,27 +16,38 @@
     "start": "npm run build && electron .",
     "forge-start": "electron-forge start",
     "package": "npm run build && electron-forge package",
-    "make": "npm run build && electron-forge make --enable-logging"
+    "make": "npm run build && electron-forge make --enable-logging",
+    "app:dir": "npm run build && electron-builder --dir",
+    "app:dist": "npm run build && electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^7.5.0",
-    "@electron-forge/maker-deb": "^7.5.0",
-    "@electron-forge/maker-rpm": "^7.5.0",
-    "@electron-forge/maker-squirrel": "^7.5.0",
-    "@electron-forge/maker-wix": "^7.5.0",
-    "@electron-forge/maker-zip": "^7.5.0",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.5.0",
-    "@electron-forge/plugin-fuses": "^7.5.0",
     "@electron/fuses": "^1.8.0",
     "@types/node-fetch": "^2.6.11",
     "electron": "^32.1.2",
+    "electron-builder": "^25.1.7",
     "typescript": "^5.5.4"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "electron-squirrel-startup": "^1.0.1",
     "keytar": "^7.9.0",
     "node-fetch": "^2.6.1",
     "update-electron-app": "^3.0.0"
+  },
+  "build": {
+    "appId": "com.clartik.canvashwreminder",
+    "files": [
+      "./build/**/*",
+      "./pages/**/*",
+      "./assets/**/*"
+    ],
+    "win": {
+      "extraFiles": "./assets/images/icon.ico",
+      "icon": "./assets/images/icon.ico"
+    },
+    "nsis": {
+      "installerIcon": "./assets/images/icon.ico",
+      "oneClick": false
+    }
   }
 }

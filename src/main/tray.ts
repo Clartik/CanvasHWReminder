@@ -3,10 +3,8 @@ import * as path from 'path';
 import { app as electronApp, Tray, nativeImage, Menu, BrowserWindow, app } from 'electron';
 
 import AppInfo from './interfaces/appInfo';
-import createMainWindow from './window';
 import DebugMode from 'src/shared/interfaces/debugMode';
 import { launchMainWindowWithCorrectPage, outputAppLog } from './main';
-import { getIconPath } from './util/misc';
 
 function showApp(appInfo: AppInfo) {
 	if (!appInfo.isMainWindowHidden)
@@ -25,7 +23,7 @@ function quitApp(appInfo: AppInfo) {
 }
 
 function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
-	const iconPath: string = getIconPath(appInfo.isDevelopment);
+	const iconPath: string = './assets/images/icon.ico';
 	let trayTitle: string;
 
 	if (appInfo.isDevelopment) {

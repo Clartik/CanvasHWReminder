@@ -10,15 +10,4 @@ function openLink(url: string) {
 	}
 }
 
-function getIconPath(isDevelopment: boolean) {
-	if (isDevelopment) {
-		const iconPath = './assets/images/icon.ico';
-		return iconPath;
-	}
-	else {
-		const iconPath = './resources/icon.ico';
-		return iconPath;
-	}
-}
-
-export { openLink, getIconPath };
+export { openLink };
