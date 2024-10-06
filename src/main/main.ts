@@ -253,8 +253,8 @@ function launchMainWindowWithCorrectPage() {
 	if (appStatus.isSetupNeeded)
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 	else
-		// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
-		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/setupBaseURL.html');
+		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+		// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/setupBaseURL.html');
 }
 
 async function updateClassData(classData: ClassData | null) {

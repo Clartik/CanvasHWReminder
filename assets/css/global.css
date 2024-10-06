@@ -111,6 +111,7 @@ h2 {
 .website-link-btn {
     background-color: transparent;
     box-shadow: none;
+    will-change: transform;
 
     margin: 0px 5px;
     margin-top: 5px;
@@ -134,6 +135,7 @@ h3 {
 
 #website-btn {
     background-color: var(--primary-color);
+    will-change: transform;
 
     transition: transform 0.1s;
 }
@@ -501,8 +503,8 @@ select:hover {
     background-color: var(--secondary-color);
     border-radius: 0px 0px var(--border-radius) var(--border-radius);
     padding-right: 10px;
-    padding-bottom: 10px;
     padding-top: 5px;
+    padding-bottom: 5px;
     padding-inline-start: 40px;
     margin: 0;
     opacity: 1;
@@ -522,7 +524,7 @@ select:hover {
 }
 
 .assignment-item {
-    padding: 2.5px 5px;
+    padding: 5px;
     color: var(--accent-color);
     border-radius: var(--border-radius);
 
@@ -538,8 +540,11 @@ select:hover {
 }
 
 #version-label {
-    margin: 10px;
+    margin: 5px;
+    padding: 5px;
     text-align: center;
+
+    font-family: "Poppins Bold";
 }
 
 .assignment-label {
@@ -939,18 +944,16 @@ input:checked + .slider:before {
     padding: 3px 8px;
     text-align: center;
     background-color: var(--primary-color);
+    will-change: transform;
+
+    transition: 0.1s transform;
 }
 
 #credits-link-btn:hover {
-    background-color: var(--primary-color-hover);
-}
-
-#credits-link-btn:active {
-    background-color: var(--primary-color-press);
+    transform: scale(1.1);
 }
 
 #credits-author-label {
-    margin-top: 1px;
 }
 
 @media (min-width: 900px) {
