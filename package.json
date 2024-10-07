@@ -19,20 +19,22 @@
     "make": "npm run build && electron-forge make --enable-logging",
     "app:dir": "npm run build && electron-builder --dir",
     "app:dist": "npm run build && electron-builder",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "publish": "electron-builder --publish always"
   },
   "devDependencies": {
     "@electron/fuses": "^1.8.0",
     "@types/node-fetch": "^2.6.11",
     "electron": "^32.1.2",
     "electron-builder": "^25.1.7",
+    "electron-log": "^5.2.0",
+    "electron-updater": "^6.3.9",
     "typescript": "^5.5.4"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
     "keytar": "^7.9.0",
-    "node-fetch": "^2.6.1",
-    "update-electron-app": "^3.0.0"
+    "node-fetch": "^2.6.1"
   },
   "build": {
     "appId": "com.clartik.canvashwreminder",
@@ -43,7 +45,14 @@
     ],
     "win": {
       "extraFiles": "./assets/images/icon.ico",
-      "icon": "./assets/images/icon.ico"
+      "icon": "./assets/images/icon.ico",
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "Clartik",
+          "repo": "CanvasHWReminder"
+        }
+      ]
     },
     "nsis": {
       "installerIcon": "./assets/images/icon.ico",

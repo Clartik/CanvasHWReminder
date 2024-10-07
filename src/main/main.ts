@@ -4,7 +4,7 @@ import * as path from 'path';
 
 import { app, shell, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
 
-import { updateElectronApp } from 'update-electron-app';
+import { autoUpdater } from 'electron-updater';
 
 import handleIPCRequests from './ipc/index';
 
@@ -29,6 +29,7 @@ import SaveManager from './util/saveManager';
 
 import { openLink } from "./util/misc";
 import AssignmentsDontRemindData from './interfaces/assignmentsDontRemind';
+import { AppUpdater } from 'electron-updater';
 
 const sleep = promisify(setTimeout);
 
@@ -71,9 +72,6 @@ const appInfo: AppInfo = {
 
 	lastCanvasCheckTime: "Never"
 }
-
-if (!appInfo.isDevelopment)
-	updateElectronApp();
 
 // Assume By Default Both are Avaiable!
 const appStatus: AppStatus = {
@@ -137,6 +135,8 @@ function createElectronApp() {
 	})
 
 	app.whenReady().then(async () => {
+		autoUpdater.checkForUpdatesAndNotify();
+
 		if (process.platform === 'win32')
 			app.setAppUserModelId(app.name);		// Windows Specific Command to Show the App Name in Notification
 
@@ -191,6 +191,24 @@ function createElectronApp() {
 		systemTray.destroy();
 	})
 }
+
+autoUpdater.on('update-available', async () => {
+	await dialog.showMessageBox({
+		type: "info",
+		title: "Update Available",
+		message: "A new version of the app is available. It will download in the background."
+	});
+})
+
+autoUpdater.on('update-downloaded', async () => {
+	await dialog.showMessageBox({
+		type: "info",
+		title: "Update Ready",
+		message: "A new version is ready. Restart the app to apply the update."
+	});
+
+	autoUpdater.quitAndInstall();
+})
 
 //#endregion
 
