@@ -4,7 +4,9 @@ import * as path from 'path';
 
 import { app, shell, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
 
-import { autoUpdater } from 'electron-updater';
+import { autoUpdater, ProgressInfo } from 'electron-updater';
+
+import * as electronLog from 'electron-log';
 
 import handleIPCRequests from './ipc/index';
 
@@ -88,6 +90,9 @@ let systemTray: Electron.Tray;
 let checkCanvasWorker: Worker | null = null;
 let waitForNotificationWorker: Worker | null = null;
 
+electronLog.transports.file.level = 'info';
+electronLog.transports.file.fileName = 'Main.log';
+
 createElectronApp();
 handleIPCRequests(appInfo, appStatus, debugMode);
 appMain();
@@ -139,6 +144,8 @@ function createElectronApp() {
 			owner: "Clartik",
 			repo: "CanvasHWReminder",
 		  });
+
+		autoUpdater.logger = electronLog;
 
 		autoUpdater.checkForUpdatesAndNotify();
 
@@ -197,16 +204,20 @@ function createElectronApp() {
 	})
 }
 
-autoUpdater.on('update-available', async () => {
-	await dialog.showMessageBox({
+autoUpdater.on('update-available', () => {
+	dialog.showMessageBox({
 		type: "info",
 		title: "Update Available",
 		message: "A new version of the app is available. It will download in the background."
 	});
 })
 
-autoUpdater.on('update-downloaded', async () => {
-	await dialog.showMessageBox({
+autoUpdater.on('download-progress', (progress: ProgressInfo) => {
+	electronLog.info(`Download Speed: ${progress.bytesPerSecond} - Downloaded: ${progress.percent}% (${progress.transferred}/${progress.total})`)
+})
+
+autoUpdater.on('update-downloaded', () => {
+	dialog.showMessageBox({
 		type: "info",
 		title: "Update Ready",
 		message: "A new version is ready. Restart the app to apply the update."
