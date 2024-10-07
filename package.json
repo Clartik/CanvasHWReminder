@@ -41,7 +41,7 @@
       "./assets/**/*"
     ],
     "directories": {
-      "output": "dist/Version ${version}/${os}-${arch}"
+      "output": "dist/v${version}/${os}-${arch}"
     },
     "win": {
       "extraFiles": "./assets/images/icon.ico",

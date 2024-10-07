@@ -1,7 +1,7 @@
-node_modules
-build/**
-.vscode
-assets/svg/fontawesome-free-6.6.0-desktop
-out/
+.vscode/
+node_modules/
+build/
 dist/
+assets/svg/fontawesome-free-6.6.0-desktop
+assets/fonts/
 assets/videos
