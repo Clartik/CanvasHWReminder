@@ -29,7 +29,6 @@ import SaveManager from './util/saveManager';
 
 import { openLink } from "./util/misc";
 import AssignmentsDontRemindData from './interfaces/assignmentsDontRemind';
-import { AppUpdater } from 'electron-updater';
 
 const sleep = promisify(setTimeout);
 
@@ -135,6 +134,12 @@ function createElectronApp() {
 	})
 
 	app.whenReady().then(async () => {
+		autoUpdater.setFeedURL({
+			provider: "github",
+			owner: "Clartik",
+			repo: "CanvasHWReminder",
+		  });
+
 		autoUpdater.checkForUpdatesAndNotify();
 
 		if (process.platform === 'win32')

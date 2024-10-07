@@ -14,11 +14,8 @@
     "watch": "npx tsc -w",
     "build": "npx tsc",
     "start": "npm run build && electron .",
-    "forge-start": "electron-forge start",
-    "package": "npm run build && electron-forge package",
-    "make": "npm run build && electron-forge make --enable-logging",
-    "app:dir": "npm run build && electron-builder --dir",
-    "app:dist": "npm run build && electron-builder",
+    "package": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
     "postinstall": "electron-builder install-app-deps",
     "publish": "electron-builder --publish always"
   },
@@ -28,11 +25,11 @@
     "electron": "^32.1.2",
     "electron-builder": "^25.1.7",
     "electron-log": "^5.2.0",
-    "electron-updater": "^6.3.9",
     "typescript": "^5.5.4"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
+    "electron-updater": "^6.3.9",
     "keytar": "^7.9.0",
     "node-fetch": "^2.6.1"
   },
