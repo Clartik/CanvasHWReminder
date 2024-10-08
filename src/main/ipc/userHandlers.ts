@@ -7,7 +7,7 @@ import AppStatus from "../../shared/interfaces/appStatus";
 import * as DataUtil from '../util/dataUtil';
 import { openLink } from "../util/misc";
 
-import { appMain, outputAppLog } from "../main";
+import { appMain, outputAppLog, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse, showUpdateErrorDialogAndHandleResponse } from "../main";
 import SettingsData from "src/shared/interfaces/settingsData";
 
 function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
@@ -59,6 +59,25 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 				break;
 		}
 	});
+
+	ipcMain.on('launchUpdaterDialog', async (event, type: string) => {
+		switch (type) {
+			case 'available':
+				await showUpdateAvailableDialogAndHandleResponse();
+				break;
+
+			case 'complete':
+				await showUpdateCompleteDialogAndHandleResponse();
+				break;
+
+			case 'error':
+				await showUpdateErrorDialogAndHandleResponse();
+				break;
+		
+			default:
+				break;
+		}
+	})
 }
 
 export default handleUserRequests;

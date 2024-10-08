@@ -27,7 +27,7 @@
     --primary-color-hover: hsl(212, 49%, 25%);
     --primary-color-press: hsl(212, 49%, 18%);
 
-    --secondary-color: hsl(0, 0%, 34%);
+    --secondary-color: rgb(87, 87, 87);
     --secondary-color-hover: hsl(0, 0%, 28%);
 
     --text-color: white;
@@ -39,6 +39,9 @@
 
     --placeholder-text-color: rgb(150, 150, 150);
     --placeholder-text-color-disabled: rgba(150, 150, 150, 0.164);
+
+    --progress-empty-color: hsl(0, 0%, 50%);
+    --progress-fill-color: hsl(128, 50%, 24%);
 
     --border-radius: 6px;
     --border-radius-extra: 12px;
@@ -278,11 +281,21 @@ select:hover {
 .link-btn-image {
     width: 40px;
     color: white;
+
+    filter: drop-shadow(1px 5px 5px var(--shadow-color));
 }
 
 .small-link-btn-image {
     width: 25px;
     color: white;
+
+    filter: drop-shadow(1px 5px 5px var(--shadow-color));
+}
+
+#update-icon {
+    width: 40px;
+
+    position: absolute;
 }
 
 .container {
@@ -818,6 +831,8 @@ input:checked + .slider:before {
     justify-content: center;
     margin: 0px 10px;
     min-width: fit-content;
+
+    text-align: center;
 }
 
 .text-shadow {
@@ -1015,4 +1030,51 @@ input:checked + .slider:before {
     align-items: center;
     padding: 5px;
     background-color: var(--bottom-bar-color);
+}
+
+#update-progress-bar-background {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    border-radius: var(--border-radius);
+
+    margin: 10px;
+    background-color: var(--progress-empty-color);
+    height: 5px;
+}
+
+#update-progress-bar-fill {
+    border-radius: var(--border-radius);
+
+    background-color: var(--progress-fill-color);
+    width: 50%;
+    height: 100%;
+}
+
+.red#update-progress-bar-fill {
+    background-color: var(--accent-color);
+}
+
+#update-progress-bar-label-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#update-progress-bar-label {
+    padding: 2px 5px;
+    margin-bottom: 14px;
+    font-size: small;
+}
+
+.active#update-progress-bar-label:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }

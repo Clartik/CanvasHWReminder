@@ -2,7 +2,7 @@ import { Worker } from 'worker_threads'
 import { promisify } from 'util'
 import * as path from 'path';
 
-import { app, shell, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
+import { app, shell, BrowserWindow, net, Notification, Menu, dialog, ipcMain } from 'electron'
 
 import { autoUpdater, ProgressInfo } from 'electron-updater';
 
@@ -25,6 +25,8 @@ import { ClassData, Assignment } from "../shared/interfaces/classData";
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
+import * as UpdaterUtil from './util/updaterUtil';
+
 import { FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
 
 import SaveManager from './util/saveManager';
@@ -36,8 +38,8 @@ const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
-// const envFilepath = path.resolve(__dirname + '../../../.env');
-const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
+const envFilepath = path.resolve(__dirname + '../../../.env');
+// const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
 
 require('dotenv').config({ path: envFilepath });
 
@@ -145,12 +147,14 @@ function createElectronApp() {
 			repo: "CanvasHWReminder",
 		  });
 
-		autoUpdater.logger = electronLog;
+		autoUpdater.autoDownload = false;
 
+		// autoUpdater.logger = electronLog;
 		autoUpdater.checkForUpdatesAndNotify();
 
-		if (process.platform === 'win32')
+		if (process.platform === 'win32') {
 			app.setAppUserModelId(app.name);		// Windows Specific Command to Show the App Name in Notification
+		}
 
 		if (process.argv.length > 1)
 			console.log(process.argv[1])
@@ -204,26 +208,34 @@ function createElectronApp() {
 	})
 }
 
-autoUpdater.on('update-available', () => {
-	dialog.showMessageBox({
-		type: "info",
-		title: "Update Available",
-		message: "A new version of the app is available. It will download in the background."
-	});
+//#endregion
+
+//#region Auto Updater
+
+autoUpdater.on('update-available', async () => {
+	appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'available', 0);
+	
+	await showUpdateAvailableDialogAndHandleResponse();
 })
 
 autoUpdater.on('download-progress', (progress: ProgressInfo) => {
-	electronLog.info(`Download Speed: ${progress.bytesPerSecond} - Downloaded: ${progress.percent}% (${progress.transferred}/${progress.total})`)
+	const percent = Math.round(progress.percent);
+	
+	appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'in-progress', percent);
+
+	electronLog.info(`Download Speed: ${progress.bytesPerSecond} - Downloaded: ${percent}% (${progress.transferred}/${progress.total})`)
 })
 
-autoUpdater.on('update-downloaded', () => {
-	dialog.showMessageBox({
-		type: "info",
-		title: "Update Ready",
-		message: "A new version is ready. Restart the app to apply the update."
-	});
+autoUpdater.on('update-downloaded', async () => {
+	appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'complete', 100);
 
-	autoUpdater.quitAndInstall();
+	await showUpdateCompleteDialogAndHandleResponse();
+})
+
+autoUpdater.on('error', async () => {
+	appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'error', 100);
+
+	await showUpdateErrorDialogAndHandleResponse();
 })
 
 //#endregion
@@ -481,8 +493,6 @@ async function showNotification(nextAssignment: Assignment) {
 	findNextAssignmentAndStartWorker();
 }
 
-// #endregion
-
 async function createCanvasWorker(): Promise<Worker> {
     let _checkCanvasWorker: Worker;
 
@@ -619,5 +629,41 @@ async function outputAppLog() {
 	}
 }
 
+// #endregion
+
+async function showUpdateAvailableDialogAndHandleResponse() {
+	const response = await UpdaterUtil.showDownloadAvailableDialog();
+
+	const NO_BUTTON_RESPONSE = 1;
+
+	if (response.response === NO_BUTTON_RESPONSE)
+		return;
+
+	autoUpdater.downloadUpdate();
+}
+
+async function showUpdateCompleteDialogAndHandleResponse() {
+	const response = await UpdaterUtil.showDownloadCompleteDialog();
+
+	const NO_BUTTON_RESPONSE = 1;
+
+	if (response.response === NO_BUTTON_RESPONSE)
+		return;
+
+	autoUpdater.quitAndInstall();
+}
+
+async function showUpdateErrorDialogAndHandleResponse() {
+	const response = await UpdaterUtil.showDownloadFailedDialog();
+
+	const NO_BUTTON_RESPONSE = 1;
+
+	if (response.response === NO_BUTTON_RESPONSE)
+		return;
+
+	autoUpdater.downloadUpdate();
+}
+
 export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage,
-	findNextAssignmentAndStartWorker }
+	findNextAssignmentAndStartWorker, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse,
+	showUpdateErrorDialogAndHandleResponse }

@@ -22,7 +22,9 @@ const API = {
     getSecureText: (key: string) => ipcRenderer.invoke('getSecureText', key),
     disableAssignmentReminder: (assignment: Assignment) => ipcRenderer.send('disableAssignmentReminder', assignment),
     enableAssignmentReminder: (assignment: Assignment) => ipcRenderer.send('enableAssignmentReminder', assignment),
-    getAssignmentsNotToRemind: () => ipcRenderer.invoke('getAssignmentsNotToRemind')
+    getAssignmentsNotToRemind: () => ipcRenderer.invoke('getAssignmentsNotToRemind'),
+    onSendDownloadProgress: (callback: (status: string, percent: number) => void) => ipcRenderer.on('sendDownloadProgress', (_event, status: string, percent: number) => callback(status, percent)),
+    launchUpdaterDialog: (type: string) => ipcRenderer.send('launchUpdaterDialog', type)
 }
 
 contextBridge.exposeInMainWorld("api", API);

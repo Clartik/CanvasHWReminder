@@ -14,15 +14,15 @@
   <body>
     <div id="top-bar">
         <!-- The First A tag is purely to center the h1! -->
-        <a href="settings.html" id="settings-link" class="link-btn invisible">
+        <div class="link-btn invisible">
             <img src="../assets/svg/gear.svg" alt="Settings Icon" class="link-btn-image">
-        </a>
+        </div>
         <h1 id="page-title">Canvas HW Reminder</h1>
         <a href="settings.html" id="settings-link" class="link-btn" title="Settings">
             <img src="../assets/svg/gear.svg" alt="Settings Icon" class="link-btn-image">
         </a>
-        
     </div>
+
     <div id="loading-or-error-container">
         <img id="loading-circle" src="../assets/images/Loading.gif" alt="Loading GIF" width="200px" height="200px">
     </div>
@@ -104,5 +104,13 @@
         </ul> -->
     </div>
     <!-- <p id="bottom-text" class="bottom-text hide">Text</p> -->
+    <div id="update-progress-bar" class="active hide">
+        <div id="update-progress-bar-label-container">
+            <p id="update-progress-bar-label">Downloading - 50%</p>
+        </div>
+        <div id="update-progress-bar-background">
+            <div id="update-progress-bar-fill"></div>
+        </div>
+    </div>
   </body>
 </html>

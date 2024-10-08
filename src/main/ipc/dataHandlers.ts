@@ -42,7 +42,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     ipcMain.handle('getCachedData', (event, filename: string): Object | null => {
         const senderHTMLFilename = getSenderHTMLFile(event);
         
-        console.log(`[Main]: (${senderHTMLFilename}) Get Cached Data (${filename}) Event Was Handled!`)
+        // console.log(`[Main]: (${senderHTMLFilename}) Get Cached Data (${filename}) Event Was Handled!`)
     
         if (filename === 'classData') {
             return appInfo.classData;

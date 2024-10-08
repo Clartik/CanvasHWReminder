@@ -18,7 +18,9 @@ export interface IElectronAPI {
     getSecureText: (key: string) => Promise<string | null>,
     disableAssignmentReminder: (assignment: Assignment) => void,
     enableAssignmentReminder: (assignment: Assignment) => void,
-    getAssignmentsNotToRemind: () => Promise<Assignment[]>
+    getAssignmentsNotToRemind: () => Promise<Assignment[]>,
+    onSendDownloadProgress: (callback: (status: string, percent: number) => void) => void,
+    launchUpdaterDialog: (type: string) => void
 }
 
 declare global {

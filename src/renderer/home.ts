@@ -59,11 +59,17 @@ const LOADING_CIRCLE_TEMPLATE: string = `
 const classContainer = document.getElementById('class-container') as HTMLDivElement;
 const loadingOrErrorContainer = document.getElementById('loading-or-error-container') as HTMLDivElement;
 
+const updateProgressBar = document.getElementById('update-progress-bar')! as HTMLDivElement;
+const updateProgressBarFill = document.getElementById('update-progress-bar-fill')! as HTMLDivElement;
+const updateProgressBarLabel = document.getElementById('update-progress-bar-label')! as HTMLParagraphElement;
+
 let classHeaders: HTMLCollectionOf<HTMLSpanElement>;
 let classHeadersLabels: HTMLCollectionOf<HTMLSpanElement>;
 let classBoxes: HTMLCollectionOf<HTMLUListElement>;
 
 let isCheckingForUpdates = true;
+
+let downloadStatus: string = '';
 
 const checkForUpdatesTimeInSec: number = 60;                // Every Minute
 
@@ -225,6 +231,65 @@ window.api.onSendAppStatus(async (status: string) => {
             break;
     }
 });
+
+window.api.onSendDownloadProgress((status: string, percent: number) => {
+    updateProgressBar.classList.remove('hide');
+    
+    updateProgressBarFill.classList.remove('red');
+    updateProgressBarLabel.classList.remove('active');
+
+    downloadStatus = status;
+    updateProgressBarFill.style.width = `${percent}%`;
+
+
+    switch (status) {
+        case 'available': 
+            updateProgressBarLabel.innerText = `Download Available`
+            updateProgressBarLabel.classList.add('active');
+            break;
+
+        case 'in-progress':
+            updateProgressBarLabel.innerText = `Downloading - ${percent}%`
+            break;
+
+        case 'complete': 
+            updateProgressBarLabel.innerText = `Download Complete`;
+            updateProgressBarLabel.classList.add('active');
+            break;
+
+        case 'error':
+            updateProgressBarLabel.innerText = `Download Failed`;
+            updateProgressBarFill.classList.add('red');
+            updateProgressBarLabel.classList.add('active');
+            break;
+    
+        default:
+            break;
+    }
+
+})
+
+updateProgressBarLabel.addEventListener('click', () => {
+    if (!updateProgressBarLabel.classList.contains('active'))
+        return;
+
+    switch (downloadStatus) {
+        case 'available':
+            window.api.launchUpdaterDialog('available');
+            return;
+
+        case 'complete':
+            window.api.launchUpdaterDialog('complete');
+            return;
+
+        case 'error':
+            window.api.launchUpdaterDialog('error');
+            break;
+    
+        default:
+            return;
+    }
+})
 
 //#endregion
 
