@@ -1,5 +1,5 @@
 interface SettingsData {
-    readonly version: string;
+    version: string;
 
     readonly whenToRemindTimeValue: string;
     readonly whenToRemindFormatValue: string;

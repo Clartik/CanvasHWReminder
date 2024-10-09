@@ -1,4 +1,3 @@
-import DebugMode from "../shared/interfaces/debugMode";
 import SettingsData from "../shared/interfaces/settingsData";
 
 const backBtnAnchor = document.getElementById('home-link')! as HTMLAnchorElement;
