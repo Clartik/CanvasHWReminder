@@ -4,7 +4,7 @@ import * as path from 'path';
 
 import { app, shell, BrowserWindow, net, Notification, Menu, dialog, ipcMain } from 'electron'
 
-import { autoUpdater, ProgressInfo } from 'electron-updater';
+import { autoUpdater, ProgressInfo, UpdateCheckResult } from 'electron-updater';
 
 import * as electronLog from 'electron-log';
 
@@ -38,10 +38,13 @@ const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
-const envFilepath = path.resolve(__dirname + '../../../.env');
-// const envFilepath = path.resolve(__dirname + '../../../.env.prod.beta');
+const environment: string = process.env.NODE_ENV || 'dev';
+
+const envFilepath = path.resolve(__dirname + `../../../.env.${environment}`);
 
 require('dotenv').config({ path: envFilepath });
+
+console.log(`Node Environment: ` + environment);
 
 const debugMode: DebugMode = {
 	active: process.env.DEBUG_MODE === 'true',
@@ -57,7 +60,7 @@ if (!debugMode.active) {
 }
 
 const appInfo: AppInfo = {
-	isDevelopment: process.env.NODE_ENV === 'dev',
+	isDevelopment: process.env.APP_ENV === 'dev',
 
 	isRunning: true,
 	isMainWindowLoaded: false,
@@ -79,6 +82,9 @@ const appInfo: AppInfo = {
 // Assume By Default Both are Avaiable!
 const appStatus: AppStatus = {
 	isSetupNeeded: false,
+	isUpdateAvailable: false,
+
+	updateStatus: 'None',
 
 	isOnline: true,
 	isConnectedToCanvas: true
@@ -135,9 +141,8 @@ function createElectronApp() {
 
 			appInfo.mainWindow.focus();
 		}
-		else {
+		else
 			launchMainWindowWithCorrectPage();
-		}
 	})
 
 	app.whenReady().then(async () => {
@@ -148,8 +153,12 @@ function createElectronApp() {
 		  });
 
 		autoUpdater.autoDownload = false;
+		// autoUpdater.channel = process.env.RELEASE_CHANNEL || 'latest';
 
-		// autoUpdater.logger = electronLog;
+		if (process.env.RELEASE_CHANNEL === 'alpha' || process.env.RELEASE_CHANNEL === 'beta')
+			autoUpdater.allowPrerelease = true;
+
+		autoUpdater.logger = electronLog;
 		autoUpdater.checkForUpdatesAndNotify();
 
 		if (process.platform === 'win32') {
@@ -213,12 +222,17 @@ function createElectronApp() {
 //#region Auto Updater
 
 autoUpdater.on('update-available', async () => {
+	appStatus.isUpdateAvailable = true;
+	appStatus.updateStatus = 'available';
+
 	appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'available', 0);
 	
 	await showUpdateAvailableDialogAndHandleResponse();
 })
 
 autoUpdater.on('download-progress', (progress: ProgressInfo) => {
+	appStatus.updateStatus = 'in-progress';
+
 	const percent = Math.round(progress.percent);
 	
 	appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'in-progress', percent);
@@ -227,14 +241,17 @@ autoUpdater.on('download-progress', (progress: ProgressInfo) => {
 })
 
 autoUpdater.on('update-downloaded', async () => {
+	appStatus.updateStatus = 'complete';
+
 	appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'complete', 100);
 
 	await showUpdateCompleteDialogAndHandleResponse();
 })
 
 autoUpdater.on('error', async () => {
-	appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'error', 100);
+	appStatus.updateStatus = 'error';
 
+	appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'error', 100);
 	await showUpdateErrorDialogAndHandleResponse();
 })
 
@@ -639,6 +656,8 @@ async function showUpdateAvailableDialogAndHandleResponse() {
 	if (response.response === NO_BUTTON_RESPONSE)
 		return;
 
+	appInfo.mainWindow?.webContents.send('removeProgressBarTextLink');
+
 	autoUpdater.downloadUpdate();
 }
 
@@ -650,6 +669,8 @@ async function showUpdateCompleteDialogAndHandleResponse() {
 	if (response.response === NO_BUTTON_RESPONSE)
 		return;
 
+	appInfo.mainWindow?.webContents.send('removeProgressBarTextLink');
+
 	autoUpdater.quitAndInstall();
 }
 
@@ -659,6 +680,13 @@ async function showUpdateErrorDialogAndHandleResponse() {
 	const NO_BUTTON_RESPONSE = 1;
 
 	if (response.response === NO_BUTTON_RESPONSE)
+		return;
+
+	appInfo.mainWindow?.webContents.send('removeProgressBarTextLink');
+
+	const result: UpdateCheckResult | null = await autoUpdater.checkForUpdates();
+	
+	if (!result)
 		return;
 
 	autoUpdater.downloadUpdate();

@@ -24,7 +24,8 @@ const API = {
     enableAssignmentReminder: (assignment: Assignment) => ipcRenderer.send('enableAssignmentReminder', assignment),
     getAssignmentsNotToRemind: () => ipcRenderer.invoke('getAssignmentsNotToRemind'),
     onSendDownloadProgress: (callback: (status: string, percent: number) => void) => ipcRenderer.on('sendDownloadProgress', (_event, status: string, percent: number) => callback(status, percent)),
-    launchUpdaterDialog: (type: string) => ipcRenderer.send('launchUpdaterDialog', type)
+    onRemoveProgressBarTextLink: (callback: () => void) => ipcRenderer.on('removeProgressBarTextLink', (_event) => callback()),
+    launchUpdaterDialog: (type: string) => ipcRenderer.send('launchUpdaterDialog', type),
 }
 
 contextBridge.exposeInMainWorld("api", API);

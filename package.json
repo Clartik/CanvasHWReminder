@@ -1,8 +1,8 @@
 {
   "name": "canvas-hw-reminder",
   "productName": "Canvas HW Reminder",
-  "version": "0.7.0",
-  "description": "Never Again Forget About Your HW",
+  "version": "0.7.0-beta.1",
+  "description": "Canvas HW Reminder",
   "author": "Clartik",
   "license": "ISC",
   "repository": {
@@ -13,15 +13,20 @@
   "scripts": {
     "watch": "npx tsc -w",
     "build": "npx tsc",
-    "start": "npm run build && electron .",
-    "package": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder",
-    "postinstall": "electron-builder install-app-deps",
-    "publish": "electron-builder --publish always"
+    
+    "start": "npm run build && cross-env NODE_ENV=dev electron .",
+    "start:beta": "npm run build && cross-env NODE_ENV=beta electron .",
+    "start:prod": "npm run build && cross-env NODE_ENV=prod electron .",
+
+    "package": "npm run build && cross-env NODE_ENV=dev electron-builder --dir",
+
+    "make:beta": "npm run build && cross-env NODE_ENV=beta electron-builder",
+    "make:prod": "npm run build && cross-env NODE_ENV=prod electron-builder"
   },
   "devDependencies": {
     "@electron/fuses": "^1.8.0",
     "@types/node-fetch": "^2.6.11",
+    "cross-env": "^7.0.3",
     "electron": "^32.1.2",
     "electron-builder": "^25.1.7",
     "typescript": "^5.5.4"
@@ -43,6 +48,7 @@
     "directories": {
       "output": "dist/v${version}/${os}-${arch}"
     },
+    "generateUpdatesFilesForAllChannels": true,
     "win": {
       "extraFiles": "./assets/images/icon.ico",
       "artifactName": "Canvas-HW-Reminder-Setup.${ext}",
@@ -58,7 +64,8 @@
     "nsis": {
       "installerIcon": "./assets/images/icon.ico",
       "artifactName": "Canvas-HW-Reminder-Setup-${version}.${ext}",
-      "oneClick": false
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }

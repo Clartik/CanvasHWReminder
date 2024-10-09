@@ -5,3 +5,4 @@ dist/
 assets/svg/fontawesome-free-6.6.0-desktop
 assets/fonts/
 assets/videos
+.env.*

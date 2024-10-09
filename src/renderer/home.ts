@@ -123,6 +123,17 @@ async function homeMain() {
         loadingOrErrorContainer.append(infoWidget);
     }
 
+    if (appStatus.isUpdateAvailable) {
+        let percent: number = 100;
+
+        if (appStatus.updateStatus === 'available')
+            percent = 0;
+        else if (appStatus.updateStatus === 'in-progress')
+            percent = 0;
+
+        showProgressBar(appStatus.updateStatus, percent);
+    }
+
     while (isCheckingForUpdates) {
         const secondsLeft = checkForUpdatesTimeInSec - new Date().getSeconds();
         await sleep(secondsLeft * 1000);
@@ -232,41 +243,10 @@ window.api.onSendAppStatus(async (status: string) => {
     }
 });
 
-window.api.onSendDownloadProgress((status: string, percent: number) => {
-    updateProgressBar.classList.remove('hide');
-    
-    updateProgressBarFill.classList.remove('red');
+window.api.onSendDownloadProgress((status: string, percent: number) => showProgressBar(status, percent))
+
+window.api.onRemoveProgressBarTextLink(() => {
     updateProgressBarLabel.classList.remove('active');
-
-    downloadStatus = status;
-    updateProgressBarFill.style.width = `${percent}%`;
-
-
-    switch (status) {
-        case 'available': 
-            updateProgressBarLabel.innerText = `Download Available`
-            updateProgressBarLabel.classList.add('active');
-            break;
-
-        case 'in-progress':
-            updateProgressBarLabel.innerText = `Downloading - ${percent}%`
-            break;
-
-        case 'complete': 
-            updateProgressBarLabel.innerText = `Download Complete`;
-            updateProgressBarLabel.classList.add('active');
-            break;
-
-        case 'error':
-            updateProgressBarLabel.innerText = `Download Failed`;
-            updateProgressBarFill.classList.add('red');
-            updateProgressBarLabel.classList.add('active');
-            break;
-    
-        default:
-            break;
-    }
-
 })
 
 updateProgressBarLabel.addEventListener('click', () => {
@@ -284,7 +264,7 @@ updateProgressBarLabel.addEventListener('click', () => {
 
         case 'error':
             window.api.launchUpdaterDialog('error');
-            break;
+            return;
     
         default:
             return;
@@ -539,6 +519,41 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 		return 0;
 
     return (date2.getTime() - date1.getTime()) / 1000;
+}
+
+function showProgressBar(status: string, percent: number) {
+    updateProgressBar.classList.remove('hide');
+    
+    updateProgressBarFill.classList.remove('red');
+    updateProgressBarLabel.classList.remove('active');
+
+    downloadStatus = status;
+    updateProgressBarFill.style.width = `${percent}%`;
+
+    switch (status) {
+        case 'available': 
+            updateProgressBarLabel.innerText = `Download Available`
+            updateProgressBarLabel.classList.add('active');
+            break;
+
+        case 'in-progress':
+            updateProgressBarLabel.innerText = `Downloading - ${percent}%`
+            break;
+
+        case 'complete': 
+            updateProgressBarLabel.innerText = `Download Complete`;
+            updateProgressBarLabel.classList.add('active');
+            break;
+
+        case 'error':
+            updateProgressBarLabel.innerText = `Download Failed`;
+            updateProgressBarFill.classList.add('red');
+            updateProgressBarLabel.classList.add('active');
+            break;
+    
+        default:
+            break;
+    }
 }
 
 function getHowLongPastDueInSeconds(): number {
