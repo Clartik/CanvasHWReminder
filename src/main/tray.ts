@@ -51,12 +51,7 @@ function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 		{ label: 'Log to File', type: 'normal', click: async () => await outputAppLog() },
 		{ type: 'separator' },
 		{ label: 'Show App', type: 'normal', click: () => showApp(appInfo) },
-		{ label: 'Quit App', type: 'normal', click: () => quitApp(appInfo) },
-		{ type: 'separator' },
-		{ label: 'Download Available', type: 'normal', click: () => appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'available', 0) },
-		{ label: 'Download In-Progress', type: 'normal', click: () =>  emulateDownload(appInfo) },
-		{ label: 'Download Complete', type: 'normal', click: () => appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'complete', 100) },
-		{ label: 'Download Failed', type: 'normal', click: () => appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'error', 100) },
+		{ label: 'Quit App', type: 'normal', click: () => quitApp(appInfo) }
 	])
 
 	tray.setContextMenu(contextMenu);
