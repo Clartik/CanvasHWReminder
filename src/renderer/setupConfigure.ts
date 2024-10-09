@@ -13,13 +13,16 @@ const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-check
 const showExactDueDateCheckbox = document.getElementById('show-exact-due-date-checkbox')! as HTMLInputElement;
 const alwaysExpandAllCourseCardsCheckbox = document.getElementById('always-expand-course-cards-checkbox')! as HTMLInputElement;
 
+const silenceNotificationsCheckbox = document.getElementById('silence-notifications-checkbox')! as HTMLInputElement;
+const keepNotificationsOnScreenCheckbox = document.getElementById('keep-notifications-on-screen-checkbox')! as HTMLInputElement;
+
 const doneBtn = document.getElementById('done-btn')! as HTMLButtonElement;
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
 const MINUTE_TIME_OPTIONS: Array<string> = [];
 
-const SETTINGS_DATA_VERSION: string = '0.3';
+const SETTINGS_DATA_VERSION: string = '0.4';
 
 const LOADING_SPINNER_TEMPLATE = `
     <img id="setup-spinner" src="../assets/svg/spinner.svg" width="25px">
@@ -157,14 +160,13 @@ function setDefaultSettings() {
     launchOnStartCheckbox.checked = true;
     minimizeOnLaunchCheckbox.checked = true;
     minimizeOnCloseCheckbox.checked = true;
+
+    keepNotificationsOnScreenCheckbox.checked = true;
 }
 
 function getSettingsDataToSave(): SettingsData {
     return {
         version: SETTINGS_DATA_VERSION,
-
-        // canvasBaseURL: canvasBaseURL,
-        // canvasAPIToken: canvasAPIToken,
 
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,
@@ -176,7 +178,10 @@ function getSettingsDataToSave(): SettingsData {
         minimizeOnClose: minimizeOnCloseCheckbox.checked,
 
         showExactDueDate: showExactDueDateCheckbox.checked,
-        alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked
+        alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked,
+
+        silenceNotifications: silenceNotificationsCheckbox.checked,
+        keepNotificationsOnScreen: keepNotificationsOnScreenCheckbox.checked
     };
 }
 
