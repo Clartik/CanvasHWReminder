@@ -442,6 +442,7 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 						arguments="canvas-hw-reminder:action=dismiss"
 						activationType="protocol"/>
 				</actions>
+				<audio silent='${appInfo.settingsData?.silenceNotifications}' />
 			</toast>`
 		});	
 
@@ -451,7 +452,8 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 		const notification = new Notification({
 			title: notificationTitle,
 			body: 'Click on the Notification to Head to the Posting',
-			icon: iconRelativePath
+			icon: iconRelativePath,
+			silent: appInfo.settingsData?.silenceNotifications
 		})
 
 		notification.addListener('click', () => openLink(nextAssignment.html_url));
