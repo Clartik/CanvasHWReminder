@@ -3,17 +3,17 @@ import { Assignment } from "./shared/interfaces/classData"
 export interface IElectronAPI {
     openLink: (url: string) => void,
     showMessageDialog: (options: Electron.MessageBoxOptions) => Promise<Electron.MessageBoxReturnValue>
-    writeSavedData: (filename: string, data: Object) => Promise<boolean>,
-    getSavedData: (filename: string) => Promise<Object | null>,
-    getCachedData: (filename: string) => Promise<Object | null>,
+    writeSavedData: (filename: string, data: object) => Promise<boolean>,
+    getSavedData: (filename: string) => Promise<object | null>,
+    getCachedData: (filename: string) => Promise<object | null>,
     updateData: UpdateDataCallback,
     onUpdateData: (callback: UpdateDataCallback) => void,
     keyPress: (key: string) => void,
-    getDebugMode: () => Promise<Object>,
+    getDebugMode: () => Promise<object>,
     onSendAppStatus: (callback: (status: string) => void) => void,
-    sendAppStatus: (status: string, data?: Object) => void, 
-    getAppStatus: () => Promise<Object>,
-    getSelfFromCanvas: (baseUrl: string, apiToken: string) => Promise<Object>,
+    sendAppStatus: (status: string, data?: object) => void, 
+    getAppStatus: () => Promise<object>,
+    getSelfFromCanvas: (baseUrl: string, apiToken: string) => Promise<object>,
     saveSecureText: (key: string, text: string) => void,
     getSecureText: (key: string) => Promise<string | null>,
     disableAssignmentReminder: (assignment: Assignment) => void,
@@ -29,5 +29,6 @@ declare global {
         api: IElectronAPI
     }
 
+    // eslint-disable-next-line
     var __baseDir: string
 }

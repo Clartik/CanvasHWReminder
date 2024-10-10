@@ -88,16 +88,16 @@ minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
     minimizeOnCloseCheckbox.checked = false;
 })
 
-whenToRemindFormatDropdown.addEventListener('change', (event: Event) => {
+whenToRemindFormatDropdown.addEventListener('change', () => {
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
 });
 
-howLongPastDueFormatDropdown.addEventListener('change', (event: Event) => {
+howLongPastDueFormatDropdown.addEventListener('change', () => {
     populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
     checkIfTimeDropdownShouldBeHidden(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
 });
 
-doneBtn.addEventListener('click', async (event) => {
+doneBtn.addEventListener('click', async () => {
     const options: Electron.MessageBoxOptions = {
         type: "warning",
         title: "Done With Setup?",
@@ -152,7 +152,7 @@ function populateTimeOptions() {
 }
 
 function addTimeOptionToDropdownAndPopulateValue(dropdown: HTMLSelectElement, timeElement: string) {
-    let timeOption = document.createElement('option');
+    const timeOption = document.createElement('option');
     timeOption.value = timeElement;
     timeOption.innerText = timeElement;
     dropdown.appendChild(timeOption);

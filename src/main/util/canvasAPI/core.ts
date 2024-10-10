@@ -5,7 +5,7 @@ import fetch from 'node-fetch'
 //     readonly error
 // }
 
-async function getAPI(url: string, accessToken: string): Promise<any> {
+async function getAPI(url: string, accessToken: string) {
     const response = await fetch(url, {
         method: 'GET',
         headers: {

@@ -101,7 +101,7 @@ class Course {
         if (order_by !== undefined)
             params.append('order_by', order_by);
 
-        let url = this.baseURL + `courses/${this.id}/assignments?` + params.toString();
+        const url = this.baseURL + `courses/${this.id}/assignments?` + params.toString();
         return await getAPI(url, this.accessToken) as AssignmentData[];
     }
 }

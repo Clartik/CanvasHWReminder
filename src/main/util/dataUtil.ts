@@ -74,7 +74,7 @@ async function getSavedSettingsData(): Promise<SettingsData | null> {
 async function upgradeSettingsData(savedSettingsData: SettingsData): Promise<SettingsData> {
 	const defaultSettingsData: SettingsData = getDefaultSettingsData();
 
-	let upgradedSettingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
+	const upgradedSettingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
 	upgradedSettingsData.version = SETTINGS_DATA_VERSION;
 
 	console.log(`[Main]: Upgraded Saved Settings Data to Latest Version! (${upgradedSettingsData.version})`);

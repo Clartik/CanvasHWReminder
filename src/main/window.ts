@@ -27,7 +27,7 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 		appInfo.isMainWindowLoaded = true;
 	})
 
-	mainWindow.on('close', (event) => {
+	mainWindow.on('close', () => {
 		if (!appInfo.isRunning)
 			return;
 

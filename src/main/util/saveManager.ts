@@ -24,17 +24,17 @@ class SaveManager {
         return `${this.saveDataPath}\\${filename}`;
     }
 
-    static async getLocalData(filename: string): Promise<Object> {
+    static async getLocalData(filename: string): Promise<object> {
         const localPath: string = SaveManager.getLocalPath(filename);
         return await SaveManager.getData(localPath);
     }
 
-    static async getSavedData(filename: string): Promise<Object> {
+    static async getSavedData(filename: string): Promise<object> {
         const savePath: string = SaveManager.getSavePath(filename);
         return await SaveManager.getData(savePath);
     }
 
-    static async writeSavedData(filename: string, data: Object): Promise<boolean> {
+    static async writeSavedData(filename: string, data: object): Promise<boolean> {
         const savePath: string = SaveManager.getSavePath(filename);
         const success =  await SaveManager.writeData(savePath, data);
 
@@ -46,12 +46,12 @@ class SaveManager {
         return success;
     }
 
-    static async getData(filepath: string): Promise<Object> {
+    static async getData(filepath: string): Promise<object> {
         const data = await readFileAsync(filepath, 'utf-8');
         return JSON.parse(data);
     }
 
-    static async writeData(filepath: string, data: Object): Promise<boolean> {
+    static async writeData(filepath: string, data: object): Promise<boolean> {
         const formattedData = JSON.stringify(data, null, 4);
 
         try {
@@ -64,12 +64,12 @@ class SaveManager {
         return true;
     }
 
-    static getDataSync(filepath: string): Object {
+    static getDataSync(filepath: string): object {
         const data = fs.readFileSync(filepath, 'utf-8');
         return JSON.parse(data);
     }
 
-    static writeDataSync(filepath: string, data: Object): boolean {
+    static writeDataSync(filepath: string, data: object): boolean {
         const formattedData = JSON.stringify(data, null, 4);
 
         try {

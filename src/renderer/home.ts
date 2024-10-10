@@ -1,5 +1,4 @@
 import AppStatus from "../shared/interfaces/appStatus";
-import DebugMode from "../shared/interfaces/debugMode";
 import SettingsData from "../shared/interfaces/settingsData";
 
 import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../shared/interfaces/classData";
@@ -67,7 +66,7 @@ let classHeaders: HTMLCollectionOf<HTMLSpanElement>;
 let classHeadersLabels: HTMLCollectionOf<HTMLSpanElement>;
 let classBoxes: HTMLCollectionOf<HTMLUListElement>;
 
-let isCheckingForUpdates = true;
+const isCheckingForUpdates = true;
 
 let downloadStatus: string = '';
 
@@ -77,13 +76,11 @@ let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
 let assignmentElementsNotToRemind: HTMLLIElement[] = [];
 
 let settingsData: SettingsData | null;
-let homepageDebugMode: DebugMode;
 
 homeMain();
 
 // Main Function
 async function homeMain() {
-    homepageDebugMode = await window.api.getDebugMode() as DebugMode;
     settingsData = await homepageGetCachedSettingsData();
 
     const classData: ClassData | null = await getCachedClassData();
@@ -154,7 +151,7 @@ async function homeMain() {
 
 //#region Event Handlers
 
-window.api.onUpdateData((type: string, data: Object | null) => {
+window.api.onUpdateData((type: string, data: object | null) => {
     if (type === 'classes') {
         const classData = data as ClassData | null;
         
@@ -287,14 +284,14 @@ function createInfoWidget(template?: string): HTMLDivElement {
 }
 
 function createClassItem(): HTMLDivElement {
-    let classElement = document.createElement('div');
+    const classElement = document.createElement('div');
     classElement.classList.add('class-item');
     classElement.innerHTML = CLASS_HEADER_TEMPLATE + CLASS_BOX_TEMPLATE;
     return classElement;
 }
 
 function createAssignmentElement(): HTMLLIElement {
-    let assignmentElement = document.createElement('li');
+    const assignmentElement = document.createElement('li');
     assignmentElement.classList.add('assignment-item');
     assignmentElement.title = 'Right Click to Toggle Whether Assignment Should Remind You or Not'
     assignmentElement.innerHTML = ASSIGNMENT_TEMPLATE;
@@ -618,9 +615,9 @@ function getTimeTillDueDate(date1: Date, date2: Date): string {
 }
 
 function getExactDueDate(date1: Date, date2: Date): string {
-    let secondsDiff = getTimeDiffInSeconds(date1, date2);
-	let minuteDiff = secondsDiff / 60;
-	let hourDiff = minuteDiff / 60;
+    const secondsDiff = getTimeDiffInSeconds(date1, date2);
+	const minuteDiff = secondsDiff / 60;
+	const hourDiff = minuteDiff / 60;
 	let dateDiff = hourDiff / 24;
 
     dateDiff = Math.floor(dateDiff);

@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import { shell, dialog } from 'electron';
 
 function openLink(url: string) {

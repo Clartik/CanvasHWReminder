@@ -1,8 +1,9 @@
 import { Worker } from 'worker_threads'
 import { promisify } from 'util'
 import * as path from 'path';
+import * as dotenv from 'dotenv';
 
-import { app, shell, BrowserWindow, net, Notification, Menu, dialog, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
 
 import { autoUpdater, ProgressInfo, UpdateCheckResult } from 'electron-updater';
 
@@ -42,7 +43,7 @@ const environment: string = process.env.NODE_ENV || 'dev';
 
 const envFilepath = path.resolve(__dirname + `../../../.env.${environment}`);
 
-require('dotenv').config({ path: envFilepath });
+dotenv.config({ path: envFilepath });
 
 console.log(`Node Environment: ` + environment);
 
@@ -171,7 +172,7 @@ function createElectronApp() {
 		if (!debugMode.active)
 			Menu.setApplicationMenu(null);
 
-		systemTray = createSystemTray(appInfo, debugMode);
+		systemTray = createSystemTray(appInfo);
 		
 		while (!appInfo.settingsData && !appStatus.isSetupNeeded)
 			await sleep(100);

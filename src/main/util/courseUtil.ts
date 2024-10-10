@@ -5,7 +5,7 @@ function getUpcomingAssignments(classData: ClassData): Array<Assignment> {
 	if (classData.classes.length <= 0)
 		return [];
 
-	let upcomingAssignments: Array<Assignment> = [];
+	const upcomingAssignments: Array<Assignment> = [];
 
 	for (let classIndex = 0; classIndex < classData.classes.length; classIndex++) {
 		const currentClass = classData.classes[classIndex];
@@ -218,9 +218,9 @@ function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 }
 
 function getExactDueDate(date1: Date, date2: Date): string {
-    let secondsDiff = getTimeDiffInSeconds(date1, date2);
-	let minuteDiff = secondsDiff / 60;
-	let hourDiff = minuteDiff / 60;
+    const secondsDiff = getTimeDiffInSeconds(date1, date2);
+	const minuteDiff = secondsDiff / 60;
+	const hourDiff = minuteDiff / 60;
 	let dateDiff = hourDiff / 24;
 
     dateDiff = Math.floor(dateDiff);

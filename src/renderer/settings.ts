@@ -103,7 +103,7 @@ creditsLinkBtn.addEventListener('click', () => {
     window.location.href = './credits.html';
 })
 
-canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
+canvasBaseURLBtn.addEventListener('click', () => {
     if (!canvasBaseURLEditMode) {
         canvasBaseURLInput.disabled = false;
         canvasBaseURLBtn.innerText = 'Done'
@@ -116,7 +116,7 @@ canvasBaseURLBtn.addEventListener('click', (event: MouseEvent) => {
     canvasBaseURLEditMode = !canvasBaseURLEditMode;
 });
 
-canvasAPITokenBtn.addEventListener('click', (event: MouseEvent) => {
+canvasAPITokenBtn.addEventListener('click', () => {
     if (!canvasAPITokenEditMode) {
         canvasAPITokenInput.disabled = false;
         canvasAPITokenInput.type = 'text';
@@ -133,11 +133,11 @@ canvasAPITokenBtn.addEventListener('click', (event: MouseEvent) => {
     canvasAPITokenEditMode = !canvasAPITokenEditMode;
 });
 
-whenToRemindFormatDropdown.addEventListener('change', (event: Event) => {
+whenToRemindFormatDropdown.addEventListener('change', () => {
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
 });
 
-howLongPastDueFormatDropdown.addEventListener('change', (event: Event) => {
+howLongPastDueFormatDropdown.addEventListener('change', () => {
     populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
     checkIfTimeDropdownShouldBeHidden(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
 });
@@ -264,7 +264,7 @@ function populateTimeOptions() {
 }
 
 function addTimeOptionToDropdownAndPopulateValue(dropdown: HTMLSelectElement, timeElement: string) {
-    let timeOption = document.createElement('option');
+    const timeOption = document.createElement('option');
     timeOption.value = timeElement;
     timeOption.innerText = timeElement;
     dropdown.appendChild(timeOption);

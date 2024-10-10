@@ -11,7 +11,7 @@ interface Class {
 interface Assignment {
     readonly id: number;
     readonly name: string;
-    readonly points: Number;
+    readonly points: number;
     readonly html_url: string;
     readonly is_quiz_assignment: boolean;
     

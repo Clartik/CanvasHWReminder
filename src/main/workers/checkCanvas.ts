@@ -5,7 +5,6 @@ import { FetchError } from 'node-fetch';
 import WorkerResult from '../interfaces/workerResult';
 
 import { ClassData } from "../../shared/interfaces/classData";
-import SettingsData from "../../shared/interfaces/settingsData";
 
 import * as CanvasUtil from '../util/canvasUtil';
 import CheckCanvasParams from '../interfaces/checkCanvasParams';

@@ -19,9 +19,6 @@ const infoWidgetContainer = document.getElementById('info-widget-container')! as
 
 const infoWarnWidget = document.getElementById('information-warning-container')! as HTMLDivElement;
 
-// Shared constants file fills the variable
-const SETTINGS_DATA_VERSION: string = '0.4';
-
 canvasBaseURLInput.addEventListener('input', checkIfConnectBtnCanBeEnabled);
 canvasAPITokenInput.addEventListener('input', checkIfConnectBtnCanBeEnabled);
 
@@ -73,15 +70,17 @@ connectBtn.addEventListener('click', async () => {
         postConnectBtnClick();
 
         switch (result.error) {  
-            case 'INVALID CANVAS CREDENTIALS':
+            case 'INVALID CANVAS CREDENTIALS': {
                 const infoWidgetInvalidCredentials = createInfoWidget(INFO_WIDGET_TEMPLATE_CANVAS_INCORRECT_LOGIN);
                 infoWidgetContainer.appendChild(infoWidgetInvalidCredentials);
                 return;
+            }
                 
-            default:
+            default: {
                 const infoWidgetError = createInfoWidget(INFO_WIDGET_TEMPLATE_ERROR);
                 infoWidgetContainer.appendChild(infoWidgetError);
                 return;
+            }
         }
     }
     
@@ -139,7 +138,7 @@ function isValidCanvasUrl(url: string): boolean {
 }
 
 function isValidUrl(url: string) {
-    var urlPattern = new RegExp(
+    const urlPattern = new RegExp(
         '^(https?:\\/\\/)?' + // validate protocol
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
         '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address

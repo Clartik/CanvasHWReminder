@@ -1,4 +1,4 @@
-import { ipcMain, dialog, BrowserWindow, app } from "electron";
+import { ipcMain, dialog, BrowserWindow } from "electron";
 
 import AppInfo from "../interfaces/appInfo";
 import DebugMode from "../../shared/interfaces/debugMode";
@@ -41,9 +41,9 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 		}
 	});
 
-	ipcMain.on('sendAppStatus', (event, status: string, data: Object | null) => {
+	ipcMain.on('sendAppStatus', (event, status: string, data: object | null) => {
 		switch (status) {
-			case 'SETUP COMPLETE':
+			case 'SETUP COMPLETE': {
 				appStatus.isSetupNeeded = false;
 
 				const settingsData = data as SettingsData;
@@ -54,6 +54,7 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
 				appMain();
 				break;
+			}
 		
 			default:
 				break;

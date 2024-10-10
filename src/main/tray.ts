@@ -1,12 +1,7 @@
-import { promisify } from 'util'
-
 import { app as electronApp, Tray, nativeImage, Menu } from 'electron';
 
 import AppInfo from './interfaces/appInfo';
-import DebugMode from 'src/shared/interfaces/debugMode';
 import { launchMainWindowWithCorrectPage, outputAppLog } from './main';
-
-const sleep = promisify(setTimeout);
 
 function showApp(appInfo: AppInfo) {
 	if (!appInfo.isMainWindowHidden)
@@ -24,7 +19,7 @@ function quitApp(appInfo: AppInfo) {
 	electronApp.quit();
 }
 
-function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
+function createSystemTray(appInfo: AppInfo): Tray {
 	const iconPath: string = './assets/images/icon.ico';
 	let trayTitle: string;
 

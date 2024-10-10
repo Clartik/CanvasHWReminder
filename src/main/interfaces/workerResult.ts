@@ -1,5 +1,5 @@
 interface WorkerResult {
-    readonly data: Object | null;
+    readonly data: object | null;
     readonly error: string | null;
 }
 
