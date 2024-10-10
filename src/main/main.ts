@@ -47,6 +47,8 @@ dotenv.config({ path: envFilepath });
 
 console.log(`Node Environment: ` + environment);
 
+electronLog.errorHandler.startCatching();
+
 const debugMode: DebugMode = {
 	active: process.env.DEBUG_MODE === 'true',
 	useLocalClassData: process.env.DEBUG_USE_LOCAL_CLASS_DATA === 'true',
@@ -100,7 +102,7 @@ let checkCanvasWorker: Worker | null = null;
 let waitForNotificationWorker: Worker | null = null;
 
 electronLog.transports.file.level = 'info';
-electronLog.transports.file.fileName = 'Main.log';
+electronLog.transports.file.fileName = 'main.log';
 
 createElectronApp();
 handleIPCRequests(appInfo, appStatus, debugMode);
@@ -340,8 +342,8 @@ function launchMainWindowWithCorrectPage() {
 	if (appStatus.isSetupNeeded)
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 	else
-		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
-	// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/setupConfigure.html');
+		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
+		// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 }
 
 async function updateClassData(classData: ClassData | null) {
