@@ -1,8 +1,5 @@
 interface SettingsData {
-    readonly version: string;
-
-    // readonly canvasBaseURL: string;
-    // readonly canvasAPIToken: string;
+    version: string;
 
     readonly whenToRemindTimeValue: string;
     readonly whenToRemindFormatValue: string;
@@ -15,6 +12,9 @@ interface SettingsData {
 
     readonly showExactDueDate: boolean;
     readonly alwaysExpandAllCourseCards: boolean;
+
+    readonly silenceNotifications: boolean;
+    readonly keepNotificationsOnScreen: boolean;
 }
 
 export default SettingsData;

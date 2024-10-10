@@ -968,9 +968,6 @@ input:checked + .slider:before {
     transform: scale(1.1);
 }
 
-#credits-author-label {
-}
-
 @media (min-width: 900px) {
     #class-container {
         grid-template-columns: repeat(4, minmax(0, 1fr));

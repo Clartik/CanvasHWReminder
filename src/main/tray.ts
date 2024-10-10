@@ -24,13 +24,6 @@ function quitApp(appInfo: AppInfo) {
 	electronApp.quit();
 }
 
-async function emulateDownload(appInfo: AppInfo) {
-	for (let i = 0; i < 10; i++) {
-		appInfo.mainWindow?.webContents.send('sendDownloadProgress', 'in-progress', i * 10)
-		await sleep(1000);
-	}
-}
-
 function createSystemTray(appInfo: AppInfo, debugMode: DebugMode): Tray {
 	const iconPath: string = './assets/images/icon.ico';
 	let trayTitle: string;

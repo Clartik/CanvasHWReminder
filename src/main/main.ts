@@ -295,6 +295,17 @@ async function appMain() {
 		await sleep(100);
 	}
 
+	if (appInfo.settingsData.launchOnStart) {
+		const loginItemSettings: Electron.LoginItemSettings = app.getLoginItemSettings();
+
+		if (!loginItemSettings.openAtLogin) {
+			console.log('[Main]: Re-Configured App to Launch on System Bootup');
+			app.setLoginItemSettings({
+				openAtLogin: true
+			})
+		}
+	}
+
 	while (appInfo.isRunning) {
 		if (!net.isOnline() && appStatus.isOnline) {
 			console.log('[Main]: No Internet!');
@@ -327,7 +338,7 @@ function launchMainWindowWithCorrectPage() {
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 	else
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
-		// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/setupBaseURL.html');
+	// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/setupConfigure.html');
 }
 
 async function updateClassData(classData: ClassData | null) {
@@ -416,9 +427,16 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 	const notificationTitle = `${nextAssignment.name} is ${timeTillDueDate}!`;
 
 	if (process.platform === 'win32') {
+		let reminderScenario: string;
+
+		if (appInfo.settingsData?.keepNotificationsOnScreen)
+			reminderScenario = `scenario="reminder"`;
+		else
+			reminderScenario = ``;
+
 		const notification = new Notification({
 			toastXml: `
-			<toast scenario="reminder" launch="canvas-hw-reminder:action=navigate?key=value" activationType="protocol">
+			<toast ${reminderScenario} launch="canvas-hw-reminder:action=navigate?key=value" activationType="protocol">
 				<visual>
 					<binding template="ToastGeneric">
 						<image placement="appLogoOverride" hint-crop="circle" src="${iconAbsPath}"/>
@@ -442,6 +460,7 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 						arguments="canvas-hw-reminder:action=dismiss"
 						activationType="protocol"/>
 				</actions>
+				<audio silent='${appInfo.settingsData?.silenceNotifications}' />
 			</toast>`
 		});	
 
@@ -451,7 +470,8 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 		const notification = new Notification({
 			title: notificationTitle,
 			body: 'Click on the Notification to Head to the Posting',
-			icon: iconRelativePath
+			icon: iconRelativePath,
+			silent: appInfo.settingsData?.silenceNotifications
 		})
 
 		notification.addListener('click', () => openLink(nextAssignment.html_url));

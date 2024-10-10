@@ -1,4 +1,3 @@
-import DebugMode from "../shared/interfaces/debugMode";
 import SettingsData from "../shared/interfaces/settingsData";
 
 const backBtnAnchor = document.getElementById('home-link')! as HTMLAnchorElement;
@@ -19,6 +18,9 @@ const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-check
 const showExactDueDateCheckbox = document.getElementById('show-exact-due-date-checkbox')! as HTMLInputElement;
 const alwaysExpandAllCourseCardsCheckbox = document.getElementById('always-expand-course-cards-checkbox')! as HTMLInputElement;
 
+const silenceNotificationsCheckbox = document.getElementById('silence-notifications-checkbox')! as HTMLInputElement;
+const keepNotificationsOnScreenCheckbox = document.getElementById('keep-notifications-on-screen-checkbox')! as HTMLInputElement;
+
 const howLongPastDueTimeDropdown = document.getElementById('how-long-past-due-time-dropdown')! as HTMLSelectElement;
 const howLongPastDueFormatDropdown = document.getElementById('how-long-past-due-format-dropdown')! as HTMLSelectElement;
 
@@ -26,9 +28,7 @@ const changeableElements = document.getElementsByClassName('changeable');
 
 const creditsLinkBtn = document.getElementById('credits-link-btn') as HTMLButtonElement;
 
-let settingsPageDebugMode: DebugMode;
-
-const SETTINGS_DATA_VERSION: string = '0.3';
+const SETTINGS_DATA_VERSION: string = '0.4';
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
@@ -41,8 +41,6 @@ let hasSettingsChanged = false;
 settingsMain();
 
 async function settingsMain() {
-    settingsPageDebugMode = await window.api.getDebugMode() as DebugMode;
-
     populateTimeOptions();
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
     populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
@@ -58,6 +56,48 @@ async function settingsMain() {
 }
 
 //#region Event Handlers
+
+launchOnStartCheckbox.addEventListener('click', async (event) => {
+    if (launchOnStartCheckbox.checked)
+        return;
+
+    event.preventDefault();
+
+    const NO_BUTTON_RESPONSE: number = 1;
+
+    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+        type: "warning",
+        title: "Are you sure?",
+        message: `Are you sure you want to disable "Launch on system bootup"?\nThis prevents Canvas HW Reminder from reminding you until you launch the app.`,
+        buttons: ['Yes', 'No']
+    })
+
+    if (response.response === NO_BUTTON_RESPONSE)
+        return;
+
+    launchOnStartCheckbox.checked = false;
+})
+
+minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
+    if (minimizeOnCloseCheckbox.checked)
+        return;
+
+    event.preventDefault();
+
+    const NO_BUTTON_RESPONSE: number = 1;
+
+    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+        type: "warning",
+        title: "Are you sure?",
+        message: `Are you sure you want to disable "Minimize on app close"?\nThis prevents Canvas HW Reminder from reminding you until you re-launch the app.`,
+        buttons: ['Yes', 'No']
+    })
+
+    if (response.response === NO_BUTTON_RESPONSE)
+        return;
+
+    minimizeOnCloseCheckbox.checked = false;
+})
 
 creditsLinkBtn.addEventListener('click', () => {
     window.location.href = './credits.html';
@@ -159,6 +199,9 @@ function populateElementsWithData(settingsData: SettingsData) {
     showExactDueDateCheckbox.checked = settingsData.showExactDueDate;
     alwaysExpandAllCourseCardsCheckbox.checked = settingsData.alwaysExpandAllCourseCards;
 
+    silenceNotificationsCheckbox.checked = settingsData.silenceNotifications;
+    keepNotificationsOnScreenCheckbox.checked = settingsData.keepNotificationsOnScreen;
+
     whenToRemindFormatDropdown.value = settingsData.whenToRemindFormatValue;
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
     whenToRemindTimeDropdown.value = settingsData.whenToRemindTimeValue;
@@ -191,7 +234,10 @@ function getSettingsDataToSave(): SettingsData {
         minimizeOnClose: minimizeOnCloseCheckbox.checked,
 
         showExactDueDate: showExactDueDateCheckbox.checked,
-        alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked
+        alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked,
+
+        silenceNotifications: silenceNotificationsCheckbox.checked,
+        keepNotificationsOnScreen: keepNotificationsOnScreenCheckbox.checked
     };
 }
 

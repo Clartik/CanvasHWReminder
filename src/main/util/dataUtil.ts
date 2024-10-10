@@ -5,7 +5,7 @@ import DebugMode from "../../shared/interfaces/debugMode";
 
 import { Assignment, ClassData } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
-import { APP_NAME, FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON } from "../../shared/constants";
+import { APP_NAME, FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON, FILENAME_SETTINGS_DATA_JSON } from "../../shared/constants";
 
 import * as CanvasUtil from './canvasUtil'
 
@@ -15,6 +15,27 @@ import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION } from '../../shared/co
 import SaveManager from './saveManager';
 import { app } from 'electron';
 import AssignmentsDontRemindData from '../interfaces/assignmentsDontRemind';
+
+function getDefaultSettingsData(): SettingsData {
+	return {
+		version: SETTINGS_DATA_VERSION,
+
+        whenToRemindTimeValue: '6',
+        whenToRemindFormatValue: 'hour',
+        howLongPastDueTimeValue: '1',
+        howLongPastDueFormatValue: 'hour',
+
+        launchOnStart: true,
+        minimizeOnLaunch: true,
+        minimizeOnClose: true,
+
+        showExactDueDate: false,
+        alwaysExpandAllCourseCards: false,
+
+        silenceNotifications: false,
+        keepNotificationsOnScreen: true
+	}
+}
 
 async function getSecureText(key: string): Promise<string | null> {
 	return await keytar.getPassword(APP_NAME, key);
@@ -34,8 +55,12 @@ async function getSavedSettingsData(): Promise<SettingsData | null> {
 	try {
 		const savedSettingsData = await SaveManager.getSavedData('settings-data.json') as SettingsData;
 
-		if (savedSettingsData.version < SETTINGS_DATA_VERSION)
-			console.warn('[Main]: Saved Settings Has Old Version!')
+		if (savedSettingsData.version < SETTINGS_DATA_VERSION) {
+			console.warn(`[Main]: Saved Settings Has Old Version! (${savedSettingsData.version})`)
+
+			const upgradedSettingsData = await upgradeSettingsData(savedSettingsData);
+			return upgradedSettingsData;
+		}
 
 		console.log('[Main]: Cached Settings Data is Updated!');
 		
@@ -44,6 +69,18 @@ async function getSavedSettingsData(): Promise<SettingsData | null> {
 		console.error('[Main]: Could Not Retrieve Saved SettingsData: ' + error);
 		return null;
 	}
+}
+
+async function upgradeSettingsData(savedSettingsData: SettingsData): Promise<SettingsData> {
+	const defaultSettingsData: SettingsData = getDefaultSettingsData();
+
+	let upgradedSettingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
+	upgradedSettingsData.version = SETTINGS_DATA_VERSION;
+
+	console.log(`[Main]: Upgraded Saved Settings Data to Latest Version! (${upgradedSettingsData.version})`);
+	await SaveManager.writeSavedData(FILENAME_SETTINGS_DATA_JSON, upgradedSettingsData);
+
+	return upgradedSettingsData;
 }
 
 async function getAssignmentsNotToRemindData(): Promise<Assignment[]> {

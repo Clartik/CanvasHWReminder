@@ -13,13 +13,16 @@ const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-check
 const showExactDueDateCheckbox = document.getElementById('show-exact-due-date-checkbox')! as HTMLInputElement;
 const alwaysExpandAllCourseCardsCheckbox = document.getElementById('always-expand-course-cards-checkbox')! as HTMLInputElement;
 
+const silenceNotificationsCheckbox = document.getElementById('silence-notifications-checkbox')! as HTMLInputElement;
+const keepNotificationsOnScreenCheckbox = document.getElementById('keep-notifications-on-screen-checkbox')! as HTMLInputElement;
+
 const doneBtn = document.getElementById('done-btn')! as HTMLButtonElement;
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
 const MINUTE_TIME_OPTIONS: Array<string> = [];
 
-const SETTINGS_DATA_VERSION: string = '0.3';
+const SETTINGS_DATA_VERSION: string = '0.4';
 
 const LOADING_SPINNER_TEMPLATE = `
     <img id="setup-spinner" src="../assets/svg/spinner.svg" width="25px">
@@ -42,6 +45,48 @@ async function setupSettingsMain() {
 }
 
 //#region Event Listeners
+
+launchOnStartCheckbox.addEventListener('click', async (event) => {
+    if (launchOnStartCheckbox.checked)
+        return;
+
+    event.preventDefault();
+
+    const NO_BUTTON_RESPONSE: number = 1;
+
+    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+        type: "warning",
+        title: "Are you sure?",
+        message: `Are you sure you want to disable "Launch on system bootup"?\nThis prevents Canvas HW Reminder from reminding you until you launch the app.`,
+        buttons: ['Yes', 'No']
+    })
+
+    if (response.response === NO_BUTTON_RESPONSE)
+        return;
+
+    launchOnStartCheckbox.checked = false;
+})
+
+minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
+    if (minimizeOnCloseCheckbox.checked)
+        return;
+
+    event.preventDefault();
+
+    const NO_BUTTON_RESPONSE: number = 1;
+
+    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+        type: "warning",
+        title: "Are you sure?",
+        message: `Are you sure you want to disable "Minimize on app close"?\nThis prevents Canvas HW Reminder from reminding you until you re-launch the app.`,
+        buttons: ['Yes', 'No']
+    })
+
+    if (response.response === NO_BUTTON_RESPONSE)
+        return;
+
+    minimizeOnCloseCheckbox.checked = false;
+})
 
 whenToRemindFormatDropdown.addEventListener('change', (event: Event) => {
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
@@ -157,14 +202,13 @@ function setDefaultSettings() {
     launchOnStartCheckbox.checked = true;
     minimizeOnLaunchCheckbox.checked = true;
     minimizeOnCloseCheckbox.checked = true;
+
+    keepNotificationsOnScreenCheckbox.checked = true;
 }
 
 function getSettingsDataToSave(): SettingsData {
     return {
         version: SETTINGS_DATA_VERSION,
-
-        // canvasBaseURL: canvasBaseURL,
-        // canvasAPIToken: canvasAPIToken,
 
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,
@@ -176,7 +220,10 @@ function getSettingsDataToSave(): SettingsData {
         minimizeOnClose: minimizeOnCloseCheckbox.checked,
 
         showExactDueDate: showExactDueDateCheckbox.checked,
-        alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked
+        alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked,
+
+        silenceNotifications: silenceNotificationsCheckbox.checked,
+        keepNotificationsOnScreen: keepNotificationsOnScreenCheckbox.checked
     };
 }
 
