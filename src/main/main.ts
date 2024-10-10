@@ -133,8 +133,10 @@ function createElectronApp() {
 	app.on('second-instance', (event, argv) => {
 		const protocolUrl = argv.find((arg) => arg.startsWith('canvas-hw-reminder:'));
 		
-		if (protocolUrl)
+		if (protocolUrl) {
 			handleURLProtocol(protocolUrl);
+			return;
+		}
 
 		if (appInfo.mainWindow) {
 			if (appInfo.mainWindow.isMinimizable())

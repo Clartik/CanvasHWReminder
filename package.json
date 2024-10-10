@@ -12,6 +12,7 @@
   "main": "./build/main/main.js",
   "scripts": {
     "watch": "npx tsc -w",
+    "lint": "eslint",
     "build": "npx tsc",
     "start": "npm run build && cross-env NODE_ENV=dev electron .",
     "start:beta": "npm run build && cross-env NODE_ENV=beta electron .",

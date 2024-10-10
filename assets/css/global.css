@@ -140,11 +140,16 @@ h3 {
     background-color: var(--primary-color);
     will-change: transform;
 
-    transition: transform 0.1s;
+    transition: transform 0.1s, background-color 0.1s;
 }
 
 #website-btn:hover {
+    background-color: var(--primary-color-hover);
     transform: scale(1.05);
+}
+
+.bold {
+    font-family: "Poppins Bold";
 }
 
 #is-this-you-label {
@@ -961,10 +966,11 @@ input:checked + .slider:before {
     background-color: var(--primary-color);
     will-change: transform;
 
-    transition: 0.1s transform;
+    transition: 0.1s transform, background-color 0.1s;
 }
 
 #credits-link-btn:hover {
+    background-color: var(--primary-color-hover);
     transform: scale(1.1);
 }
 
