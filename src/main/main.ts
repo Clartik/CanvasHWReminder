@@ -416,9 +416,16 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 	const notificationTitle = `${nextAssignment.name} is ${timeTillDueDate}!`;
 
 	if (process.platform === 'win32') {
+		let reminderScenario: string;
+
+		if (appInfo.settingsData?.keepNotificationsOnScreen)
+			reminderScenario = `scenario="reminder"`;
+		else
+			reminderScenario = ``;
+
 		const notification = new Notification({
 			toastXml: `
-			<toast scenario="reminder" launch="canvas-hw-reminder:action=navigate?key=value" activationType="protocol">
+			<toast ${reminderScenario} launch="canvas-hw-reminder:action=navigate?key=value" activationType="protocol">
 				<visual>
 					<binding template="ToastGeneric">
 						<image placement="appLogoOverride" hint-crop="circle" src="${iconAbsPath}"/>
