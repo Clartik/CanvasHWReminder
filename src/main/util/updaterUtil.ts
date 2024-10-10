@@ -4,7 +4,7 @@ async function showDownloadAvailableDialog(): Promise<Electron.MessageBoxReturnV
     const response: Electron.MessageBoxReturnValue = await dialog.showMessageBox({
 		type: "info",
 		title: "Update Available",
-		message: "A new version of Canvas HW Reminder is available. Do you want to download now?",
+		message: "A new version of Canvas HW Reminder is available.\nDo you want to download now?",
 		buttons: ['Yes', 'No']
 	});
 
@@ -15,7 +15,7 @@ async function showDownloadCompleteDialog(): Promise<Electron.MessageBoxReturnVa
     const response: Electron.MessageBoxReturnValue = await dialog.showMessageBox({
 		type: "info",
 		title: "Update Ready",
-		message: "The update has downloaded. Would you like to restart the app to apply changes?",
+		message: "The update has downloaded.\nWould you like to restart the app to apply changes?",
         buttons: ['Yes', 'No']
 	});
 
@@ -26,7 +26,7 @@ async function showDownloadFailedDialog(): Promise<Electron.MessageBoxReturnValu
 	const response = await dialog.showMessageBox({
 		type: "error",
 		title: "Download Failed",
-		message: "Failed to download update. Would you like to try again?",
+		message: "Failed to download update.\nWould you like to try again?",
 		buttons: ['Yes', 'No']
 	});
 

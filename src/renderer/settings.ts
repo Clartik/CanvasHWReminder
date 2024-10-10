@@ -57,6 +57,48 @@ async function settingsMain() {
 
 //#region Event Handlers
 
+launchOnStartCheckbox.addEventListener('click', async (event) => {
+    if (launchOnStartCheckbox.checked)
+        return;
+
+    event.preventDefault();
+
+    const NO_BUTTON_RESPONSE: number = 1;
+
+    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+        type: "warning",
+        title: "Are you sure?",
+        message: `Are you sure you want to disable "Launch on system bootup"?\nThis prevents Canvas HW Reminder from reminding you until you launch the app.`,
+        buttons: ['Yes', 'No']
+    })
+
+    if (response.response === NO_BUTTON_RESPONSE)
+        return;
+
+    launchOnStartCheckbox.checked = false;
+})
+
+minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
+    if (minimizeOnCloseCheckbox.checked)
+        return;
+
+    event.preventDefault();
+
+    const NO_BUTTON_RESPONSE: number = 1;
+
+    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+        type: "warning",
+        title: "Are you sure?",
+        message: `Are you sure you want to disable "Minimize on app close"?\nThis prevents Canvas HW Reminder from reminding you until you re-launch the app.`,
+        buttons: ['Yes', 'No']
+    })
+
+    if (response.response === NO_BUTTON_RESPONSE)
+        return;
+
+    minimizeOnCloseCheckbox.checked = false;
+})
+
 creditsLinkBtn.addEventListener('click', () => {
     window.location.href = './credits.html';
 })
