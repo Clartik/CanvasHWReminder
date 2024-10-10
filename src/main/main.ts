@@ -295,6 +295,17 @@ async function appMain() {
 		await sleep(100);
 	}
 
+	if (appInfo.settingsData.launchOnStart) {
+		const loginItemSettings: Electron.LoginItemSettings = app.getLoginItemSettings();
+
+		if (!loginItemSettings.openAtLogin) {
+			console.log('[Main]: Re-Configured App to Launch on System Bootup');
+			app.setLoginItemSettings({
+				openAtLogin: true
+			})
+		}
+	}
+
 	while (appInfo.isRunning) {
 		if (!net.isOnline() && appStatus.isOnline) {
 			console.log('[Main]: No Internet!');
