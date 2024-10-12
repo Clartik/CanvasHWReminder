@@ -1,7 +1,7 @@
 {
   "name": "canvas-hw-reminder",
   "productName": "Canvas HW Reminder",
-  "version": "0.7.1-beta.1",
+  "version": "0.7.1-beta.2",
   "description": "Canvas HW Reminder",
   "author": "Clartik",
   "license": "ISC",
@@ -52,7 +52,12 @@
     },
     "generateUpdatesFilesForAllChannels": true,
     "win": {
-      "extraFiles": "./assets/images/icon.ico",
+      "extraResources": [
+        {
+          "from": "./assets/images/icon.ico",
+          "to": "icon.ico"
+        }
+      ],
       "artifactName": "Canvas-HW-Reminder-Setup.${ext}",
       "icon": "./assets/images/icon.ico",
       "publish": [
@@ -66,8 +71,7 @@
     "nsis": {
       "installerIcon": "./assets/images/icon.ico",
       "artifactName": "Canvas-HW-Reminder-Setup-${version}.${ext}",
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "oneClick": false
     }
   }
 }

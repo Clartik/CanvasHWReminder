@@ -4,6 +4,7 @@ import { BrowserWindow } from "electron";
 
 import AppInfo from "./interfaces/appInfo";
 import DebugMode from 'src/shared/interfaces/debugMode';
+import { getIconPath } from './util/misc';
 
 function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: string): BrowserWindow {
 	const mainWindow = new BrowserWindow({
@@ -12,7 +13,7 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 		minWidth: 710,
 		autoHideMenuBar: true,
 		show: true,
-		icon: path.join(__dirname, '../../assets/images/icon.ico'),
+		icon: getIconPath(appInfo),
 		webPreferences: {
 			preload: path.join(__baseDir, '../preload/preload.js'),
 			nodeIntegration: true,

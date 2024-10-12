@@ -32,7 +32,7 @@ import { FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON, FILENAME_CLASS_DATA_JSON } 
 
 import SaveManager from './util/saveManager';
 
-import { openLink } from "./util/misc";
+import { getIconPath, openLink } from "./util/misc";
 import AssignmentsDontRemindData from './interfaces/assignmentsDontRemind';
 
 const sleep = promisify(setTimeout);
@@ -300,7 +300,7 @@ async function appMain() {
 		await sleep(100);
 	}
 
-	if (appInfo.settingsData.launchOnStart) {
+	if (appInfo.settingsData.launchOnStart && !appInfo.isDevelopment) {
 		const loginItemSettings: Electron.LoginItemSettings = app.getLoginItemSettings();
 
 		if (!loginItemSettings.openAtLogin) {
@@ -342,8 +342,8 @@ function launchMainWindowWithCorrectPage() {
 	if (appStatus.isSetupNeeded)
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 	else
-		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
-		// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+		// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 }
 
 async function updateClassData(classData: ClassData | null) {
@@ -419,7 +419,7 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 
 	const exactDueDate: string = CourseUtil.getExactDueDate(currentDate, nextAssignmentDueDate);
 
-	const iconRelativePath: string = './assets/images/icon.ico';
+	const iconRelativePath: string = getIconPath(appInfo);
 
 	let iconAbsPath: string;
 
