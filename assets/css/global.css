@@ -848,6 +848,12 @@ input:checked + .slider:before {
     text-align: center;
     flex-grow: 1;
     text-shadow: 5px 5px 5px var(--shadow-color);
+
+    /* filter: drop-shadow(1px 3px 10px black);
+
+    background-image: linear-gradient(to right, rgb(255, 149, 149), rgb(255, 62, 62));
+    background-clip: text;
+    -webkit-text-fill-color: transparent; */
 }
 
 #class-container {

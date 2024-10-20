@@ -1,7 +1,7 @@
 {
   "name": "canvas-hw-reminder",
   "productName": "Canvas HW Reminder",
-  "version": "0.7.1-beta.2",
+  "version": "0.8.0-beta.1",
   "description": "Canvas HW Reminder",
   "author": "Clartik",
   "license": "ISC",
@@ -18,8 +18,8 @@
     "start:beta": "npm run build && cross-env NODE_ENV=beta electron .",
     "start:prod": "npm run build && cross-env NODE_ENV=prod electron .",
     "package": "npm run build && cross-env NODE_ENV=dev electron-builder --dir",
-    "make:beta": "npm run build && cross-env NODE_ENV=beta electron-builder",
-    "make:prod": "npm run build && cross-env NODE_ENV=prod electron-builder"
+    "make:beta": "npm run build && npm run lint && cross-env NODE_ENV=beta electron-builder",
+    "make:prod": "npm run build && npm run lint && cross-env NODE_ENV=prod electron-builder"
   },
   "devDependencies": {
     "@electron/fuses": "^1.8.0",

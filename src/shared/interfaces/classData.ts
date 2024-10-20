@@ -14,6 +14,7 @@ interface Assignment {
     readonly points: number;
     readonly html_url: string;
     readonly is_quiz_assignment: boolean;
+    readonly has_submitted_submissions: boolean;
     
     readonly due_at: string | null;
     readonly unlock_at: string | null;

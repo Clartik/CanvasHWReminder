@@ -23,6 +23,7 @@ interface AssignmentData {
     readonly due_date_required: boolean;
     readonly is_quiz_assignment: boolean;
     readonly html_url: string;
+    readonly has_submitted_submissions: boolean;
 }
 
 class Canvas {
@@ -102,7 +103,9 @@ class Course {
             params.append('order_by', order_by);
 
         const url = this.baseURL + `courses/${this.id}/assignments?` + params.toString();
-        return await getAPI(url, this.accessToken) as AssignmentData[];
+
+        const assignmentObject: Object = await getAPI(url, this.accessToken);
+        return assignmentObject as AssignmentData[];
     }
 }
 

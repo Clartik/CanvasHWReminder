@@ -426,7 +426,7 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 	if (appInfo.isDevelopment)
 		iconAbsPath = path.join(__dirname, `../../${iconRelativePath}`);
 	else {
-		iconAbsPath = path.join(__dirname, `../../../../${iconRelativePath}`);
+		iconAbsPath = iconRelativePath;
 	}
 
 	const notificationTitle = `${nextAssignment.name} is ${timeTillDueDate}!`;
