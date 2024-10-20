@@ -418,42 +418,51 @@ function populateClassItemWithData(classes: Array<Class>): void {
             const assignmentElement = createAssignmentElement();
             classBoxes[classIndex].append(assignmentElement);
 
-            // Populating Assignment Element With Data
-            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
-
             const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
-            assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
-
-            if (timeTillDueDate !== 'Overdue') {
-                assignmentElement.title = '';
-
-                const assignmentElementThatIsDue: AssignmentElementThatIsDue = {
-                    assignment: assignment,
-                    label: assignmentLabel
-                };
-                
-                assignmentElementsThatAreDue.push(assignmentElementThatIsDue);
-            }
 
             const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
             assignmentButton.addEventListener('click', () => {
                 window.api.openLink(assignment.html_url);
             })
 
-            const isAssignmentOverdue = timeTillDueDate === 'Overdue';
+            if (assignment.has_submitted_submissions) {
+                assignmentLabel.innerHTML = assignment.name + ' - Submitted'
 
-            if (!isAssignmentOverdue) {
                 assignmentButton.classList.remove('hide');
+                
+                assignmentElement.classList.add('complete');
+                assignmentButton.classList.add('complete');
+            }
+            else {
+                const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
+                assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
+
+                if (timeTillDueDate !== 'Overdue') {
+                    assignmentElement.title = '';
+    
+                    const assignmentElementThatIsDue: AssignmentElementThatIsDue = {
+                        assignment: assignment,
+                        label: assignmentLabel
+                    };
                     
-                classHeaders[classIndex].classList.add('active');
-                classBoxes[classIndex].classList.remove('collapse');
-            }
+                    assignmentElementsThatAreDue.push(assignmentElementThatIsDue);
+                }
 
-            if (assignmentElementsNotToRemind.includes(assignmentElement)) {
-                assignmentElement.classList.add('dont-remind');
-            }
+                const isAssignmentOverdue = timeTillDueDate === 'Overdue';
 
-            addRightClickToUnremind(assignmentElement, assignment);
+                if (!isAssignmentOverdue) {
+                    assignmentButton.classList.remove('hide');
+                        
+                    classHeaders[classIndex].classList.add('active');
+                    classBoxes[classIndex].classList.remove('collapse');
+                }
+
+                if (assignmentElementsNotToRemind.includes(assignmentElement)) {
+                    assignmentElement.classList.add('dont-remind');
+                }
+
+                addRightClickToUnremind(assignmentElement, assignment);
+            }
         }
 
         if (currentClass.assignments.length === 0) {

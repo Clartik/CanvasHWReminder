@@ -23,6 +23,9 @@
     --accent-color-hover: hsl(0, 100%, 40%);
     --accent-color-press: hsl(0, 100%, 30%);
 
+    --complete-color: hsl(146, 88%, 25%);
+    --complete-color-press: hsl(120, 100%, 14%);
+
     --primary-color: rgb(43, 81, 125);
     --primary-color-hover: hsl(212, 49%, 25%);
     --primary-color-press: hsl(212, 49%, 18%);
@@ -549,6 +552,10 @@ select:hover {
     transition: background-color 0.1s ease;
 }
 
+.assignment-item.complete {
+    color: var(--complete-color);
+}
+
 .assignment-item:hover {
     background-color: var(--secondary-color-hover);
 }
@@ -571,19 +578,22 @@ select:hover {
 }
 
 .assignment-btn {
-    text-align: center;
     padding: 3px 6px;
+    
     margin-left: -2px;
     margin-top: 2px;
     margin-bottom: 2px;
+    
+    text-align: center;
     border-radius: 7px;
+    box-shadow: none;
+
     background-color: var(--accent-color);
     color: var(--text-color);
     font-family: 'Poppins Regular';
     border: 3px solid var(--primary-color);
+    
     transition: transform ease 0.1s, box-shadow 0.2s ease;
-
-    box-shadow: none;
 }
 
 .assignment-btn:hover {
@@ -592,6 +602,14 @@ select:hover {
 
 .assignment-btn:active {
     background-color: var(--accent-color-press);
+}
+
+.assignment-btn.complete {
+    background-color: var(--complete-color);
+}
+
+.assignment-btn.complete:active {
+    background-color: var(--complete-color-press);
 }
 
 #setup-base-url-container {
@@ -603,7 +621,6 @@ select:hover {
     justify-items: center;
     align-items: center;
     min-width: fit-content;
-    /* box-shadow: 1px 3px 15px var(--shadow-color); */
 }
 
 #setup-settings-container {
