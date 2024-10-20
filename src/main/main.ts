@@ -140,14 +140,7 @@ function createElectronApp() {
 			return;
 		}
 
-		if (appInfo.mainWindow) {
-			if (appInfo.mainWindow.isMinimizable())
-				appInfo.mainWindow.restore();
-
-			appInfo.mainWindow.focus();
-		}
-		else
-			launchMainWindowWithCorrectPage();
+		launchApp();
 	})
 
 	app.whenReady().then(async () => {
@@ -441,7 +434,7 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 
 		const notification = new Notification({
 			toastXml: `
-			<toast ${reminderScenario} launch="canvas-hw-reminder:action=navigate?key=value" activationType="protocol">
+			<toast ${reminderScenario} launch="canvas-hw-reminder:action=open-app" activationType="protocol">
 				<visual>
 					<binding template="ToastGeneric">
 						<image placement="appLogoOverride" hint-crop="circle" src="${iconAbsPath}"/>
@@ -490,6 +483,13 @@ function handleURLProtocol(url: string) {
 	const action: string = parsedURL.pathname.split('action=')[1];
 
 	switch (action) {
+		case 'open-app': {
+			console.log('[Notification]: Launching App');
+			
+			launchApp();
+			break;
+		}
+
 		case 'see-post':
 			if (!appInfo.nextAssignment)
 				return;
@@ -669,6 +669,17 @@ async function outputAppLog() {
 		const appLogFilePath: string = SaveManager.getSavePath('app-log.json');
 		shell.showItemInFolder(appLogFilePath);
 	}
+}
+
+function launchApp() {
+	if (appInfo.mainWindow) {
+		if (appInfo.mainWindow.isMinimizable())
+			appInfo.mainWindow.restore();
+
+		appInfo.mainWindow.focus();
+	}
+	else
+		launchMainWindowWithCorrectPage();
 }
 
 // #endregion
