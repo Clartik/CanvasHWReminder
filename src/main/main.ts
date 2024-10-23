@@ -39,9 +39,9 @@ const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
-const environment: string = process.env.NODE_ENV || 'dev';
+const environment: string = process.env.NODE_ENV || 'prod';
 
-const envFilepath = path.resolve(__dirname + `../../../.env.${environment}`);
+const envFilepath = !app.isPackaged ? path.resolve(__dirname + `../../../.env.${environment}`) : path.resolve(process.resourcesPath, `.env.${environment}`);
 
 dotenv.config({ path: envFilepath });
 
@@ -63,7 +63,7 @@ if (!debugMode.active) {
 }
 
 const appInfo: AppInfo = {
-	isDevelopment: process.env.APP_ENV === 'dev',
+	isDevelopment: process.env.NODE_ENV === 'dev',
 
 	isRunning: true,
 	isMainWindowLoaded: false,
@@ -144,17 +144,8 @@ function createElectronApp() {
 	})
 
 	app.whenReady().then(async () => {
-		autoUpdater.setFeedURL({
-			provider: "github",
-			owner: "Clartik",
-			repo: "CanvasHWReminder",
-		  });
-
 		autoUpdater.autoDownload = false;
-		// autoUpdater.channel = process.env.RELEASE_CHANNEL || 'latest';
-
-		if (process.env.RELEASE_CHANNEL === 'alpha' || process.env.RELEASE_CHANNEL === 'beta')
-			autoUpdater.allowPrerelease = true;
+		autoUpdater.channel = process.env.RELEASE_CHANNEL || 'latest';
 
 		autoUpdater.logger = electronLog;
 		autoUpdater.checkForUpdatesAndNotify();

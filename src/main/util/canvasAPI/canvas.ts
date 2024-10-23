@@ -104,7 +104,7 @@ class Course {
 
         const url = this.baseURL + `courses/${this.id}/assignments?` + params.toString();
 
-        const assignmentObject: Object = await getAPI(url, this.accessToken);
+        const assignmentObject: object = await getAPI(url, this.accessToken);
         return assignmentObject as AssignmentData[];
     }
 }

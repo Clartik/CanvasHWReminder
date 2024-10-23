@@ -14,12 +14,11 @@
     "watch": "npx tsc -w",
     "lint": "eslint",
     "build": "npx tsc",
+
     "start": "npm run build && cross-env NODE_ENV=dev electron .",
-    "start:beta": "npm run build && cross-env NODE_ENV=beta electron .",
     "start:prod": "npm run build && cross-env NODE_ENV=prod electron .",
-    "package": "npm run build && cross-env NODE_ENV=dev electron-builder --dir",
-    "make:beta": "npm run build && npm run lint && cross-env NODE_ENV=beta electron-builder",
-    "make:prod": "npm run build && npm run lint && cross-env NODE_ENV=prod electron-builder"
+
+    "make": "npm run build && npm run lint && cross-env NODE_ENV=prod electron-builder"
   },
   "devDependencies": {
     "@electron/fuses": "^1.8.0",
@@ -56,22 +55,24 @@
         {
           "from": "./assets/images/icon.ico",
           "to": "icon.ico"
-        }
+        },
+        ".env.prod"
       ],
       "artifactName": "Canvas-HW-Reminder-Setup.${ext}",
       "icon": "./assets/images/icon.ico",
       "publish": [
         {
-          "provider": "github",
-          "owner": "Clartik",
-          "repo": "CanvasHWReminder"
+          "provider": "s3",
+          "bucket": "canvas-hw-reminder"
         }
       ]
     },
     "nsis": {
       "installerIcon": "./assets/images/icon.ico",
       "artifactName": "Canvas-HW-Reminder-Setup-${version}.${ext}",
-      "oneClick": false
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }
