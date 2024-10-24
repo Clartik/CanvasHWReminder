@@ -18,6 +18,8 @@ const minimizeOnCloseCheckbox = document.getElementById('minimize-on-close-check
 const showExactDueDateCheckbox = document.getElementById('show-exact-due-date-checkbox')! as HTMLInputElement;
 const alwaysExpandAllCourseCardsCheckbox = document.getElementById('always-expand-course-cards-checkbox')! as HTMLInputElement;
 
+const dontRemindAssignmentsWithNoSubmissionsCheckbox = document.getElementById('dont-remind-assignments-with-no-submissions-checkbox')! as HTMLInputElement;
+
 const silenceNotificationsCheckbox = document.getElementById('silence-notifications-checkbox')! as HTMLInputElement;
 const keepNotificationsOnScreenCheckbox = document.getElementById('keep-notifications-on-screen-checkbox')! as HTMLInputElement;
 
@@ -28,7 +30,7 @@ const changeableElements = document.getElementsByClassName('changeable');
 
 const creditsLinkBtn = document.getElementById('credits-link-btn') as HTMLButtonElement;
 
-const SETTINGS_DATA_VERSION: string = '0.4';
+const SETTINGS_DATA_VERSION: string = '0.5';
 
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
@@ -235,6 +237,8 @@ function getSettingsDataToSave(): SettingsData {
 
         showExactDueDate: showExactDueDateCheckbox.checked,
         alwaysExpandAllCourseCards: alwaysExpandAllCourseCardsCheckbox.checked,
+
+        dontRemindAssignmentsWithNoSubmissions: dontRemindAssignmentsWithNoSubmissionsCheckbox.checked,
 
         silenceNotifications: silenceNotificationsCheckbox.checked,
         keepNotificationsOnScreen: keepNotificationsOnScreenCheckbox.checked

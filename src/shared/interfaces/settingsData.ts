@@ -13,6 +13,8 @@ interface SettingsData {
     readonly showExactDueDate: boolean;
     readonly alwaysExpandAllCourseCards: boolean;
 
+    readonly dontRemindAssignmentsWithNoSubmissions: boolean;
+
     readonly silenceNotifications: boolean;
     readonly keepNotificationsOnScreen: boolean;
 }
