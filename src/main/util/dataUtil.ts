@@ -32,7 +32,7 @@ function getDefaultSettingsData(): SettingsData {
         showExactDueDate: false,
         alwaysExpandAllCourseCards: false,
 
-		dontRemindAssignmentsWithNoSubmissions: true,
+		dontRemindAssignmentsWithNoSubmissions: false,
 
         silenceNotifications: false,
         keepNotificationsOnScreen: true

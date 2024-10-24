@@ -205,7 +205,7 @@ function setDefaultSettings() {
     minimizeOnLaunchCheckbox.checked = true;
     minimizeOnCloseCheckbox.checked = true;
 
-    dontRemindAssignmentsWithNoSubmissionsCheckbox.checked = true;
+    dontRemindAssignmentsWithNoSubmissionsCheckbox.checked = false;
 
     keepNotificationsOnScreenCheckbox.checked = true;
 }
