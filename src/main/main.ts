@@ -34,6 +34,7 @@ import SaveManager from './util/saveManager';
 
 import { getIconPath, openLink } from "./util/misc";
 import AssignmentsDontRemindData from './interfaces/assignmentsDontRemind';
+import createMenu from './menu';
 
 const sleep = promisify(setTimeout);
 
@@ -157,8 +158,11 @@ function createElectronApp() {
 		if (process.argv.length > 1)
 			console.log(process.argv[1])
 
-		if (!debugMode.active)
+		if (!debugMode.active) {
 			Menu.setApplicationMenu(null);
+		}
+		else
+			createMenu();
 
 		systemTray = createSystemTray(appInfo);
 		
@@ -328,6 +332,13 @@ function launchMainWindowWithCorrectPage() {
 	else
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 		// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
+}
+
+function openPage(pageName: string) {
+	if (!appInfo.mainWindow)
+		return;
+
+	appInfo.mainWindow.webContents.loadFile(`./pages/${pageName}.html`)
 }
 
 async function updateClassData(classData: ClassData | null) {
@@ -721,4 +732,4 @@ async function showUpdateErrorDialogAndHandleResponse() {
 
 export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage,
 	findNextAssignmentAndStartWorker, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse,
-	showUpdateErrorDialogAndHandleResponse }
+	showUpdateErrorDialogAndHandleResponse, openPage }
