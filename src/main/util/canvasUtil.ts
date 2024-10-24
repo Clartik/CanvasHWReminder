@@ -36,6 +36,7 @@ async function convertToClassData(courses: CanvasAPI.Course[]): Promise<ClassDat
 				html_url: upcomingAssignment.html_url,
 				is_quiz_assignment: upcomingAssignment.is_quiz_assignment,
 				has_submitted_submissions: upcomingAssignment.has_submitted_submissions,
+				submission_types: upcomingAssignment.submission_types,
 
 				due_at: upcomingAssignment.due_at,
 				unlock_at: upcomingAssignment.unlock_at,

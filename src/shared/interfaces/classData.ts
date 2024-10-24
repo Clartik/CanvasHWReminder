@@ -15,6 +15,7 @@ interface Assignment {
     readonly html_url: string;
     readonly is_quiz_assignment: boolean;
     readonly has_submitted_submissions: boolean;
+    readonly submission_types: string[];
     
     readonly due_at: string | null;
     readonly unlock_at: string | null;
