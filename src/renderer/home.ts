@@ -419,11 +419,9 @@ function populateClassItemWithData(classes: Array<Class>): void {
             classBoxes[classIndex].append(assignmentElement);
 
             const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
-
             const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
-            assignmentButton.addEventListener('click', () => {
-                window.api.openLink(assignment.html_url);
-            })
+
+            assignmentButton.addEventListener('click', () => window.api.openLink(assignment.html_url));
 
             if (assignment.has_submitted_submissions) {
                 assignmentLabel.innerHTML = assignment.name + ' - Submitted'
@@ -434,6 +432,15 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 assignmentButton.classList.add('complete');
             }
             else {
+                if (settingsData?.dontRemindAssignmentsWithNoSubmissions && assignment.submission_types.includes('none')) {
+                    assignmentLabel.innerHTML = assignment.name + ' - No Submission Required';
+                    assignmentButton.classList.remove('hide');
+                    
+                    assignmentElement.classList.add('dont-remind');
+                    addRightClickToUnremind(assignmentElement, assignment);
+                    continue;
+                }
+
                 const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
                 assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 

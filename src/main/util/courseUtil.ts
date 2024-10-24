@@ -132,6 +132,24 @@ function filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignm
 	return upcomingAssignments;
 }
 
+function getAssignmentsWithoutSubmissionsRequired(settingsData: SettingsData, classData: ClassData): Assignment[] {
+	if (!settingsData.dontRemindAssignmentsWithNoSubmissions)
+		return [];
+
+	const assignmentsWithoutSubmissionsRequired: Assignment[] = [];
+
+	for (const currentClass of classData.classes) {
+		for (const assignment of currentClass.assignments) {
+			if (!assignment.submission_types.includes('none'))
+				continue;
+
+			assignmentsWithoutSubmissionsRequired.push(assignment);
+		}
+	}
+
+	return assignmentsWithoutSubmissionsRequired;
+}
+
 function getTimeDiffInSeconds(date1: Date, date2: Date): number {
 	if (date1 > date2)
 		return 0;
@@ -269,4 +287,5 @@ function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsD
 
 export { getUpcomingAssignments, getNextAssignment, filterUpcomingAssignmentsToRemoveRemindedAssignments, 
 	filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind, getTimeTillDueDate, 
-	getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds, getExactDueDate }
+	getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds, getExactDueDate,
+	getAssignmentsWithoutSubmissionsRequired }

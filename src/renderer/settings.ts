@@ -201,6 +201,8 @@ function populateElementsWithData(settingsData: SettingsData) {
     showExactDueDateCheckbox.checked = settingsData.showExactDueDate;
     alwaysExpandAllCourseCardsCheckbox.checked = settingsData.alwaysExpandAllCourseCards;
 
+    dontRemindAssignmentsWithNoSubmissionsCheckbox.checked = settingsData.dontRemindAssignmentsWithNoSubmissions;
+
     silenceNotificationsCheckbox.checked = settingsData.silenceNotifications;
     keepNotificationsOnScreenCheckbox.checked = settingsData.keepNotificationsOnScreen;
 

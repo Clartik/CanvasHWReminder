@@ -374,6 +374,11 @@ function findNextAssignmentAndStartWorker() {
 	if (!appInfo.settingsData)
 		return;
 
+	if (appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions) {
+		const assignmentsWithoutSubmissionsRequired: Assignment[] = CourseUtil.getAssignmentsWithoutSubmissionsRequired(appInfo.settingsData, appInfo.classData);
+		appInfo.assignmentsToNotRemind.push(...assignmentsWithoutSubmissionsRequired);
+	}
+
 	let upcomingAssignments = CourseUtil.getUpcomingAssignments(appInfo.classData);
 
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
