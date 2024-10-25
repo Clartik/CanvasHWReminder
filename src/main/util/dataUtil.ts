@@ -14,7 +14,8 @@ import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION } from '../../shared/co
 
 import SaveManager from './saveManager';
 import { app } from 'electron';
-import AppInfoSaveData from '../interfaces/AppInfoData';
+
+import AppInfoSaveData from '../interfaces/appInfoData';
 
 function getDefaultSettingsData(): SettingsData {
 	return {
@@ -85,38 +86,46 @@ async function upgradeSettingsData(savedSettingsData: SettingsData): Promise<Set
 	return upgradedSettingsData;
 }
 
-async function getAssignmentsNotToRemindData(): Promise<Assignment[]> {
+async function getAppInfoSaveData(): Promise<AppInfoSaveData | null> {
 	try {
 		const appInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
-		console.log('[Main]: Cached Assignments Dont Remind Data is Loaded!');
+		console.log('[Main]: App Info Save Data is Loaded!');
 		
-		return appInfoSaveData.assignmentsNotToRemind;
+		return appInfoSaveData;
 	} catch (error) {
-		console.error('[Main]: Could Not Retrieve Saved Assignments Dont Remind Data: ' + error);
-		return [];
+		console.error('[Main]: Could Not Retrieve Saved App Info Data: ' + error);
+		return null;
 	}
 }
 
-function cleanUpUnnecessaryAssignmentsNotToRemind(assignmentsNotToRemind: Assignment[]): Assignment[] {
-	for (let i = 0; i < assignmentsNotToRemind.length; i++) {
-		const assignmentNotToRemind = assignmentsNotToRemind[i];
+function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assignment[]): Assignment[] {
+	const assignmentIndexsToBeRemoved: number[] = [];
+
+	for (let i = 0; i < assignments.length; i++) {
+		const assignment = assignments[i];
 		
-		if (!assignmentNotToRemind.due_at)
+		if (!assignment.due_at)
 			continue;
 
-		const assignmentDueDate = new Date(assignmentNotToRemind.due_at);
+		const assignmentDueDate = new Date(assignment.due_at);
 		const todayDate = new Date();
 
 		if (assignmentDueDate > todayDate)
 			continue;
 
-		console.log(`[Main]: Deleting Expired Assignment Not To Remind (${assignmentNotToRemind.name})`);
+		console.log(`[Main]: Deleting Expired Assignment Not To Remind (${assignment.name})`);
 
-		assignmentsNotToRemind.splice(i, 1);
+		assignmentIndexsToBeRemoved.push(i);
 	}
 
-	return assignmentsNotToRemind;
+	// Need for the double step because if assignments was purged in loop above, the location of each element would keep changing
+	// This way, it identifies all assignments and removes them accordingly
+	for (const assignmentIndex of assignmentIndexsToBeRemoved) {
+		assignments.splice(assignmentIndex, 1);
+	}
+
+	return assignments;
 }
 
 async function reloadSettingsData(appInfo: AppInfo, debugMode: DebugMode) {
@@ -170,4 +179,4 @@ function configureAppSettings(settingsData: SettingsData) {
 }
 
 export { getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
-	configureAppSettings, getAssignmentsNotToRemindData, cleanUpUnnecessaryAssignmentsNotToRemind }
+	configureAppSettings, getAppInfoSaveData, cleanUpUnnecessarySavedAssignmentsAccordingToDueDate }

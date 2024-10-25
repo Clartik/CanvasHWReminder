@@ -35,7 +35,7 @@ import SaveManager from './util/saveManager';
 import { getIconPath, openLink } from "./util/misc";
 
 import createMenu from './menu';
-import AppInfoData from './interfaces/AppInfoData';
+import AppInfoSaveData from './interfaces/appInfoData';
 
 const sleep = promisify(setTimeout);
 
@@ -199,7 +199,7 @@ function createElectronApp() {
 	});
 
 	app.on('before-quit', async () => {
-		const data: AppInfoData = {
+		const data: AppInfoSaveData = {
 			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
 			assignmentsNotToRemind: appInfo.assignmentsToNotRemind
 		}
@@ -281,8 +281,15 @@ async function appMain() {
 		return;
 	}
 
-	appInfo.assignmentsToNotRemind = await DataUtil.getAssignmentsNotToRemindData();
-	appInfo.assignmentsToNotRemind = DataUtil.cleanUpUnnecessaryAssignmentsNotToRemind(appInfo.assignmentsToNotRemind);
+	const appInfoSaveData: AppInfoSaveData | null = await DataUtil.getAppInfoSaveData();
+
+	if (appInfoSaveData) {
+		appInfo.assignmentsThatHaveBeenReminded = appInfoSaveData.assignmentsThatHaveBeenReminded;
+		appInfo.assignmentsThatHaveBeenReminded = DataUtil.cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(appInfo.assignmentsThatHaveBeenReminded);
+		
+		appInfo.assignmentsToNotRemind = appInfoSaveData.assignmentsNotToRemind;
+		appInfo.assignmentsToNotRemind = DataUtil.cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(appInfo.assignmentsToNotRemind);
+	}
 	
 	if (net.isOnline())
 		checkCanvasWorker = await createCanvasWorker();
