@@ -1,6 +1,6 @@
 import * as path from 'path';
 
-import { shell, dialog } from 'electron';
+import { app, shell, dialog } from 'electron';
 import AppInfo from '../interfaces/appInfo';
 
 function openLink(url: string) {
@@ -11,11 +11,11 @@ function openLink(url: string) {
 	}
 }
 
-function getIconPath(appInfo: AppInfo): string {
-	if (appInfo.isDevelopment)
-		return './assets/images/icon.ico'
+function getIconPath(filename: string): string {
+	if (!app.isPackaged)
+		return `./assets/images/${filename}`
 	else
-		return path.join(process.resourcesPath, 'icon.ico')
+		return path.join(process.resourcesPath, filename)
 }
 
 export { openLink, getIconPath };

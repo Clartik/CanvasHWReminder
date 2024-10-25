@@ -2,6 +2,7 @@ import AppStatus from "../shared/interfaces/appStatus";
 import SettingsData from "../shared/interfaces/settingsData";
 
 import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../shared/interfaces/classData";
+import { ContextMenuParams, ContextMenuCommandParams } from "src/shared/interfaces/contextMenuParams";
 
 //#region TEMPLATES
 
@@ -246,6 +247,44 @@ window.api.onRemoveProgressBarTextLink(() => {
     updateProgressBarLabel.classList.remove('active');
 })
 
+window.api.onContextMenuCommand((command: string, data: ContextMenuCommandParams) => {
+    console.log(command);
+    console.log(data);
+
+    let assignmentElement: HTMLLIElement | null = null;
+
+    for (const classBox of classBoxes) {
+        for (const currentAssignmentElement of classBox.children) {
+            const assignmentLabel: HTMLParagraphElement | null = currentAssignmentElement.querySelector('.assignment-label');
+
+            if (!assignmentLabel)
+                continue;
+
+            if (!assignmentLabel.innerText.includes(data.assignment.name))
+                continue;
+
+            assignmentElement = currentAssignmentElement as HTMLLIElement;
+            break;
+        }
+    }
+
+    if (!assignmentElement)
+        return;
+
+    switch (command) {
+        case 'dont-remind':
+            toggleRemind(data.assignment, assignmentElement);
+            break;
+
+        case 'do-remind':
+            toggleRemind(data.assignment, assignmentElement);
+            break;
+    
+        default:
+            break;
+    }
+})
+
 updateProgressBarLabel.addEventListener('click', () => {
     if (!updateProgressBarLabel.classList.contains('active'))
         return;
@@ -362,51 +401,58 @@ function generateAllClassItems(classAmount: number): void {
     }
 }
 
-function addRightClickToUnremind(assignmentElement: HTMLLIElement, assignment: Assignment) {
+function addRightClickToUnremind(assignment: Assignment, assignmentElement: HTMLLIElement) {
     assignmentElement.addEventListener('contextmenu', (event) => {
         event.preventDefault();
 
         const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
+    
+        const isAssignmentValidForDontRemind: boolean = assignmentLabel.innerText !== 'No Assignments Due' || !assignmentLabel.innerText.includes('Overdue');
+        const isAssignmentInDontRemind = assignmentElementsNotToRemind.includes(assignmentElement);
 
-        if (assignmentLabel.innerText === 'No Assignments Due')
-            return;
+        const params: ContextMenuParams = {
+            assignment: assignment,
+            isAssignmentValidForDontRemind,
+            isAssignmentInDontRemind
+        };
 
-        if (assignmentLabel.innerText.includes('Overdue'))
-            return;
-        
-        assignmentElement.classList.toggle('dont-remind');
-
-        const isAlreadyUnreminded = assignmentElementsNotToRemind.includes(assignmentElement)
-
-        if (!isAlreadyUnreminded) {
-            assignmentElementsNotToRemind.push(assignmentElement);
-            console.log(`Assignment (${assignment.name}) Will Not Remind`);
-
-            window.api.disableAssignmentReminder(assignment);
-
-            window.api.showMessageDialog({
-                title: "Assignment Won't Remind You",
-                message: `You will not be reminded for your "${assignment.name}" Assignment`
-            });
-        }
-        else {
-            const index = assignmentElementsNotToRemind.indexOf(assignmentElement);
-
-            // only splice array when item is found
-            if (index <= -1)
-                return;
-
-            assignmentElementsNotToRemind.splice(index, 1);
-            console.log(`Assignment (${assignmentLabel.innerHTML}) Will Remind`);
-
-            window.api.enableAssignmentReminder(assignment);
-
-            window.api.showMessageDialog({
-                title: "Assignment Will Remind You",
-                message: `You will be reminded for your "${assignment.name}" Assignment`
-            });
-        }
+        window.api.showContextMenu('assignment', params);
     });
+}
+
+function toggleRemind(assignment: Assignment, assignmentElement: HTMLLIElement) {
+    assignmentElement.classList.toggle('dont-remind');
+
+    const isAlreadyUnreminded = assignmentElementsNotToRemind.includes(assignmentElement)
+
+    if (!isAlreadyUnreminded) {
+        assignmentElementsNotToRemind.push(assignmentElement);
+        console.log(`Assignment (${assignment.name}) Will Not Remind`);
+
+        window.api.disableAssignmentReminder(assignment);
+
+        // window.api.showMessageDialog({
+        //     title: "Assignment Won't Remind You",
+        //     message: `You will not be reminded for your "${assignment.name}" Assignment`
+        // });
+    }
+    else {
+        const index = assignmentElementsNotToRemind.indexOf(assignmentElement);
+
+        // only splice array when item is found
+        if (index <= -1)
+            return;
+
+        assignmentElementsNotToRemind.splice(index, 1);
+        console.log(`Assignment (${assignment.name}) Will Remind`);
+
+        window.api.enableAssignmentReminder(assignment);
+
+        // window.api.showMessageDialog({
+        //     title: "Assignment Will Remind You",
+        //     message: `You will be reminded for your "${assignment.name}" Assignment`
+        // });
+    }
 }
 
 function populateClassItemWithData(classes: Array<Class>): void {
@@ -469,7 +515,7 @@ function populateClassItemWithData(classes: Array<Class>): void {
                     assignmentElement.classList.add('dont-remind');
                 }
 
-                addRightClickToUnremind(assignmentElement, assignment);
+                addRightClickToUnremind(assignment, assignmentElement);
             }
         }
 

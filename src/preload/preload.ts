@@ -1,4 +1,5 @@
 import { Assignment } from "src/shared/interfaces/classData";
+import { ContextMenuParams, ContextMenuCommandParams } from "src/shared/interfaces/contextMenuParams";
 
 import { contextBridge, ipcRenderer } from "electron";
 
@@ -26,7 +27,9 @@ const API = {
     onSendDownloadProgress: (callback: (status: string, percent: number) => void) => ipcRenderer.on('sendDownloadProgress', (_event, status: string, percent: number) => callback(status, percent)),
     onRemoveProgressBarTextLink: (callback: () => void) => ipcRenderer.on('removeProgressBarTextLink', () => callback()),
     launchUpdaterDialog: (type: string) => ipcRenderer.send('launchUpdaterDialog', type),
-    getAssignmentsWithNoSubmissions: () => ipcRenderer.invoke('getAssignmentsWithNoSubmissions')
+    getAssignmentsWithNoSubmissions: () => ipcRenderer.invoke('getAssignmentsWithNoSubmissions'),
+    onContextMenuCommand: (callback: (command: string, data: ContextMenuCommandParams) => void) => ipcRenderer.on('context-menu-command', (_event, command: string, data: ContextMenuCommandParams) => callback(command, data)),
+    showContextMenu: (type: string, data: ContextMenuParams) => ipcRenderer.send('show-context-menu', type, data)
 }
 
 contextBridge.exposeInMainWorld("api", API);

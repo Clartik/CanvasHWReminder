@@ -56,6 +56,14 @@
           "from": "./assets/images/icon.ico",
           "to": "icon.ico"
         },
+        {
+          "from": "./assets/images/bell.png",
+          "to": "bell.png"
+        },
+        {
+          "from": "./assets/images/bell-slash.png",
+          "to": "bell-slash.png"
+        },
         ".env.prod"
       ],
       "artifactName": "Canvas-HW-Reminder-Setup.${ext}",

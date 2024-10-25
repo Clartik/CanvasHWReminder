@@ -9,6 +9,7 @@ import { openLink } from "../util/misc";
 
 import { appMain, outputAppLog, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse, showUpdateErrorDialogAndHandleResponse } from "../main";
 import SettingsData from "src/shared/interfaces/settingsData";
+import { createAssignmentContextMenu } from "../menu";
 
 function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
 	ipcMain.on('openLink', (event, url: string) => openLink(url));
@@ -77,6 +78,12 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 		
 			default:
 				break;
+		}
+	})
+
+	ipcMain.on('show-context-menu', (event, type: string, data) => {
+		if (type === 'assignment') {
+			createAssignmentContextMenu(event.sender, data);
 		}
 	})
 }

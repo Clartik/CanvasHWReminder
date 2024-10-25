@@ -1,4 +1,5 @@
 import { Assignment } from "./shared/interfaces/classData"
+import { ContextMenuCommandParams, ContextMenuParams } from "./shared/interfaces/contextMenuParams"
 
 export interface IElectronAPI {
     openLink: (url: string) => void,
@@ -22,7 +23,9 @@ export interface IElectronAPI {
     getAssignmentsWithNoSubmissions: () => Promise<Assignment[]>,
     onSendDownloadProgress: (callback: (status: string, percent: number) => void) => void,
     onRemoveProgressBarTextLink: (callback: () => void) => void,
-    launchUpdaterDialog: (type: string) => void
+    launchUpdaterDialog: (type: string) => void,
+    onContextMenuCommand: (callback: (command: string, data: ContextMenuCommandParams) => void) => void,
+    showContextMenu: (type: string, data: ContextMenuParams) => void
 }
 
 declare global {

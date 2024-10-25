@@ -34,7 +34,7 @@ import SaveManager from './util/saveManager';
 
 import { getIconPath, openLink } from "./util/misc";
 
-import createMenu from './menu';
+import * as MenuUtil from './menu';
 import AppInfoSaveData from './interfaces/appInfoData';
 
 const sleep = promisify(setTimeout);
@@ -164,7 +164,7 @@ function createElectronApp() {
 			Menu.setApplicationMenu(null);
 		}
 		else
-			createMenu();
+			MenuUtil.createAppMenu();
 
 		systemTray = createSystemTray(appInfo);
 		
@@ -427,7 +427,7 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 
 	const exactDueDate: string = CourseUtil.getExactDueDate(currentDate, nextAssignmentDueDate);
 
-	const iconRelativePath: string = getIconPath(appInfo);
+	const iconRelativePath: string = getIconPath('icon.ico');
 
 	let iconAbsPath: string;
 

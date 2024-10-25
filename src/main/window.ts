@@ -13,7 +13,7 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 		minWidth: 710,
 		autoHideMenuBar: true,
 		show: true,
-		icon: getIconPath(appInfo),
+		icon: getIconPath('icon.ico'),
 		webPreferences: {
 			preload: path.join(__baseDir, '../preload/preload.js'),
 			nodeIntegration: true,

@@ -22,7 +22,7 @@ function quitApp(appInfo: AppInfo) {
 }
 
 function createSystemTray(appInfo: AppInfo): Tray {
-	const iconPath: string = getIconPath(appInfo);
+	const iconPath: string = getIconPath('icon.ico');
 	let trayTitle: string;
 
 	if (appInfo.isDevelopment) {
