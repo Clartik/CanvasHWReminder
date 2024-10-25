@@ -7,7 +7,7 @@ import AppStatus from "../../shared/interfaces/appStatus";
 import DebugMode from "../../shared/interfaces/debugMode";
 import SettingsData from "../../shared/interfaces/settingsData";
 import IPCGetResult from "../../shared/interfaces/ipcGetResult";
-import { APP_NAME } from "../../shared/constants";
+import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON } from "../../shared/constants";
 
 import { findNextAssignmentAndStartWorker, startCheckCanvasWorker } from "../main";
 
@@ -18,6 +18,7 @@ import * as DataUtil from '../util/dataUtil';
 import * as CourseUtil from '../util/courseUtil';
 
 import { Assignment } from 'src/shared/interfaces/classData';
+import AppInfoSaveData from '../interfaces/appInfoData';
 
 function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefined {
     const senderFileLocations = event.sender.getURL().split('/');
@@ -60,9 +61,23 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         console.log(`[Main]: (${senderHTMLFilename}) Update Data (${type}) Event Was Handled!`)
         
         if (type === 'settingsData') {
+            const oldSettingsData = appInfo.settingsData;
             appInfo.settingsData = data as SettingsData;
 
             DataUtil.configureAppSettings(appInfo.settingsData);
+
+            if (oldSettingsData?.whenToRemindTimeValue != appInfo.settingsData.whenToRemindTimeValue ||
+                oldSettingsData?.whenToRemindFormatValue != appInfo.settingsData.whenToRemindFormatValue) 
+            {
+                console.log('[Main]: Resetting AssignmentsThatHaveBeenReminded and Saving It');
+
+                const appInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
+
+                appInfoSaveData.assignmentsThatHaveBeenReminded = [];
+                appInfo.assignmentsThatHaveBeenReminded = [];
+
+                SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
+            }
 
             if (!appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions) {
                 appInfo.assignmentsWithNoSubmissions = [];
