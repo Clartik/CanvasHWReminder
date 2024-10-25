@@ -5,7 +5,7 @@ import DebugMode from "../../shared/interfaces/debugMode";
 
 import { Assignment, ClassData } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
-import { APP_NAME, FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON, FILENAME_SETTINGS_DATA_JSON } from "../../shared/constants";
+import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_SETTINGS_DATA_JSON } from "../../shared/constants";
 
 import * as CanvasUtil from './canvasUtil'
 
@@ -14,7 +14,7 @@ import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION } from '../../shared/co
 
 import SaveManager from './saveManager';
 import { app } from 'electron';
-import AssignmentsDontRemindData from '../interfaces/assignmentsDontRemind';
+import AppInfoSaveData from '../interfaces/AppInfoData';
 
 function getDefaultSettingsData(): SettingsData {
 	return {
@@ -87,11 +87,11 @@ async function upgradeSettingsData(savedSettingsData: SettingsData): Promise<Set
 
 async function getAssignmentsNotToRemindData(): Promise<Assignment[]> {
 	try {
-		const assignmentsDontRemindData = await SaveManager.getSavedData(FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON) as AssignmentsDontRemindData;
+		const appInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
 		console.log('[Main]: Cached Assignments Dont Remind Data is Loaded!');
 		
-		return assignmentsDontRemindData.assignmentsNotToRemind;
+		return appInfoSaveData.assignmentsNotToRemind;
 	} catch (error) {
 		console.error('[Main]: Could Not Retrieve Saved Assignments Dont Remind Data: ' + error);
 		return [];

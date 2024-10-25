@@ -28,13 +28,14 @@ import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
 import * as UpdaterUtil from './util/updaterUtil';
 
-import { FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
+import { FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
 
 import SaveManager from './util/saveManager';
 
 import { getIconPath, openLink } from "./util/misc";
-import AssignmentsDontRemindData from './interfaces/assignmentsDontRemind';
+
 import createMenu from './menu';
+import AppInfoData from './interfaces/AppInfoData';
 
 const sleep = promisify(setTimeout);
 
@@ -198,11 +199,12 @@ function createElectronApp() {
 	});
 
 	app.on('before-quit', async () => {
-		const data: AssignmentsDontRemindData = {
+		const data: AppInfoData = {
+			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
 			assignmentsNotToRemind: appInfo.assignmentsToNotRemind
 		}
 
-		await SaveManager.writeSavedData(FILENAME_ASSIGNMENTS_DONT_REMIND_DATA_JSON, data);
+		await SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, data);
 
 		checkCanvasWorker?.terminate();
 		waitForNotificationWorker?.terminate();
