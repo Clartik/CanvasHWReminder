@@ -15,6 +15,7 @@ import { Canvas } from "../util/canvasAPI/canvas";
 
 import SaveManager from "../util/saveManager";
 import * as DataUtil from '../util/dataUtil';
+import * as CourseUtil from '../util/courseUtil';
 
 import { Assignment } from 'src/shared/interfaces/classData';
 
@@ -62,6 +63,11 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             appInfo.settingsData = data as SettingsData;
 
             DataUtil.configureAppSettings(appInfo.settingsData);
+
+            if (!appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions) {
+                appInfo.assignmentsWithNoSubmissions = [];
+                console.log('[Main]: Cleared Any Assignments With No Submissions From Dont Remind List');
+            }
 
             await startCheckCanvasWorker();
         }
@@ -132,6 +138,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     });
 
     ipcMain.handle('getAssignmentsNotToRemind', () => appInfo.assignmentsToNotRemind)
+    ipcMain.handle('getAssignmentsWithNoSubmissions', () => appInfo.assignmentsWithNoSubmissions)
 }
 
 export default handleFileRequests;

@@ -79,6 +79,7 @@ const appInfo: AppInfo = {
 	nextAssignment: null,
 	assignmentsThatHaveBeenReminded: [],
 	assignmentsToNotRemind: [],
+	assignmentsWithNoSubmissions: [],
 
 	lastCanvasCheckTime: "Never"
 }
@@ -374,10 +375,8 @@ function findNextAssignmentAndStartWorker() {
 	if (!appInfo.settingsData)
 		return;
 
-	if (appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions) {
-		const assignmentsWithoutSubmissionsRequired: Assignment[] = CourseUtil.getAssignmentsWithoutSubmissionsRequired(appInfo.settingsData, appInfo.classData);
-		appInfo.assignmentsToNotRemind.push(...assignmentsWithoutSubmissionsRequired);
-	}
+	if (appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions)
+		appInfo.assignmentsWithNoSubmissions = CourseUtil.getAssignmentsWithoutSubmissionsRequired(appInfo.settingsData, appInfo.classData);
 
 	let upcomingAssignments = CourseUtil.getUpcomingAssignments(appInfo.classData);
 

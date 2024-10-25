@@ -19,6 +19,7 @@ export interface IElectronAPI {
     disableAssignmentReminder: (assignment: Assignment) => void,
     enableAssignmentReminder: (assignment: Assignment) => void,
     getAssignmentsNotToRemind: () => Promise<Assignment[]>,
+    getAssignmentsWithNoSubmissions: () => Promise<Assignment[]>,
     onSendDownloadProgress: (callback: (status: string, percent: number) => void) => void,
     onRemoveProgressBarTextLink: (callback: () => void) => void,
     launchUpdaterDialog: (type: string) => void

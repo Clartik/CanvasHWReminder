@@ -194,6 +194,9 @@ function populateElementsWithData(settingsData: SettingsData) {
     if (settingsData === null)
         return;
 
+
+    
+
     launchOnStartCheckbox.checked = settingsData.launchOnStart;
     minimizeOnLaunchCheckbox.checked = settingsData.minimizeOnLaunch;
     minimizeOnCloseCheckbox.checked = settingsData.minimizeOnClose;

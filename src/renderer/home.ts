@@ -331,7 +331,11 @@ async function loadElementsWithData(classes: Class[]): Promise<void> {
     populateClassItemWithData(classes);
 
     const assignmentsNotToRemind = await window.api.getAssignmentsNotToRemind();
+    const assignmentsWithNoSubmissions = await window.api.getAssignmentsWithNoSubmissions();
+
+    // Treat Assignments With No Submissions the Same Way as Assignments Not To Remind
     configureAssignmentsRemindStatus(assignmentsNotToRemind);
+    configureAssignmentsRemindStatus(assignmentsWithNoSubmissions);
 
     addClickEventsToClassItem();
 };
@@ -432,19 +436,20 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 assignmentButton.classList.add('complete');
             }
             else {
-                if (settingsData?.dontRemindAssignmentsWithNoSubmissions && assignment.submission_types.includes('none')) {
-                    assignmentLabel.innerHTML = assignment.name + ' - No Submission Required';
-                    assignmentButton.classList.remove('hide');
-                    
-                    assignmentElement.classList.add('dont-remind');
-                    addRightClickToUnremind(assignmentElement, assignment);
-                    continue;
-                }
-
                 const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
                 assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 
-                if (timeTillDueDate !== 'Overdue') {
+                const isAssignmentOverdue = timeTillDueDate === 'Overdue';
+
+                if (!isAssignmentOverdue) {
+                    if (settingsData?.dontRemindAssignmentsWithNoSubmissions && assignment.submission_types.includes('none')) {
+                        assignmentLabel.innerHTML = assignment.name + ' - No Submission Required';
+                        assignmentButton.classList.remove('hide');
+                        
+                        assignmentElement.classList.add('dont-remind');
+                        return;
+                    } 
+
                     assignmentElement.title = '';
     
                     const assignmentElementThatIsDue: AssignmentElementThatIsDue = {
@@ -453,11 +458,7 @@ function populateClassItemWithData(classes: Array<Class>): void {
                     };
                     
                     assignmentElementsThatAreDue.push(assignmentElementThatIsDue);
-                }
 
-                const isAssignmentOverdue = timeTillDueDate === 'Overdue';
-
-                if (!isAssignmentOverdue) {
                     assignmentButton.classList.remove('hide');
                         
                     classHeaders[classIndex].classList.add('active');
@@ -496,6 +497,9 @@ function configureAssignmentsRemindStatus(assignmentsNotToRemind: Assignment[]) 
                 const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
 
                 if (!assignmentLabel.innerText.includes(assignmentNotToRemind.name))
+                    continue;
+
+                if (assignmentLabel.innerText.includes('Overdue'))
                     continue;
 
                 assignmentElement.classList.add('dont-remind');

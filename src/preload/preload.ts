@@ -1,7 +1,6 @@
 import { Assignment } from "src/shared/interfaces/classData";
 
-// eslint-disable-next-line
-const { contextBridge, ipcRenderer } = require('electron');
+import { contextBridge, ipcRenderer } from "electron";
 
 type UpdateDataCallback = (type: string, data: object | null) => void;
 
@@ -27,6 +26,7 @@ const API = {
     onSendDownloadProgress: (callback: (status: string, percent: number) => void) => ipcRenderer.on('sendDownloadProgress', (_event, status: string, percent: number) => callback(status, percent)),
     onRemoveProgressBarTextLink: (callback: () => void) => ipcRenderer.on('removeProgressBarTextLink', () => callback()),
     launchUpdaterDialog: (type: string) => ipcRenderer.send('launchUpdaterDialog', type),
+    getAssignmentsWithNoSubmissions: () => ipcRenderer.invoke('getAssignmentsWithNoSubmissions')
 }
 
 contextBridge.exposeInMainWorld("api", API);

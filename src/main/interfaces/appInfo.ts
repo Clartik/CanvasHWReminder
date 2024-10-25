@@ -17,6 +17,7 @@ interface AppInfo {
 	nextAssignment: Assignment | null,
 	assignmentsThatHaveBeenReminded: Array<Assignment>,
 	assignmentsToNotRemind: Array<Assignment>,
+	assignmentsWithNoSubmissions: Assignment[],
 
 	lastCanvasCheckTime: string
 }
