@@ -7,6 +7,7 @@ import { ClassData } from "../../shared/interfaces/classData";
 import SaveManager from "../util/saveManager"
 
 import { FILENAME_CLASS_DATA_JSON } from '../../shared/constants';
+import { mainLog } from '../main';
 
 const sleep = promisify(setTimeout);
 
@@ -18,14 +19,14 @@ parentPort?.on('message', async (userDataFilepath: string) => {
     isWorkerRunning = true;
 
     while (isWorkerRunning) {
-        console.log('[Worker (CheckCanvas DEBUG)]: Getting Data from Local Canvas Save!');
+        mainLog.log('[Worker (CheckCanvas DEBUG)]: Getting Data from Local Canvas Save!');
 
         let classData: ClassData | null = null;
 
         try {
             classData = await SaveManager.getData(userDataFilepath + '\\' + FILENAME_CLASS_DATA_JSON) as ClassData;
         } catch (error) {
-            console.error('[Worker (CheckCanvas DEBUG)]: Failed to Get Class Data From Local Canvas Save -', error);
+            mainLog.error('[Worker (CheckCanvas DEBUG)]: Failed to Get Class Data From Local Canvas Save -', error);
         }
 
         const result: WorkerResult = {

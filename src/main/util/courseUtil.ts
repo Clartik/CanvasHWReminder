@@ -1,5 +1,6 @@
 import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
+import { mainLog } from "../main";
 
 function getUpcomingAssignments(classData: ClassData): Array<Assignment> {
 	if (classData.classes.length <= 0)
@@ -107,7 +108,7 @@ function filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignment
 			if (indexToRemove > -1)
 				upcomingAssignments.splice(indexToRemove, 1);
 			else
-				console.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments That Have Been Reminded');
+			mainLog.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments That Have Been Reminded');
 		}	
 	}
 
@@ -125,7 +126,7 @@ function filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignm
 			if (indexToRemove > -1)
 				upcomingAssignments.splice(indexToRemove, 1);
 			else
-				console.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments Not To Remind');
+				mainLog.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments Not To Remind');
 		}	
 	}
 

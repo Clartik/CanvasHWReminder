@@ -34,7 +34,7 @@ import { getIconPath, openLink } from "./util/misc";
 
 import * as MenuUtil from './menu';
 import AppInfoSaveData from './interfaces/appInfoData';
-import createLogger from './logger';
+import { createLogger, initializeRendererLogger } from './logger';
 
 const sleep = promisify(setTimeout);
 
@@ -42,6 +42,8 @@ global.__baseDir = __dirname;
 
 const mainLog = createLogger('Main.log');
 const updaterLog = createLogger('Updater.log');
+
+initializeRendererLogger();
 
 const environment: string = process.env.NODE_ENV || 'prod';
 const envFilepath = !app.isPackaged ? path.resolve(__dirname + `../../../.env.${environment}`) : path.resolve(process.resourcesPath, `.env.${environment}`);
@@ -734,4 +736,4 @@ async function showUpdateErrorDialogAndHandleResponse() {
 
 export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage,
 	findNextAssignmentAndStartWorker, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse,
-	showUpdateErrorDialogAndHandleResponse, openPage }
+	showUpdateErrorDialogAndHandleResponse, openPage, mainLog }

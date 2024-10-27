@@ -1,6 +1,6 @@
-import { Logger, LevelOption, create } from 'electron-log';
+import { MainLogger, LevelOption, create } from 'electron-log';
 
-function createLogger(filename: string, level: LevelOption = 'debug'): Logger {
+function createLogger(filename: string, level: LevelOption = 'debug'): MainLogger {
     const logger = create({ logId: filename });
 
     logger.transports.file.fileName = filename;
@@ -11,4 +11,9 @@ function createLogger(filename: string, level: LevelOption = 'debug'): Logger {
     return logger;
 }
 
-export default createLogger;
+function initializeRendererLogger() {
+    const rendererLogger = createLogger('Renderer.log');
+    rendererLogger.initialize({ spyRendererConsole: true });
+}
+
+export { createLogger, initializeRendererLogger };

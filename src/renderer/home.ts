@@ -80,7 +80,7 @@ let settingsData: SettingsData | null;
 
 homeMain();
 
-__electronLog.info('test');
+console.info('test');
 
 // Main Function
 async function homeMain() {

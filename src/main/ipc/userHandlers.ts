@@ -7,7 +7,7 @@ import AppStatus from "../../shared/interfaces/appStatus";
 import * as DataUtil from '../util/dataUtil';
 import { openLink } from "../util/misc";
 
-import { appMain, outputAppLog, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse, showUpdateErrorDialogAndHandleResponse } from "../main";
+import { appMain, mainLog, outputAppLog, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse, showUpdateErrorDialogAndHandleResponse } from "../main";
 import SettingsData from "src/shared/interfaces/settingsData";
 import { createAssignmentContextMenu } from "../menu";
 
@@ -51,7 +51,7 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
 				DataUtil.configureAppSettings(settingsData);
 
-				console.log('[Setup]: App Setup is Complete!');
+				mainLog.log('[Setup]: App Setup is Complete!');
 
 				appMain();
 				break;

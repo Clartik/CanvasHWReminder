@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path';
 
 import { promisify } from 'util'
+import { mainLog } from '../main';
 
 const writeFileAsync = promisify(fs.writeFile);
 const readFileAsync = promisify(fs.readFile);
@@ -12,7 +13,7 @@ class SaveManager {
     static init(userDataPath: string) {
         this.saveDataPath = userDataPath;
 
-        console.log('[SaveManager]: Initialized Save Data Path!');
+        mainLog.log('[SaveManager]: Initialized Save Data Path!');
     }
 
     static getLocalPath(filename: string): string {
@@ -39,9 +40,9 @@ class SaveManager {
         const success =  await SaveManager.writeData(savePath, data);
 
         if (success)
-            console.log(`[SaveManager]: Saved ${filename}`);
+            mainLog.log(`[SaveManager]: Saved ${filename}`);
         else
-            console.error(`[SaveManager]: Failed to Save ${filename}`);
+            mainLog.error(`[SaveManager]: Failed to Save ${filename}`);
 
         return success;
     }
@@ -57,7 +58,7 @@ class SaveManager {
         try {
             await writeFileAsync(filepath, formattedData, 'utf-8');
         } catch (error) {
-            console.error(error);
+            mainLog.error(error);
             return false;
         }
 
@@ -75,7 +76,7 @@ class SaveManager {
         try {
             fs.writeFileSync(filepath, formattedData, 'utf-8');
         } catch (error) {
-            console.error(error);
+            mainLog.error(error);
             return false;
         }
 

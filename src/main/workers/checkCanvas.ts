@@ -8,6 +8,7 @@ import { ClassData } from "../../shared/interfaces/classData";
 
 import * as CanvasUtil from '../util/canvasUtil';
 import CheckCanvasParams from '../interfaces/checkCanvasParams';
+import { mainLog } from '../main';
 
 const sleep = promisify(setTimeout);
 
@@ -22,7 +23,7 @@ parentPort?.on('message', async (params: CheckCanvasParams) => {
     isWorkerRunning = true;
 
     while (isWorkerRunning) {
-        console.log('[Worker (CheckCanvas)]: Fetching Data from Canvas!');
+        mainLog.log('[Worker (CheckCanvas)]: Fetching Data from Canvas!');
 
         let classData: ClassData | null = null;
 
@@ -32,7 +33,7 @@ parentPort?.on('message', async (params: CheckCanvasParams) => {
         } catch (error) {
             if (error instanceof FetchError) {
                 if (error.type === 'system') {
-                    console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to No Internet -', error);
+                    mainLog.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to No Internet -', error);
 
                     const result = {
                         data: null,
@@ -44,7 +45,7 @@ parentPort?.on('message', async (params: CheckCanvasParams) => {
                 }
             }
 
-            console.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to Invalid Canvas Credentials -', error);
+            mainLog.error('[Worker (CheckCanvas)]: Failed to Get Class Data Due to Invalid Canvas Credentials -', error);
 
             const result = {
                 data: null,

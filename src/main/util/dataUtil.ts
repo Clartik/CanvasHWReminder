@@ -9,7 +9,7 @@ import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_SETTINGS_DATA_JSON
 
 import * as CanvasUtil from './canvasUtil'
 
-import { updateClassData } from '../main';
+import { mainLog, updateClassData } from '../main';
 import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION } from '../../shared/constants';
 
 import SaveManager from './saveManager';
@@ -49,7 +49,7 @@ async function getSavedClassData(): Promise<ClassData | null> {
 		const classData = await SaveManager.getSavedData('classes-data.json') as ClassData;
 		return classData;
 	} catch (error) {
-		console.error('Could Not Retrieve ClassData: ' + error)
+		mainLog.error('Could Not Retrieve ClassData: ' + error)
 		return null;
 	}
 }
@@ -59,17 +59,17 @@ async function getSavedSettingsData(): Promise<SettingsData | null> {
 		const savedSettingsData = await SaveManager.getSavedData('settings-data.json') as SettingsData;
 
 		if (savedSettingsData.version < SETTINGS_DATA_VERSION) {
-			console.warn(`[Main]: Saved Settings Has Old Version! (${savedSettingsData.version})`)
+			mainLog.warn(`[Main]: Saved Settings Has Old Version! (${savedSettingsData.version})`)
 
 			const upgradedSettingsData = await upgradeSettingsData(savedSettingsData);
 			return upgradedSettingsData;
 		}
 
-		console.log('[Main]: Cached Settings Data is Updated!');
+		mainLog.log('[Main]: Cached Settings Data is Updated!');
 		
 		return savedSettingsData;
 	} catch (error) {
-		console.error('[Main]: Could Not Retrieve Saved SettingsData: ' + error);
+		mainLog.error('[Main]: Could Not Retrieve Saved SettingsData: ' + error);
 		return null;
 	}
 }
@@ -80,7 +80,7 @@ async function upgradeSettingsData(savedSettingsData: SettingsData): Promise<Set
 	const upgradedSettingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
 	upgradedSettingsData.version = SETTINGS_DATA_VERSION;
 
-	console.log(`[Main]: Upgraded Saved Settings Data to Latest Version! (${upgradedSettingsData.version})`);
+	mainLog.log(`[Main]: Upgraded Saved Settings Data to Latest Version! (${upgradedSettingsData.version})`);
 	await SaveManager.writeSavedData(FILENAME_SETTINGS_DATA_JSON, upgradedSettingsData);
 
 	return upgradedSettingsData;
@@ -90,11 +90,11 @@ async function getAppInfoSaveData(): Promise<AppInfoSaveData | null> {
 	try {
 		const appInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
-		console.log('[Main]: App Info Save Data is Loaded!');
+		mainLog.log('[Main]: App Info Save Data is Loaded!');
 		
 		return appInfoSaveData;
 	} catch (error) {
-		console.error('[Main]: Could Not Retrieve Saved App Info Data: ' + error);
+		mainLog.error('[Main]: Could Not Retrieve Saved App Info Data: ' + error);
 		return null;
 	}
 }
@@ -114,7 +114,7 @@ function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assig
 		if (assignmentDueDate > todayDate)
 			continue;
 
-		console.log(`[Main]: Deleting Expired Assignment Not To Remind (${assignment.name})`);
+		mainLog.log(`[Main]: Deleting Expired Assignment Not To Remind (${assignment.name})`);
 
 		assignmentIndexsToBeRemoved.push(i);
 	}
@@ -132,7 +132,7 @@ async function reloadSettingsData(appInfo: AppInfo, debugMode: DebugMode) {
 	if (!debugMode.devKeybinds)
 		return;
 
-	console.log('[DEBUG MODE]: Reloading Settings Data!');
+	mainLog.log('[DEBUG MODE]: Reloading Settings Data!');
 	appInfo.settingsData = await getSavedSettingsData();
 }
 
@@ -140,7 +140,7 @@ async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
 	if (!debugMode.devKeybinds)
 		return;
 
-	console.log('[DEBUG MODE]: Reloading Class Data!');
+	mainLog.log('[DEBUG MODE]: Reloading Class Data!');
 
 	let classData: ClassData | null = null;
 
@@ -156,14 +156,14 @@ async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
 			const canvasAPIToken: string | null = await getSecureText('CanvasAPIToken');
 
 			if (!canvasBaseURL || !canvasAPIToken) {
-				console.error('[DEBUG MODE]: Canvas Credentials are NULL!');				
+				mainLog.error('[DEBUG MODE]: Canvas Credentials are NULL!');				
                 throw Error;
 			}
 
 			const courses = await CanvasUtil.getCoursesFromCanvas(canvasBaseURL, canvasAPIToken);
 			classData = await CanvasUtil.convertToClassData(courses);
         } catch (error) {
-            console.error('[DEBUG MODE]: Failed to Get Class Data From Canvas: ', error);
+            mainLog.error('[DEBUG MODE]: Failed to Get Class Data From Canvas: ', error);
         }
 	}
 	
@@ -175,7 +175,7 @@ function configureAppSettings(settingsData: SettingsData) {
 		openAtLogin: settingsData.launchOnStart
 	});
 
-	console.log('[Main]: Configured App to Launch on System Bootup');
+	mainLog.log('[Main]: Configured App to Launch on System Bootup');
 }
 
 export { getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
