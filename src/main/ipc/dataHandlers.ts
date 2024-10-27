@@ -2,6 +2,8 @@ import * as keytar from 'keytar';
 
 import { ipcMain } from "electron";
 
+import * as electronLog from 'electron-log';
+
 import AppInfo from '../interfaces/appInfo';
 import AppStatus from "../../shared/interfaces/appStatus";
 import DebugMode from "../../shared/interfaces/debugMode";
@@ -15,7 +17,6 @@ import { Canvas } from "../util/canvasAPI/canvas";
 
 import SaveManager from "../util/saveManager";
 import * as DataUtil from '../util/dataUtil';
-import * as CourseUtil from '../util/courseUtil';
 
 import { Assignment } from 'src/shared/interfaces/classData';
 import AppInfoSaveData from '../interfaces/appInfoData';
@@ -28,22 +29,22 @@ function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefin
 
 function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
     ipcMain.handle('writeSavedData', async (event, filename: string, data: object) => {
-        const senderHTMLFilename = getSenderHTMLFile(event);
+        // const senderHTMLFilename = getSenderHTMLFile(event);
+        // electronLog.log(`[Main]: (${senderHTMLFilename}) Write Saved Data (${filename}) Event Was Handled!`);
 
-        console.log(`[Main]: (${senderHTMLFilename}) Write Saved Data (${filename}) Event Was Handled!`);
         return await SaveManager.writeSavedData(filename, data);
     })
     
     ipcMain.handle('getSavedData', async (event, filename: string) => {
-        const senderHTMLFilename = getSenderHTMLFile(event);
+        // const senderHTMLFilename = getSenderHTMLFile(event);
+        // electronLog.log(`[Main]: (${senderHTMLFilename}) Get Saved Data (${filename}) Event Was Handled!`)
 
-        console.log(`[Main]: (${senderHTMLFilename}) Get Saved Data (${filename}) Event Was Handled!`)
         return await SaveManager.getSavedData(filename);
     });
     
     ipcMain.handle('getCachedData', (event, filename: string): object | null => {
         // const senderHTMLFilename = getSenderHTMLFile(event);
-        // console.log(`[Main]: (${senderHTMLFilename}) Get Cached Data (${filename}) Event Was Handled!`)
+        // electronLog.log(`[Main]: (${senderHTMLFilename}) Get Cached Data (${filename}) Event Was Handled!`)
     
         if (filename === 'classData') {
             return appInfo.classData;
@@ -58,7 +59,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     ipcMain.on('updateData', async (event, type: string, data: object | null) => {
         const senderHTMLFilename = getSenderHTMLFile(event);
 
-        console.log(`[Main]: (${senderHTMLFilename}) Update Data (${type}) Event Was Handled!`)
+        electronLog.log(`[Main]: (${senderHTMLFilename}) Update Data (${type}) Event Was Handled!`)
         
         if (type === 'settingsData') {
             const oldSettingsData = appInfo.settingsData;
@@ -69,7 +70,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             if (oldSettingsData?.whenToRemindTimeValue != appInfo.settingsData.whenToRemindTimeValue ||
                 oldSettingsData?.whenToRemindFormatValue != appInfo.settingsData.whenToRemindFormatValue) 
             {
-                console.log('[Main]: Resetting AssignmentsThatHaveBeenReminded and Saving It');
+                electronLog.log('[Main]: Resetting AssignmentsThatHaveBeenReminded and Saving It Due to Settings Change');
 
                 const appInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
@@ -81,7 +82,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
             if (!appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions) {
                 appInfo.assignmentsWithNoSubmissions = [];
-                console.log('[Main]: Cleared Any Assignments With No Submissions From Dont Remind List');
+                electronLog.log('[Main]: Cleared Any Assignments With No Submissions From Dont Remind List');
             }
 
             await startCheckCanvasWorker();
@@ -98,7 +99,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             const self = await canvas.getSelf();
             return { data: self };
         } catch (error) {
-            console.error('[Main]: Failed to Get Self From Canvas Due to Invalid Canvas Credentials - ', error);
+            electronLog.error('[Main]: Failed to Get Self From Canvas Due to Invalid Canvas Credentials - ', error);
             return { data: null, error: 'INVALID CANVAS CREDENTIALS' };
         }
     });

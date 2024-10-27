@@ -1,7 +1,6 @@
 import * as path from 'path';
 
 import { app, shell, dialog } from 'electron';
-import AppInfo from '../interfaces/appInfo';
 
 function openLink(url: string) {
 	try {

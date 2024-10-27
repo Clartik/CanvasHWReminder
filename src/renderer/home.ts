@@ -80,6 +80,8 @@ let settingsData: SettingsData | null;
 
 homeMain();
 
+__electronLog.info('test');
+
 // Main Function
 async function homeMain() {
     settingsData = await homepageGetCachedSettingsData();
