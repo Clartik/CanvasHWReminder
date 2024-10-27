@@ -1,27 +1,14 @@
 import * as electronLog from 'electron-log';
 
-function initializeMainLogger(): electronLog.MainLogger {
-    electronLog.transports.file.fileName = 'Main.log';
-    electronLog.transports.file.level = 'debug';
-
-    electronLog.errorHandler.startCatching();
-
-    return electronLog;
-}
-
-function initializeRendererLogger() {
-    const rendererLogger = createLogger({ filename: 'Renderer.log' });
-    rendererLogger.initialize({ spyRendererConsole: true });
-}
-
 interface CreateLoggerParams {
-    filename: string;
+    logId: string;
     level?: electronLog.LevelOption;
     writeToConsole?: boolean;
     writeToFile?: boolean;
 }
 
 interface CreateLoggerOptions {
+    logId: string;
     filename: string;
     level: electronLog.LevelOption;
     writeToConsole: boolean;
@@ -29,26 +16,68 @@ interface CreateLoggerOptions {
 }
 
 const DEFAULT_CREATE_LOGGER_OPTIONS: CreateLoggerOptions = {
+    logId: '',
     filename: '',
     level: 'debug',
     writeToConsole: true,
     writeToFile: true
 }
 
-function createLogger(params: CreateLoggerParams): electronLog.MainLogger {
-    const options: CreateLoggerOptions = { ...DEFAULT_CREATE_LOGGER_OPTIONS, ...params }
+class Logger {
+    private static loggers: Map<string, electronLog.MainLogger> = new Map();
 
-    const logId: string = options.filename.split('.log')[0];
+    static init(): electronLog.MainLogger {
+        const mainLog = this.initializeMainLogger();
+        this.initializeRendererLogger();
 
-    const logger = electronLog.create({ logId: logId });
+        return mainLog;
+    }
 
-    logger.transports.file.fileName = options.filename;
-    logger.transports.file.level = options.level;
+    static get(logId: string): electronLog.MainLogger | undefined {
+        return this.loggers.get(logId);
+    }
 
-    if (!options.writeToConsole)
-        logger.transports.console.level = false;
+    static add(params: CreateLoggerParams): electronLog.MainLogger {
+        const logger = Logger.createLogger(params);
+        logger.log('-------------- New Session --------------');
 
-    return logger;
+        Logger.loggers.set(params.logId, logger);
+
+        return logger;
+    }
+
+    private static createLogger(params: CreateLoggerParams): electronLog.MainLogger {
+        const options: CreateLoggerOptions = { ...DEFAULT_CREATE_LOGGER_OPTIONS, ...params }
+        options.filename = params.logId + '.log'
+
+        const logger = electronLog.create({ logId: options.logId });
+
+        logger.transports.file.fileName = options.filename;
+        logger.transports.file.level = options.level;
+
+        if (!options.writeToConsole)
+            logger.transports.console.level = false;
+
+        return logger;
+    }
+
+    private static initializeMainLogger(): electronLog.MainLogger {
+        electronLog.transports.file.fileName = 'Main.log';
+        electronLog.transports.file.level = 'debug';
+        
+        electronLog.errorHandler.startCatching();
+
+        electronLog.log('-------------- New Session --------------');
+    
+        return electronLog;
+    }
+
+    private static initializeRendererLogger(): electronLog.MainLogger {
+        const rendererLogger = this.add({ logId: 'Renderer', writeToConsole: false });
+        rendererLogger.initialize({ spyRendererConsole: true });
+
+        return rendererLogger;
+    }
 }
 
-export { createLogger, initializeMainLogger, initializeRendererLogger };
+export default Logger;

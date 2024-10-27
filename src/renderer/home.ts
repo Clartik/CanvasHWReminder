@@ -80,8 +80,6 @@ let settingsData: SettingsData | null;
 
 homeMain();
 
-console.info('test');
-
 // Main Function
 async function homeMain() {
     settingsData = await homepageGetCachedSettingsData();
