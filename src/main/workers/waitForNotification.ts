@@ -5,7 +5,8 @@ import WaitOnNotificationParams from '../interfaces/waitForNotificationParams';
 import WorkerResult from '../interfaces/workerResult';
 
 import * as CourseUtil from '../util/courseUtil';
-import { mainLog } from '../main';
+
+import * as mainLog from 'electron-log';
 
 const sleep = promisify(setTimeout);
 

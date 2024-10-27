@@ -9,7 +9,7 @@ import SettingsData from "../../shared/interfaces/settingsData";
 import IPCGetResult from "../../shared/interfaces/ipcGetResult";
 import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON } from "../../shared/constants";
 
-import { findNextAssignmentAndStartWorker, mainLog, startCheckCanvasWorker } from "../main";
+import { findNextAssignmentAndStartWorker, startCheckCanvasWorker } from "../main";
 
 import { Canvas } from "../util/canvasAPI/canvas";
 
@@ -18,6 +18,8 @@ import * as DataUtil from '../util/dataUtil';
 
 import { Assignment } from 'src/shared/interfaces/classData';
 import AppInfoSaveData from '../interfaces/appInfoData';
+
+import * as mainLog from 'electron-log';
 
 function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefined {
     const senderFileLocations = event.sender.getURL().split('/');

@@ -7,9 +7,11 @@ import AppStatus from "../../shared/interfaces/appStatus";
 import * as DataUtil from '../util/dataUtil';
 import { openLink } from "../util/misc";
 
-import { appMain, mainLog, outputAppLog, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse, showUpdateErrorDialogAndHandleResponse } from "../main";
+import { appMain, outputAppLog, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse, showUpdateErrorDialogAndHandleResponse } from "../main";
 import SettingsData from "src/shared/interfaces/settingsData";
 import { createAssignmentContextMenu } from "../menu";
+
+import * as mainLog from 'electron-log';
 
 function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
 	ipcMain.on('openLink', (event, url: string) => openLink(url));

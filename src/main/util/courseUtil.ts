@@ -1,6 +1,6 @@
 import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
-import { mainLog } from "../main";
+import * as mainLog from 'electron-log';
 
 function getUpcomingAssignments(classData: ClassData): Array<Assignment> {
 	if (classData.classes.length <= 0)

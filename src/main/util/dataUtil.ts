@@ -9,13 +9,15 @@ import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_SETTINGS_DATA_JSON
 
 import * as CanvasUtil from './canvasUtil'
 
-import { mainLog, updateClassData } from '../main';
+import { updateClassData } from '../main';
 import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION } from '../../shared/constants';
 
 import SaveManager from './saveManager';
 import { app } from 'electron';
 
 import AppInfoSaveData from '../interfaces/appInfoData';
+
+import * as mainLog from 'electron-log';
 
 function getDefaultSettingsData(): SettingsData {
 	return {

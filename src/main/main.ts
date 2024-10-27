@@ -34,14 +34,14 @@ import { getIconPath, openLink } from "./util/misc";
 
 import * as MenuUtil from './menu';
 import AppInfoSaveData from './interfaces/appInfoData';
-import { createLogger, initializeRendererLogger } from './logger';
+import { createLogger, initializeMainLogger, initializeRendererLogger } from './logger';
 
 const sleep = promisify(setTimeout);
 
 global.__baseDir = __dirname;
 
-const mainLog = createLogger('Main.log');
-const updaterLog = createLogger('Updater.log');
+const mainLog = initializeMainLogger();
+const updaterLog = createLogger({ filename: 'Updater.log', writeToConsole: false });
 
 initializeRendererLogger();
 
@@ -736,4 +736,4 @@ async function showUpdateErrorDialogAndHandleResponse() {
 
 export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage,
 	findNextAssignmentAndStartWorker, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse,
-	showUpdateErrorDialogAndHandleResponse, openPage, mainLog }
+	showUpdateErrorDialogAndHandleResponse, openPage }

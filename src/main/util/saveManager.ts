@@ -2,7 +2,8 @@ import * as fs from 'fs'
 import * as path from 'path';
 
 import { promisify } from 'util'
-import { mainLog } from '../main';
+
+import * as mainLog from 'electron-log';
 
 const writeFileAsync = promisify(fs.writeFile);
 const readFileAsync = promisify(fs.readFile);

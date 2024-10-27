@@ -8,7 +8,8 @@ import { ClassData } from "../../shared/interfaces/classData";
 
 import * as CanvasUtil from '../util/canvasUtil';
 import CheckCanvasParams from '../interfaces/checkCanvasParams';
-import { mainLog } from '../main';
+
+import * as mainLog from 'electron-log';
 
 const sleep = promisify(setTimeout);
 

@@ -1,4 +1,3 @@
-import { mainLog } from 'src/main/main';
 import { getAPI } from './core'
 
 interface CourseData {
@@ -33,7 +32,7 @@ class Canvas {
 
     constructor(baseURL: string, accessToken: string) {
         if (baseURL.includes('api/v1/'))
-            mainLog.error('Invalid URL!');
+            console.error('Invalid URL!');
 
         this.baseURL = baseURL + 'api/v1/';
         this.accessToken = accessToken;

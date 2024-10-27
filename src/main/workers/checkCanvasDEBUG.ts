@@ -7,7 +7,8 @@ import { ClassData } from "../../shared/interfaces/classData";
 import SaveManager from "../util/saveManager"
 
 import { FILENAME_CLASS_DATA_JSON } from '../../shared/constants';
-import { mainLog } from '../main';
+
+import * as mainLog from 'electron-log';
 
 const sleep = promisify(setTimeout);
 
