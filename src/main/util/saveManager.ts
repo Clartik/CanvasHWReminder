@@ -13,8 +13,6 @@ class SaveManager {
 
     static init(userDataPath: string) {
         this.saveDataPath = userDataPath;
-
-        mainLog.log('[SaveManager]: Initialized Save Data Path!');
     }
 
     static getLocalPath(filename: string): string {

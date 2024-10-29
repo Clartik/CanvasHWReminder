@@ -37,10 +37,12 @@ class Logger {
         return this.loggers.get(logId);
     }
 
+    static getAll(): electronLog.MainLogger[] {
+        return Array.from(this.loggers.values());
+    }
+
     static add(params: CreateLoggerParams): electronLog.MainLogger {
         const logger = Logger.createLogger(params);
-        logger.log('-------------- New Session --------------');
-
         Logger.loggers.set(params.logId, logger);
 
         return logger;
@@ -67,7 +69,7 @@ class Logger {
         
         electronLog.errorHandler.startCatching();
 
-        electronLog.log('-------------- New Session --------------');
+        this.loggers.set('Main', electronLog);
     
         return electronLog;
     }

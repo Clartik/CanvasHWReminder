@@ -47,8 +47,6 @@ const environment: string = process.env.NODE_ENV || 'prod';
 const envFilepath = !app.isPackaged ? path.resolve(__dirname + `../../../.env.${environment}`) : path.resolve(process.resourcesPath, `.env.${environment}`);
 dotenv.config({ path: envFilepath });
 
-mainLog.log(`Node Environment: ` + environment);
-
 const debugMode: DebugMode = {
 	active: process.env.DEBUG_MODE === 'true',
 	useLocalClassData: process.env.DEBUG_USE_LOCAL_CLASS_DATA === 'true',
@@ -109,15 +107,16 @@ appMain();
 //#region App Setup
 
 function createElectronApp() {
-	SaveManager.init(app.getPath('userData'));
-
 	const isLocked = app.requestSingleInstanceLock();
 
 	if (!isLocked) {
 		mainLog.log('[Main]: Another Instance of App Exists! Exiting this Instance!');
 		app.quit();
+		process.exit();
 		return;
 	}
+
+	SaveManager.init(app.getPath('userData'));
 
 	if (appInfo.isDevelopment && process.platform === 'win32')
 		app.setAsDefaultProtocolClient('canvas-hw-reminder', process.execPath, [path.resolve(process.argv[1])]);
@@ -142,6 +141,11 @@ function createElectronApp() {
 	})
 
 	app.whenReady().then(async () => {
+		for (const logger of Logger.getAll())
+			logger.log('-------------- New Session --------------');
+
+		mainLog.log(`Node Environment: ` + environment);
+
 		autoUpdater.autoDownload = false;
 		autoUpdater.channel = process.env.RELEASE_CHANNEL || 'latest';
 
