@@ -493,7 +493,7 @@ function populateClassItemWithData(classes: Array<Class>): void {
                         assignmentButton.classList.remove('hide');
                         
                         assignmentElement.classList.add('dont-remind');
-                        return;
+                        continue;
                     } 
 
                     assignmentElement.title = '';
