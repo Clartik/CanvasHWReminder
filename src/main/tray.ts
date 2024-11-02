@@ -23,14 +23,7 @@ function quitApp(appInfo: AppInfo) {
 
 function createSystemTray(appInfo: AppInfo): Tray {
 	const iconPath: string = getIconPath('icon.ico');
-	let trayTitle: string;
-
-	if (appInfo.isDevelopment) {
-		trayTitle = 'Canvas HW Reminder (DEBUG)'
-	}
-	else {
-		trayTitle = 'Canvas HW Reminder';
-	}
+	const trayTitle: string = electronApp.name;
 
 	const icon = nativeImage.createFromPath(iconPath);
 	const tray = new Tray(icon);

@@ -1,7 +1,7 @@
 {
   "name": "canvas-hw-reminder",
-  "productName": "Canvas HW Reminder",
-  "version": "0.9.0-beta.2",
+  "productName": "Canvas HW Reminder (Dev)",
+  "version": "0.9.0-beta.1",
   "description": "Canvas HW Reminder",
   "author": "Clartik",
   "license": "ISC",
@@ -14,10 +14,8 @@
     "watch": "npx tsc -w",
     "lint": "eslint",
     "build": "npx tsc",
-
     "start": "npm run build && cross-env NODE_ENV=dev electron .",
     "start:prod": "npm run build && cross-env NODE_ENV=prod electron .",
-
     "make": "npm run build && npm run lint && cross-env NODE_ENV=prod electron-builder"
   },
   "devDependencies": {
@@ -33,6 +31,7 @@
     "typescript-eslint": "^8.8.1"
   },
   "dependencies": {
+    "@types/semver": "^7.5.8",
     "dotenv": "^16.4.5",
     "electron-log": "^5.2.0",
     "electron-updater": "^6.3.9",
@@ -40,6 +39,9 @@
     "node-fetch": "^2.6.1"
   },
   "build": {
+    "extraMetadata": {
+      "productName": "Canvas HW Reminder"
+    },
     "appId": "com.clartik.canvashwreminder",
     "files": [
       "./build/**/*",
@@ -64,9 +66,10 @@
           "from": "./assets/images/bell-slash.png",
           "to": "bell-slash.png"
         },
-        ".env.prod"
+        ".env.prod",
+        "./assets/images/bell-slash.png"
       ],
-      "artifactName": "Canvas-HW-Reminder-Setup.${ext}",
+      "artifactName": "Canvas-HW-Reminder-Setup-${version}.${ext}",
       "icon": "./assets/images/icon.ico",
       "publish": [
         {
@@ -76,11 +79,7 @@
       ]
     },
     "nsis": {
-      "installerIcon": "./assets/images/icon.ico",
-      "artifactName": "Canvas-HW-Reminder-Setup-${version}.${ext}",
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true
+      "oneClick": true
     }
   }
 }

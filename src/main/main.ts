@@ -2,10 +2,11 @@ import { Worker } from 'worker_threads'
 import { promisify } from 'util'
 import * as path from 'path';
 import * as dotenv from 'dotenv';
+import * as semver from 'semver';
 
 import { app, shell, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
 
-import { autoUpdater, ProgressInfo, UpdateCheckResult } from 'electron-updater';
+import { autoUpdater, ProgressInfo, UpdateCheckResult, UpdateInfo } from 'electron-updater';
 
 import handleIPCRequests from './ipc/index';
 
@@ -113,7 +114,6 @@ function createElectronApp() {
 		mainLog.log('[Main]: Another Instance of App Exists! Exiting this Instance!');
 		app.quit();
 		process.exit();
-		return;
 	}
 
 	SaveManager.init(app.getPath('userData'));
@@ -213,7 +213,12 @@ function createElectronApp() {
 
 //#region Auto Updater
 
-autoUpdater.on('update-available', async () => {
+autoUpdater.on('update-available', async (info: UpdateInfo) => {
+	if (!semver.gte(info.version, autoUpdater.currentVersion.version)) {
+		updaterLog.log(`Update Not Actually Available! (${info.version} < ${autoUpdater.currentVersion.version}`);
+		return;
+	}
+
 	appStatus.isUpdateAvailable = true;
 	appStatus.updateStatus = 'available';
 
