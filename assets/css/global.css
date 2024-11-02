@@ -1104,3 +1104,7 @@ input:checked + .slider:before {
     text-decoration: underline;
     cursor: pointer;
 }
+
+button:active {
+    transform: scale(0.9) !important;
+}

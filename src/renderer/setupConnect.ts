@@ -26,6 +26,8 @@ async function sleep(ms: number): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+let isConnectingToCanvas = false;
+
 connectMain();
 
 //#region TEMPLATES
@@ -54,10 +56,13 @@ const LOADING_SPINNER_TEMPLATE = `
 //#region Event Listeners
 
 connectBtn.addEventListener('click', async () => {
-    if (!canvasBaseURLInput.value || !canvasAPITokenInput.value || !isValidUrl(canvasBaseURLInput.value))
+    if (!canvasBaseURLInput.value || !canvasAPITokenInput.value || !isValidUrl(canvasBaseURLInput.value) && !isConnectingToCanvas)
         return;
+
+    isConnectingToCanvas = true;
     
     connectBtn.innerHTML = LOADING_SPINNER_TEMPLATE;
+    connectBtn.style.pointerEvents = 'none';
     
     if (!navigator.onLine) {
         await showInfoWidgetForNoInternet();
@@ -165,7 +170,10 @@ async function showInfoWidgetForNoInternet() {
 }
 
 function postConnectBtnClick() {
-    connectBtn.innerHTML = 'Connect to Canvas';  
+    isConnectingToCanvas = false;
+    
+    connectBtn.innerHTML = 'Connect to Canvas';
+    connectBtn.style.pointerEvents = '';
 
     infoWarnWidget.classList.add('hide');
 

@@ -101,7 +101,33 @@ minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
     minimizeOnCloseCheckbox.checked = false;
 })
 
-creditsLinkBtn.addEventListener('click', () => {
+creditsLinkBtn.addEventListener('click', async (event) => {
+    event.preventDefault();
+
+    if (hasSettingsChanged) {
+        const options: Electron.MessageBoxOptions = {
+            type: "warning",
+            title: "Save Settings?",
+            message: "Do you want to save?",
+            buttons: ['Yes', 'No'],
+            defaultId: 0
+        }
+
+        const messageResponse: Electron.MessageBoxReturnValue = await window.api.showMessageDialog(options);
+
+        const YES_BUTTON_RESPONSE = 0;
+
+        if (messageResponse.response === YES_BUTTON_RESPONSE) {
+            saveSecureData();
+
+            const settingsData = getSettingsDataToSave();
+            const success = await window.api.writeSavedData('settings-data.json', settingsData);
+
+            if (success)
+                window.api.updateData('settingsData', settingsData);
+        }
+    }
+
     window.location.href = './credits.html';
 })
 
