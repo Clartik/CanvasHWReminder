@@ -69,7 +69,7 @@
         ".env.prod",
         "./assets/images/bell-slash.png"
       ],
-      "artifactName": "Canvas-HW-Reminder-Setup-${version}.${ext}",
+      "artifactName": "Canvas-HW-Reminder-Setup.${ext}",
       "icon": "./assets/images/icon.ico",
       "publish": [
         {
