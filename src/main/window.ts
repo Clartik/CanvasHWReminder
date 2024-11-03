@@ -1,6 +1,6 @@
 import * as path from 'path';
 
-import { BrowserWindow } from "electron";
+import { app, BrowserWindow } from "electron";
 
 import AppInfo from "./interfaces/appInfo";
 import DebugMode from 'src/shared/interfaces/debugMode';
@@ -12,6 +12,7 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 		height: 600,
 		minWidth: 710,
 		autoHideMenuBar: true,
+		title: app.name,
 		show: true,
 		icon: getIconPath('icon.ico'),
 		webPreferences: {

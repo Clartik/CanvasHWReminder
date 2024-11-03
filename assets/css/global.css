@@ -241,6 +241,11 @@ button {
     box-shadow: 1px 3px 10px var(--shadow-color);
 }
 
+button:active {
+    transition: transform 0.1s !important;
+    transform: scale(0.9) !important;
+}
+
 #setup-pages-separator {
     margin: 15px 0px;   
 }
@@ -593,7 +598,7 @@ select:hover {
     font-family: 'Poppins Regular';
     border: 3px solid var(--primary-color);
     
-    transition: transform ease 0.1s, box-shadow 0.2s ease;
+    transition: transform ease 0.1s, box-shadow 0.2s ease, background-color 0.2s;
 }
 
 .assignment-btn:hover {
@@ -1103,8 +1108,4 @@ input:checked + .slider:before {
 .active#update-progress-bar-label:hover {
     text-decoration: underline;
     cursor: pointer;
-}
-
-button:active {
-    transform: scale(0.9) !important;
 }
