@@ -339,7 +339,6 @@ function launchMainWindowWithCorrectPage() {
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 	else
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
-		// appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 }
 
 function openPage(pageName: string) {
