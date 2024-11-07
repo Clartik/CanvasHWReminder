@@ -150,7 +150,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             return;
         }
 
-        mainLog.log(`[Main]: Could Not Remove Assignment (${assignment.name}) From Don't Remind List Because It Doesn't Exist!`);
+        mainLog.error(`[Main]: Could Not Remove Assignment (${assignment.name}) From Don't Remind List Because It Doesn't Exist!`);
     });
 
     ipcMain.handle('getAssignmentsNotToRemind', () => appInfo.assignmentsToNotRemind)

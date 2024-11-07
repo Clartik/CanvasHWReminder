@@ -430,11 +430,6 @@ function toggleRemind(assignment: Assignment, assignmentElement: HTMLLIElement) 
         console.log(`Assignment (${assignment.name}) Will Not Remind`);
 
         window.api.disableAssignmentReminder(assignment);
-
-        // window.api.showMessageDialog({
-        //     title: "Assignment Won't Remind You",
-        //     message: `You will not be reminded for your "${assignment.name}" Assignment`
-        // });
     }
     else {
         const index = assignmentElementsNotToRemind.indexOf(assignmentElement);
@@ -447,12 +442,14 @@ function toggleRemind(assignment: Assignment, assignmentElement: HTMLLIElement) 
         console.log(`Assignment (${assignment.name}) Will Remind`);
 
         window.api.enableAssignmentReminder(assignment);
-
-        // window.api.showMessageDialog({
-        //     title: "Assignment Will Remind You",
-        //     message: `You will be reminded for your "${assignment.name}" Assignment`
-        // });
     }
+}
+
+interface AssignmentElementInfo {
+    element: HTMLLIElement,
+    label: HTMLParagraphElement,
+    button: HTMLButtonElement,
+    assignment: Assignment
 }
 
 function populateClassItemWithData(classes: Array<Class>): void {
@@ -471,15 +468,17 @@ function populateClassItemWithData(classes: Array<Class>): void {
             const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
             const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
 
+            const assignmentElementInfo: AssignmentElementInfo = {
+                element: assignmentElement, 
+                label: assignmentLabel, 
+                button: assignmentButton, 
+                assignment
+            }
+
             assignmentButton.addEventListener('click', () => window.api.openLink(assignment.html_url));
 
             if (assignment.has_submitted_submissions) {
-                assignmentLabel.innerHTML = assignment.name + ' - Submitted'
-
-                assignmentButton.classList.remove('hide');
-                
-                assignmentElement.classList.add('complete');
-                assignmentButton.classList.add('complete');
+                setAssignmentElementAsSubmitted(assignmentElementInfo);
             }
             else {
                 const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
@@ -488,45 +487,32 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 const isAssignmentOverdue = timeTillDueDate === 'Overdue';
 
                 if (!isAssignmentOverdue) {
-                    if (settingsData?.dontRemindAssignmentsWithNoSubmissions && assignment.submission_types.includes('none')) {
-                        assignmentLabel.innerHTML = assignment.name + ' - No Submission Required';
-                        assignmentButton.classList.remove('hide');
-                        
-                        assignmentElement.classList.add('dont-remind');
+                    const doesAssignmentHaveNoSubmissionsRequired: boolean = assignment.submission_types.includes('none');
+
+                    if (settingsData?.dontRemindAssignmentsWithNoSubmissions && doesAssignmentHaveNoSubmissionsRequired) {
+                        setAssignmentElementAsNoSubmissionsRequired(assignmentElementInfo);
                         continue;
                     } 
 
-                    assignmentElement.title = '';
-    
-                    const assignmentElementThatIsDue: AssignmentElementThatIsDue = {
-                        assignment: assignment,
-                        label: assignmentLabel
-                    };
-                    
-                    assignmentElementsThatAreDue.push(assignmentElementThatIsDue);
+                    setAssignmentElementAsDue(assignmentElementInfo);
 
-                    assignmentButton.classList.remove('hide');
-                        
                     classHeaders[classIndex].classList.add('active');
                     classBoxes[classIndex].classList.remove('collapse');
+
+                    addRightClickToUnremind(assignment, assignmentElement);
                 }
+                else
+                    assignmentElement.title = `Assignment's due date has passed`;
 
                 if (assignmentElementsNotToRemind.includes(assignmentElement)) {
                     assignmentElement.classList.add('dont-remind');
                 }
-
-                addRightClickToUnremind(assignment, assignmentElement);
             }
         }
 
         if (currentClass.assignments.length === 0) {
-            const noAssignmentsDueElement = createAssignmentElement();
+            const noAssignmentsDueElement = addNoAssignmentsElement();
             classBoxes[classIndex].append(noAssignmentsDueElement);
-
-            noAssignmentsDueElement.title = '';
-
-            const assignmentLabel = noAssignmentsDueElement.querySelector('.assignment-label')! as HTMLParagraphElement;
-            assignmentLabel.innerText = 'No Assignments Due';
         }
 
         if (settingsData?.alwaysExpandAllCourseCards) {                    
@@ -534,6 +520,44 @@ function populateClassItemWithData(classes: Array<Class>): void {
             classBoxes[classIndex].classList.remove('collapse');
         }
     }
+}
+
+function addNoAssignmentsElement(): HTMLLIElement {
+    const noAssignmentsDueElement = createAssignmentElement();
+    noAssignmentsDueElement.title = '';
+    
+    const assignmentLabel = noAssignmentsDueElement.querySelector('.assignment-label')! as HTMLParagraphElement;
+    assignmentLabel.innerText = 'No Assignments Due';
+
+    return noAssignmentsDueElement;    
+}
+
+function setAssignmentElementAsSubmitted(elementInfo: AssignmentElementInfo) {
+    elementInfo.label.innerHTML = elementInfo.assignment.name + ' - Submitted'
+
+    elementInfo.button.classList.remove('hide');
+    
+    elementInfo.element.classList.add('complete');
+    elementInfo.button.classList.add('complete');
+}
+
+function setAssignmentElementAsNoSubmissionsRequired(elementInfo: AssignmentElementInfo) {
+    elementInfo.label.innerHTML = elementInfo.assignment.name + ' - No Submission Required';
+    elementInfo.button.classList.remove('hide');    
+    elementInfo.element.classList.add('dont-remind');
+    
+    elementInfo.element.title = "Assignments that don't require submissions aren't reminded";
+}
+
+function setAssignmentElementAsDue(elementInfo: AssignmentElementInfo) {    
+    const assignmentElementThatIsDue: AssignmentElementThatIsDue = {
+        assignment: elementInfo.assignment,
+        label: elementInfo.label
+    };
+    
+    assignmentElementsThatAreDue.push(assignmentElementThatIsDue);
+
+    elementInfo.button.classList.remove('hide');
 }
 
 function configureAssignmentsRemindStatus(assignmentsNotToRemind: Assignment[]) {
