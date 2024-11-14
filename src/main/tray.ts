@@ -6,14 +6,16 @@ import { launchMainWindowWithCorrectPage, outputAppLog } from './main';
 import { getIconPath } from './util/misc';
 
 function showApp(appInfo: AppInfo) {
-	if (!appInfo.isMainWindowHidden)
-		return;
+	if (appInfo.mainWindow) {
+		if (appInfo.mainWindow.isMinimizable())
+			appInfo.mainWindow.restore();
 
-	if (appInfo.mainWindow !== null)
-		return;
-
-	appInfo.isMainWindowHidden = false;
-	launchMainWindowWithCorrectPage();
+		appInfo.mainWindow.focus();
+	}
+	else {
+		appInfo.isMainWindowHidden = false;
+		launchMainWindowWithCorrectPage();
+	}
 }
 
 function quitApp(appInfo: AppInfo) {
