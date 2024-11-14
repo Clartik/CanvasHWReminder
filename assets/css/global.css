@@ -891,6 +891,13 @@ input:checked + .slider:before {
     align-items: center;
     justify-content: center;
     margin-bottom: 10px;
+    padding: 10px;
+}
+
+#loading-circle {
+    width: 25%;
+    height: 25%;
+    animation: rotate 0.8s forwards infinite linear;
 }
 
 #yes-no-container {
@@ -1110,4 +1117,16 @@ input:checked + .slider:before {
 .active#update-progress-bar-label:hover {
     text-decoration: underline;
     cursor: pointer;
+}
+
+
+
+@keyframes rotate {
+    0% {
+        rotate: 0deg;
+    }
+
+    100% {
+        rotate: 360deg;
+    }
 }
