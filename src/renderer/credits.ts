@@ -1,16 +1,11 @@
-// const githubLinkBtn = document.getElementById('github-btn')! as HTMLButtonElement;
 const websiteLinkBtn = document.getElementById('website-btn')! as HTMLButtonElement;
-// const youtubeLinkBtn = document.getElementById('youtube-btn')! as HTMLButtonElement;
-// const instagramLinkBtn = document.getElementById('instragram-link-btn')! as HTMLButtonElement;
 
-// githubLinkBtn.addEventListener('click', () => {
-//     window.api.openLink('https://github.com/Clartik/CanvasHWReminder');
-// })
+const termsLinkCredits = document.getElementById('terms-link')! as HTMLSpanElement;
 
 websiteLinkBtn.addEventListener('click', () => {
     window.api.openLink('https://clartik.github.io/CanvasHWReminder-Website');
 });
 
-// youtubeLinkBtn.addEventListener('click', () => {
-//     window.api.openLink('https://www.youtube.com/@kartech6079')
-// });
+termsLinkCredits.addEventListener('click', () => {
+    window.api.openLink('https://clartik.github.io/CanvasHWReminder-Website/tos.html');
+})

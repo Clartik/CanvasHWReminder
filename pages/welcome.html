@@ -5,12 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../assets/css/global.css">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">
+
+    <script src="../build/renderer/welcome.js" defer></script>
 </head>
 <body>
     <div id="welcome-container">
         <img id="welcome-icon" src="../assets/images/icon.png" alt="Canvas HW Reminder Icon">
         <h1 id="welcome-label">Welcome to<br>Canvas HW Reminder</h1>
-        <button id="welcome-btn" onclick="window.location.href = './setupBaseURL.html'">Begin Setup</button>
+
+        <div id="terms-checkbox-container">
+            <input type="checkbox" name="terms-checkbox" id="terms-checkbox">
+            <label>I accept the <span id="terms-link">Terms and Conditions</span></label>
+        </div>
+
+        <button id="welcome-btn" onclick="window.location.href = './setupBaseURL.html'" disabled>Begin Setup</button>
     </div>
 </body>
 </html>

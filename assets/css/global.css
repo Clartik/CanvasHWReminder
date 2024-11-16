@@ -51,6 +51,10 @@
     --border-radius-widget: 20px;
 }
 
+* {
+    font-family: "Poppins Regular";
+}
+
 img {
     user-select: none;
 }
@@ -219,6 +223,10 @@ input {
     padding: 3px;
 
     transition: all 0.2s;
+}
+
+input[type="checkbox"] {
+    width: auto;
 }
 
 input:disabled {
@@ -429,6 +437,28 @@ select:hover {
     text-shadow: 5px 5px 5px var(--shadow-color);
 }
 
+#terms-checkbox-container {
+    margin-top: -5px;
+    margin-bottom: 20px;
+
+    display: flex;
+    align-items: center;
+}
+
+#terms-checkbox-container-credits {
+    margin: 15px;
+
+    display: flex;
+    align-items: center;
+}
+
+#terms-checkbox {
+    padding: 10px;
+    margin: 0px 7.5px;
+
+    scale: 1.2;
+}
+
 #welcome-btn {
     font-family: 'Poppins Bold';
     font-size: large;
@@ -436,7 +466,29 @@ select:hover {
     border-radius: var(--border-radius-extra);
     background-color: var(--accent-color);
 
-    transition: 0.1s transform;
+    transition: 0.1s transform, 0.2s background-color;
+}
+
+#welcome-btn:disabled {
+    background-color: var(--secondary-color);
+    pointer-events: none;
+}
+
+#terms-link {
+    text-decoration: underline;
+    color: lightblue;
+
+    cursor: pointer;
+
+    transition: 0.1s color;
+}
+
+#terms-link:active {
+    color: var(--primary-color);
+}
+
+.center-container {
+    justify-content: center;
 }
 
 #welcome-btn:hover {
