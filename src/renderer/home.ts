@@ -458,6 +458,19 @@ function populateClassItemWithData(classes: Array<Class>): void {
 
         classHeadersLabels[classIndex].innerHTML = currentClass.name;
 
+        if (settingsData?.alwaysExpandAllCourseCards) {                    
+            classHeaders[classIndex].classList.add('active');
+            classBoxes[classIndex].classList.remove('collapse');
+        }
+
+        if (currentClass.assignments.length === 0) {
+            const noAssignmentsDueElement = addNoAssignmentsElement();
+            classBoxes[classIndex].append(noAssignmentsDueElement);
+            continue;
+        }
+
+        let hasAssignmentsDue = false;
+
         for (const assignment of currentClass.assignments) {
             if (assignment.due_at === null)
                 continue;
@@ -501,6 +514,8 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 classBoxes[classIndex].classList.remove('collapse');
 
                 addRightClickToUnremind(assignment, assignmentElement);
+                
+                hasAssignmentsDue = true;
             }
             else
                 assignmentElement.title = `Assignment's due date has passed`;
@@ -509,15 +524,9 @@ function populateClassItemWithData(classes: Array<Class>): void {
                 assignmentElement.classList.add('dont-remind');
             }
         }
-
-        if (currentClass.assignments.length === 0) {
-            const noAssignmentsDueElement = addNoAssignmentsElement();
-            classBoxes[classIndex].append(noAssignmentsDueElement);
-        }
-
-        if (settingsData?.alwaysExpandAllCourseCards) {                    
-            classHeaders[classIndex].classList.add('active');
-            classBoxes[classIndex].classList.remove('collapse');
+        
+        if (hasAssignmentsDue) {
+            classHeadersLabels[classIndex].innerHTML += ' *';
         }
     }
 }
