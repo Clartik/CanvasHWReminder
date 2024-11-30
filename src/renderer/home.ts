@@ -477,36 +477,36 @@ function populateClassItemWithData(classes: Array<Class>): void {
 
             assignmentButton.addEventListener('click', () => window.api.openLink(assignment.html_url));
 
-            if (assignment.has_submitted_submissions) {
-                setAssignmentElementAsSubmitted(assignmentElementInfo);
+            // Disabled until an accurate way to detect if user has submitted assignment or not is in play
+            // if (assignment.has_submitted_submissions) {
+            //     setAssignmentElementAsSubmitted(assignmentElementInfo);
+            // }
+            
+            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
+            assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
+
+            const isAssignmentOverdue = timeTillDueDate === 'Overdue';
+
+            if (!isAssignmentOverdue) {
+                const doesAssignmentHaveNoSubmissionsRequired: boolean = assignment.submission_types.includes('none');
+
+                if (settingsData?.dontRemindAssignmentsWithNoSubmissions && doesAssignmentHaveNoSubmissionsRequired) {
+                    setAssignmentElementAsNoSubmissionsRequired(assignmentElementInfo);
+                    continue;
+                } 
+
+                setAssignmentElementAsDue(assignmentElementInfo);
+
+                classHeaders[classIndex].classList.add('active');
+                classBoxes[classIndex].classList.remove('collapse');
+
+                addRightClickToUnremind(assignment, assignmentElement);
             }
-            else {
-                const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
-                assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
+            else
+                assignmentElement.title = `Assignment's due date has passed`;
 
-                const isAssignmentOverdue = timeTillDueDate === 'Overdue';
-
-                if (!isAssignmentOverdue) {
-                    const doesAssignmentHaveNoSubmissionsRequired: boolean = assignment.submission_types.includes('none');
-
-                    if (settingsData?.dontRemindAssignmentsWithNoSubmissions && doesAssignmentHaveNoSubmissionsRequired) {
-                        setAssignmentElementAsNoSubmissionsRequired(assignmentElementInfo);
-                        continue;
-                    } 
-
-                    setAssignmentElementAsDue(assignmentElementInfo);
-
-                    classHeaders[classIndex].classList.add('active');
-                    classBoxes[classIndex].classList.remove('collapse');
-
-                    addRightClickToUnremind(assignment, assignmentElement);
-                }
-                else
-                    assignmentElement.title = `Assignment's due date has passed`;
-
-                if (assignmentElementsNotToRemind.includes(assignmentElement)) {
-                    assignmentElement.classList.add('dont-remind');
-                }
+            if (assignmentElementsNotToRemind.includes(assignmentElement)) {
+                assignmentElement.classList.add('dont-remind');
             }
         }
 

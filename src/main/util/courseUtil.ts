@@ -14,8 +14,9 @@ function getUpcomingAssignments(classData: ClassData): Array<Assignment> {
 		for (let assignmentIndex = 0; assignmentIndex < currentClass.assignments.length; assignmentIndex++) {
 			const currentAssignment = currentClass.assignments[assignmentIndex];
 
-			if (currentAssignment.has_submitted_submissions)
-				continue;
+			// Disabled until an accurate way to detect if user has submitted assignment or not is in play
+			// if (currentAssignment.has_submitted_submissions)
+			// 	continue;
 
 			if (currentAssignment.due_at === null)
 				continue;
@@ -59,8 +60,9 @@ function getNextAssignment(upcomingAssignments: Assignment[]): Assignment | null
 	for (let i = 0; i < upcomingAssignments.length; i++) {
 		const currentAssignment = upcomingAssignments[i];
 
-		if (currentAssignment.has_submitted_submissions)
-			continue;
+		// Disabled until an accurate way to detect if user has submitted assignment or not is in play
+		// if (currentAssignment.has_submitted_submissions)
+		// 	continue;
 
 		if (currentAssignment.due_at === null)
 			continue;
