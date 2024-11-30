@@ -541,14 +541,14 @@ function addNoAssignmentsElement(): HTMLLIElement {
     return noAssignmentsDueElement;    
 }
 
-function setAssignmentElementAsSubmitted(elementInfo: AssignmentElementInfo) {
-    elementInfo.label.innerHTML = elementInfo.assignment.name + ' - Submitted'
+// function setAssignmentElementAsSubmitted(elementInfo: AssignmentElementInfo) {
+//     elementInfo.label.innerHTML = elementInfo.assignment.name + ' - Submitted'
 
-    elementInfo.button.classList.remove('hide');
+//     elementInfo.button.classList.remove('hide');
     
-    elementInfo.element.classList.add('complete');
-    elementInfo.button.classList.add('complete');
-}
+//     elementInfo.element.classList.add('complete');
+//     elementInfo.button.classList.add('complete');
+// }
 
 function setAssignmentElementAsNoSubmissionsRequired(elementInfo: AssignmentElementInfo) {
     elementInfo.label.innerHTML = elementInfo.assignment.name + ' - No Submission Required';
