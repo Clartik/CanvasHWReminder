@@ -303,6 +303,10 @@ select:hover {
     transform: scale(1.2);
 }
 
+.link-btn:active {
+    transform: scale(0.9);
+}
+
 .link-btn-image {
     width: 40px;
     color: white;
@@ -448,7 +452,7 @@ select:hover {
 #terms-checkbox-container-credits {
     margin: 15px;
 
-    display: flex;
+    display: grid;
     align-items: center;
 }
 
@@ -474,7 +478,7 @@ select:hover {
     pointer-events: none;
 }
 
-#terms-link {
+.terms-privacy-link {
     text-decoration: underline;
     color: lightblue;
 
@@ -483,8 +487,12 @@ select:hover {
     transition: 0.1s color;
 }
 
-#terms-link:active {
+.terms-privacy-link:hover {
     color: var(--primary-color);
+}
+
+.terms-privacy-link:active {
+    color: var(--primary-color-press);
 }
 
 .center-container {
