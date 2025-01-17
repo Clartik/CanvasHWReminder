@@ -1,4 +1,5 @@
 import * as path from 'path';
+import windowStateKeeper from 'electron-window-state';
 
 import { app, BrowserWindow } from "electron";
 
@@ -7,9 +8,16 @@ import DebugMode from 'src/shared/interfaces/debugMode';
 import { getIconPath } from './util/misc';
 
 function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: string): BrowserWindow {
+	const mainWindowState = windowStateKeeper({
+		defaultWidth: 800,
+		defaultHeight: 600
+	});
+
 	const mainWindow = new BrowserWindow({
-		width: 800,
-		height: 600,
+		x: mainWindowState.x,
+		y: mainWindowState.y,
+		width: mainWindowState.width,
+		height: mainWindowState.height,
 		minWidth: 710,
 		autoHideMenuBar: true,
 		title: app.name,
@@ -21,6 +29,8 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 			devTools: debugMode.active
 		}
 	});
+
+	mainWindowState.manage(mainWindow);
 
 	mainWindow.loadFile(htmlPath);
 	appInfo.isMainWindowHidden = false;
