@@ -15,7 +15,6 @@ function getUpcomingAssignments(classData: ClassData, debugMode: DebugMode): Arr
 		for (let assignmentIndex = 0; assignmentIndex < currentClass.assignments.length; assignmentIndex++) {
 			const currentAssignment = currentClass.assignments[assignmentIndex];
 
-			// Disabled until an accurate way to detect if user has submitted assignment or not is in play
 			if (currentAssignment.has_submitted_submissions && debugMode.enableSubmissions)
 				continue;
 
@@ -61,7 +60,6 @@ function getNextAssignment(upcomingAssignments: Assignment[], debugMode: DebugMo
 	for (let i = 0; i < upcomingAssignments.length; i++) {
 		const currentAssignment = upcomingAssignments[i];
 
-		// Disabled until an accurate way to detect if user has submitted assignment or not is in play
 		if (currentAssignment.has_submitted_submissions && debugMode.enableSubmissions)
 			continue;
 

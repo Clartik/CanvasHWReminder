@@ -391,6 +391,8 @@ function findNextAssignmentAndStartWorker() {
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignments, appInfo.assignmentsToNotRemind);
 
+	mainLog.log(upcomingAssignments)
+
 	const possibleNextAssignment: Assignment | null = CourseUtil.getNextAssignment(upcomingAssignments, debugMode);
 
 	if (possibleNextAssignment === null) {
@@ -500,7 +502,7 @@ function handleURLProtocol(url: string) {
 		case 'open-app': {
 			mainLog.log('[Notification]: Launching App');
 			
-			launchApp();
+			// launchApp();
 			break;
 		}
 

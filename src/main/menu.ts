@@ -54,18 +54,38 @@ function createAppMenu() {
 function createAssignmentContextMenu(webContents: Electron.WebContents, data: ContextMenuParams) {
     const isAssignmentValidForDontRemind = data.isAssignmentValidForDontRemind;
     const isAssignmentInDontRemind = data.isAssignmentInDontRemind;
+    const isAssignmentMarkedAsSubmitted = true;
 
     const returnData: ContextMenuCommandParams = {
         assignment: data.assignment
     };
 
+    const submitIconPath = getIconPath('check.png');
+    const unsubmitIconPath = getIconPath('x.png');
+
     const remindMeIconPath = getIconPath('bell.png');
     const dontRemindMeIconPath = getIconPath('bell-slash.png');
+
+    const submitIcon = nativeImage.createFromPath(submitIconPath).resize({width: 19});
+    const unsubmitIcon = nativeImage.createFromPath(unsubmitIconPath).resize({width: 17});
 
     const remindMeIcon = nativeImage.createFromPath(remindMeIconPath).resize({width: 17});
     const dontRemindMeIcon = nativeImage.createFromPath(dontRemindMeIconPath).resize({width: 25});
 
     const template: MenuItemConstructorOptions[] = [
+        !isAssignmentMarkedAsSubmitted ? 
+        {
+            label: "Mark as Submitted",
+            click: () => {},
+            enabled: true,
+            icon: submitIcon
+        } :
+        {
+            label: "Mark as Unsubmitted",
+            click: () => {},
+            enabled: true,
+            icon: unsubmitIcon
+        },
         isAssignmentInDontRemind ? {
             label: "Remind Me",
             click: () => { webContents.send('context-menu-command', 'do-remind', returnData)},
