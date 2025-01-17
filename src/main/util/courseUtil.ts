@@ -1,8 +1,9 @@
+import DebugMode from "src/shared/interfaces/debugMode";
 import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
 import * as mainLog from 'electron-log';
 
-function getUpcomingAssignments(classData: ClassData): Array<Assignment> {
+function getUpcomingAssignments(classData: ClassData, debugMode: DebugMode): Array<Assignment> {
 	if (classData.classes.length <= 0)
 		return [];
 
@@ -15,8 +16,8 @@ function getUpcomingAssignments(classData: ClassData): Array<Assignment> {
 			const currentAssignment = currentClass.assignments[assignmentIndex];
 
 			// Disabled until an accurate way to detect if user has submitted assignment or not is in play
-			// if (currentAssignment.has_submitted_submissions)
-			// 	continue;
+			if (currentAssignment.has_submitted_submissions && debugMode.enableSubmissions)
+				continue;
 
 			if (currentAssignment.due_at === null)
 				continue;
@@ -45,7 +46,7 @@ function getAssignmentWithDueDate(upcomingAssignments: Assignment[]): Assignment
 	return null;
 }
 
-function getNextAssignment(upcomingAssignments: Assignment[]): Assignment | null {
+function getNextAssignment(upcomingAssignments: Assignment[], debugMode: DebugMode): Assignment | null {
 	if (upcomingAssignments.length === 0)
 		return null;
 
@@ -61,8 +62,8 @@ function getNextAssignment(upcomingAssignments: Assignment[]): Assignment | null
 		const currentAssignment = upcomingAssignments[i];
 
 		// Disabled until an accurate way to detect if user has submitted assignment or not is in play
-		// if (currentAssignment.has_submitted_submissions)
-		// 	continue;
+		if (currentAssignment.has_submitted_submissions && debugMode.enableSubmissions)
+			continue;
 
 		if (currentAssignment.due_at === null)
 			continue;

@@ -3,6 +3,7 @@ import SettingsData from "../shared/interfaces/settingsData";
 
 import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../shared/interfaces/classData";
 import { ContextMenuParams, ContextMenuCommandParams } from "src/shared/interfaces/contextMenuParams";
+import DebugMode from "src/shared/interfaces/debugMode";
 
 //#region TEMPLATES
 
@@ -77,12 +78,14 @@ let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
 let assignmentElementsNotToRemind: HTMLLIElement[] = [];
 
 let settingsData: SettingsData | null;
+let debugMode: DebugMode | null;
 
 homeMain();
 
 // Main Function
 async function homeMain() {
     settingsData = await homepageGetCachedSettingsData();
+    debugMode = await window.api.getDebugMode() as DebugMode;
 
     const classData: ClassData | null = await getCachedClassData();
     const appStatus: AppStatus = await window.api.getAppStatus() as AppStatus;
@@ -489,14 +492,14 @@ function populateClassItemWithData(classes: Array<Class>): void {
             }
 
             assignmentButton.addEventListener('click', () => window.api.openLink(assignment.html_url));
-
-            // Disabled until an accurate way to detect if user has submitted assignment or not is in play
-            // if (assignment.has_submitted_submissions) {
-            //     setAssignmentElementAsSubmitted(assignmentElementInfo);
-            // }
             
             const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
             assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
+
+            // Disabled until an accurate way to detect if user has submitted assignment or not is in play
+            if (assignment.has_submitted_submissions && debugMode?.enableSubmissions) {
+                setAssignmentElementAsSubmitted(assignmentElementInfo);
+            }
 
             const isAssignmentOverdue = timeTillDueDate === 'Overdue';
 
@@ -541,14 +544,14 @@ function addNoAssignmentsElement(): HTMLLIElement {
     return noAssignmentsDueElement;    
 }
 
-// function setAssignmentElementAsSubmitted(elementInfo: AssignmentElementInfo) {
-//     elementInfo.label.innerHTML = elementInfo.assignment.name + ' - Submitted'
+function setAssignmentElementAsSubmitted(elementInfo: AssignmentElementInfo) {
+    elementInfo.label.innerHTML = elementInfo.assignment.name + ' - Submitted'
 
-//     elementInfo.button.classList.remove('hide');
+    elementInfo.button.classList.remove('hide');
     
-//     elementInfo.element.classList.add('complete');
-//     elementInfo.button.classList.add('complete');
-// }
+    elementInfo.element.classList.add('complete');
+    elementInfo.button.classList.add('complete');
+}
 
 function setAssignmentElementAsNoSubmissionsRequired(elementInfo: AssignmentElementInfo) {
     elementInfo.label.innerHTML = elementInfo.assignment.name + ' - No Submission Required';
