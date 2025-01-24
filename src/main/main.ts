@@ -81,7 +81,7 @@ const appInfo: AppInfo = {
 	assignmentsToNotRemind: [],
 	assignmentsWithNoSubmissions: [],
 	
-	assignmentSubmissionTypes: [],
+	assignmentSubmittedTypes: [],
 
 	lastCanvasCheckTime: "Never"
 }
@@ -201,7 +201,8 @@ function createElectronApp() {
 	app.on('before-quit', async () => {
 		const data: AppInfoSaveData = {
 			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
-			assignmentsNotToRemind: appInfo.assignmentsToNotRemind
+			assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
+			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
 		}
 
 		await SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, data);

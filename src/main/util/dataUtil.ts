@@ -18,6 +18,7 @@ import { app } from 'electron';
 import AppInfoSaveData from '../interfaces/appInfoData';
 
 import * as mainLog from 'electron-log';
+import AssignmentSubmissionType from '../interfaces/assignmentSubmittedType';
 
 function getDefaultSettingsData(): SettingsData {
 	return {
@@ -180,5 +181,15 @@ function configureAppSettings(settingsData: SettingsData) {
 	mainLog.log('[Main]: Configured App to Launch on System Bootup');
 }
 
-export { getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
-	configureAppSettings, getAppInfoSaveData, cleanUpUnnecessarySavedAssignmentsAccordingToDueDate }
+async function saveAssignmentSubmittedTypes(assignmentSubmittedTypes: AssignmentSubmissionType[]) {
+	const appInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
+
+	appInfoSaveData.assignmentSubmittedTypes = assignmentSubmittedTypes;
+	SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
+}
+
+export { 
+	getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
+	configureAppSettings, getAppInfoSaveData, cleanUpUnnecessarySavedAssignmentsAccordingToDueDate,
+	saveAssignmentSubmittedTypes
+ }

@@ -1,6 +1,6 @@
 import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
-import AssignmentSubmissionType from "./assignmentSubmissionType";
+import AssignmentSubmittedType from "./assignmentSubmittedType";
 
 interface AppInfo {
 	isDevelopment: boolean,
@@ -20,7 +20,7 @@ interface AppInfo {
 	assignmentsToNotRemind: Assignment[],
 	assignmentsWithNoSubmissions: Assignment[],
 	
-	assignmentSubmissionTypes: AssignmentSubmissionType[],
+	assignmentSubmittedTypes: AssignmentSubmittedType[],
 
 	lastCanvasCheckTime: string
 }
