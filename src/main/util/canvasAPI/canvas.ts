@@ -24,6 +24,7 @@ interface AssignmentData {
     readonly is_quiz_assignment: boolean;
     readonly html_url: string;
     readonly has_submitted_submissions: boolean;
+    readonly submissions: object | null;
 }
 
 class Canvas {
@@ -93,8 +94,14 @@ class Course {
         this.accessToken = accessToken;
     }
 
-    async getAssignments(bucket?: string, order_by?: string): Promise<AssignmentData[]> {
+    async getAssignments(includes?: string[], bucket?: string, order_by?: string): Promise<AssignmentData[]> {
         const params = new URLSearchParams();
+
+        if (includes !== undefined) {
+            for (const element of includes) {
+                params.append('include', element);
+            }
+        }
 
         if (bucket !== undefined)
             params.append('bucket', bucket);
@@ -105,6 +112,9 @@ class Course {
         const url = this.baseURL + `courses/${this.id}/assignments?` + params.toString();
 
         const assignmentObject: object = await getAPI(url, this.accessToken);
+
+        console.log(assignmentObject);
+
         return assignmentObject as AssignmentData[];
     }
 }

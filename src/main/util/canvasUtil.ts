@@ -25,7 +25,7 @@ async function convertToClassData(courses: CanvasAPI.Course[]): Promise<ClassDat
 	const courseClasses: Array<Class> = [];
 
 	for (const course of courses) {
-		const upcomingAssignments = await course.getAssignments('upcoming', 'due_at');
+		const upcomingAssignments = await course.getAssignments(['submission'], 'upcoming', 'due_at');
 		const courseAssignments: Assignment[] = [];
 
 		for (const upcomingAssignment of upcomingAssignments) {
