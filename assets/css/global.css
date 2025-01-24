@@ -1194,3 +1194,42 @@ input:checked + .slider:before {
         rotate: 360deg;
     }
 }
+
+#due-today-sidebar {
+    height: 100vh;
+
+    background-color: var(--secondary-color);
+
+    box-shadow: 1px 3px 10px var(--shadow-color);
+
+    padding: 0px 15px;
+}
+
+#class-main {
+    padding: 0px 15px;
+}
+
+#account-settings-container {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    
+    padding: 15px;
+}
+
+#main-sidebar-container {
+    display: grid;
+    grid-template-columns: 0.5fr 1fr;
+}
+
+.assignment-item-due-today {
+    padding: 5px;
+    margin: 10px 0px;
+
+    border-radius: var(--border-radius);
+    background-color: var(--primary-color);
+    border: 5px solid var(--accent-color);
+
+    transition: background-color 0.1s ease;
+}
