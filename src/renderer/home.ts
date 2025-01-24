@@ -370,7 +370,7 @@ async function loadElementsWithData(classes: Class[]): Promise<void> {
     classHeadersLabels = document.getElementsByClassName('class-header-label') as HTMLCollectionOf<HTMLSpanElement>;
     classBoxes = document.getElementsByClassName("class-box") as HTMLCollectionOf<HTMLUListElement>;
 
-    populateClassItemWithData(classes);
+    await populateClassItemWithData(classes);
 
     const assignmentsNotToRemind = await window.api.getAssignmentsNotToRemind();
     const assignmentsWithNoSubmissions = await window.api.getAssignmentsWithNoSubmissions();
