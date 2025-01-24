@@ -1,4 +1,4 @@
-import { ClassData, Class, Assignment } from "../../shared/interfaces/classData";
+import { ClassData, Class, Assignment, Submission } from "../../shared/interfaces/classData";
 
 import * as CanvasAPI from '../util/canvasAPI/canvas'
 
@@ -35,7 +35,8 @@ async function convertToClassData(courses: CanvasAPI.Course[]): Promise<ClassDat
 				points: upcomingAssignment.points_possible,
 				html_url: upcomingAssignment.html_url,
 				is_quiz_assignment: upcomingAssignment.is_quiz_assignment,
-				has_submitted_submissions: upcomingAssignment.has_submitted_submissions,
+
+				submission: upcomingAssignment.submissions as Submission,
 				submission_types: upcomingAssignment.submission_types,
 
 				due_at: upcomingAssignment.due_at,

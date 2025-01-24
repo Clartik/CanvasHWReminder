@@ -16,7 +16,7 @@ function getUpcomingAssignments(classData: ClassData, debugMode: DebugMode): Arr
 		for (let assignmentIndex = 0; assignmentIndex < currentClass.assignments.length; assignmentIndex++) {
 			const currentAssignment = currentClass.assignments[assignmentIndex];
 
-			if (currentAssignment.has_submitted_submissions && debugMode.enableSubmissions)
+			if (currentAssignment.submission?.workflow_state === 'submitted' && debugMode.enableSubmissions)
 				continue;
 
 			if (currentAssignment.due_at === null)
@@ -61,7 +61,7 @@ function getNextAssignment(upcomingAssignments: Assignment[], debugMode: DebugMo
 	for (let i = 0; i < upcomingAssignments.length; i++) {
 		const currentAssignment = upcomingAssignments[i];
 
-		if (currentAssignment.has_submitted_submissions && debugMode.enableSubmissions)
+		if (currentAssignment.submission?.workflow_state === 'submitted' && debugMode.enableSubmissions)
 			continue;
 
 		if (currentAssignment.due_at === null)

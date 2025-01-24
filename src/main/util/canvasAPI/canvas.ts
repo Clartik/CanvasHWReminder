@@ -19,12 +19,12 @@ interface AssignmentData {
     readonly points_possible: number;
     readonly course_id: number;
     readonly name: string;
-    readonly submission_types: string[];
     readonly due_date_required: boolean;
     readonly is_quiz_assignment: boolean;
     readonly html_url: string;
-    readonly has_submitted_submissions: boolean;
+    
     readonly submissions: object | null;
+    readonly submission_types: string[];
 }
 
 class Canvas {
@@ -112,9 +112,6 @@ class Course {
         const url = this.baseURL + `courses/${this.id}/assignments?` + params.toString();
 
         const assignmentObject: object = await getAPI(url, this.accessToken);
-
-        console.log(assignmentObject);
-
         return assignmentObject as AssignmentData[];
     }
 }

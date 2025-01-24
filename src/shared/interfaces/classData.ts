@@ -14,7 +14,7 @@ interface Assignment {
     readonly points: number;
     readonly html_url: string;
     readonly is_quiz_assignment: boolean;
-    readonly has_submitted_submissions: boolean;
+    readonly submission: Submission | null;
     readonly submission_types: string[];
     
     readonly due_at: string | null;
@@ -22,9 +22,16 @@ interface Assignment {
     readonly lock_at: string | null;
 }
 
+interface Submission {
+    readonly grade: string;
+    readonly workflow_state: string;
+    readonly late: boolean;
+    readonly missing: boolean;
+}
+
 interface AssignmentElementThatIsDue {
     readonly assignment: Assignment;
     readonly label: HTMLParagraphElement;
 }
 
-export { ClassData, Class, Assignment, AssignmentElementThatIsDue }
+export { ClassData, Class, Assignment, Submission, AssignmentElementThatIsDue }
