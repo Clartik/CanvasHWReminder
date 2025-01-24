@@ -291,6 +291,8 @@ async function appMain() {
 		
 		appInfo.assignmentsToNotRemind = appInfoSaveData.assignmentsNotToRemind;
 		appInfo.assignmentsToNotRemind = DataUtil.cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(appInfo.assignmentsToNotRemind);
+
+		appInfo.assignmentSubmittedTypes = appInfoSaveData.assignmentSubmittedTypes;
 	}
 	
 	if (net.isOnline())
@@ -393,8 +395,6 @@ function findNextAssignmentAndStartWorker() {
 
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignments, appInfo.assignmentsToNotRemind);
-
-	mainLog.log(upcomingAssignments)
 
 	const possibleNextAssignment: Assignment | null = CourseUtil.getNextAssignment(upcomingAssignments, debugMode);
 

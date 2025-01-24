@@ -209,6 +209,8 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
         await DataUtil.saveAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
     });
+
+    ipcMain.handle('get-assignment-submitted-types', () => appInfo.assignmentSubmittedTypes);
 }
 
 export default handleFileRequests;

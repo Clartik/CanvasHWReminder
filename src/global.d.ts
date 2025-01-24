@@ -27,7 +27,8 @@ export interface IElectronAPI {
     onContextMenuCommand: (callback: (command: string, data: ContextMenuCommandParams) => void) => void,
     showContextMenu: (type: string, data: ContextMenuParams) => void,
     addAssignmentMarkedAsSubmitted: (assignment: Assignment) => void,
-    addAssignmentMarkedAsUnsubmitted: (assignment: Assignment) => void
+    addAssignmentMarkedAsUnsubmitted: (assignment: Assignment) => void,
+    getAssignmentSubmittedTypes: () => Promise<object[]>
 }
 
 declare global {

@@ -292,7 +292,7 @@ function getIndexOfAssignmentFromAssignmentSubmissionTypes(assignmentSubmissionT
 	for (let i = 0; i < assignmentSubmissionTypes.length; i++) {
 		const assignmentSubmissionType = assignmentSubmissionTypes[i];
 
-		if (assignmentSubmissionType.assignment.name !== assignment.name)
+		if (assignmentSubmissionType.assignment.id !== assignment.id)
 			continue;
 		
 		if (is_submitted_filter !== assignmentSubmissionType.mark_as_submitted)

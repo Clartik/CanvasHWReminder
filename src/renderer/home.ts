@@ -4,6 +4,8 @@ import SettingsData from "../shared/interfaces/settingsData";
 import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../shared/interfaces/classData";
 import { ContextMenuParams, ContextMenuCommandParams } from "src/shared/interfaces/contextMenuParams";
 import DebugMode from "src/shared/interfaces/debugMode";
+import AppInfo from "src/main/interfaces/appInfo";
+import AssignmentSubmissionType from "src/main/interfaces/assignmentSubmittedType";
 
 //#region TEMPLATES
 
@@ -251,9 +253,6 @@ window.api.onRemoveProgressBarTextLink(() => {
 })
 
 window.api.onContextMenuCommand((command: string, data: ContextMenuCommandParams) => {
-    console.log(command);
-    console.log(data);
-
     let assignmentElement: HTMLLIElement | null = null;
 
     for (const classBox of classBoxes) {
@@ -459,7 +458,20 @@ interface AssignmentElementInfo {
     assignment: Assignment
 }
 
-function populateClassItemWithData(classes: Array<Class>): void {
+function getMarkAsSubmitted(assignmentSubmittedTypes: AssignmentSubmissionType[], assignment: Assignment): boolean {
+    let mark_as_submitted = false;
+
+    for (const assignmentSubmittedType of assignmentSubmittedTypes) {
+        if (assignmentSubmittedType.assignment.id !== assignment.id)
+            continue;
+
+        mark_as_submitted = assignmentSubmittedType.mark_as_submitted;
+    }
+
+    return mark_as_submitted;
+}
+
+async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
     for (let classIndex = 0; classIndex < classes.length; classIndex++) {
         const currentClass: Class = classes[classIndex];
 
@@ -477,6 +489,8 @@ function populateClassItemWithData(classes: Array<Class>): void {
         }
 
         let hasAssignmentsDue = false;
+
+        const assignmentSubmittedTypes = await window.api.getAssignmentSubmittedTypes() as AssignmentSubmissionType[];
 
         for (const assignment of currentClass.assignments) {
             if (assignment.due_at === null)
@@ -500,7 +514,9 @@ function populateClassItemWithData(classes: Array<Class>): void {
             const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
             assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 
-            if (assignment.is_submitted && debugMode?.enableSubmissions) {
+            const mark_as_submitted = getMarkAsSubmitted(assignmentSubmittedTypes, assignment);
+
+            if (assignment.is_submitted && debugMode?.enableSubmissions || mark_as_submitted) {
                 setAssignmentElementAsSubmitted(assignmentElementInfo);
             }
 
