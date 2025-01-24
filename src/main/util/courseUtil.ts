@@ -2,7 +2,7 @@ import DebugMode from "src/shared/interfaces/debugMode";
 import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
 import * as mainLog from 'electron-log';
-import AssignmentSubmissionType from "../interfaces/assignmentSubmissionType";
+import AssignmentSubmissionType from "../interfaces/assignmentSubmittedType";
 
 function getUpcomingAssignments(classData: ClassData, debugMode: DebugMode): Array<Assignment> {
 	if (classData.classes.length <= 0)
@@ -16,7 +16,7 @@ function getUpcomingAssignments(classData: ClassData, debugMode: DebugMode): Arr
 		for (let assignmentIndex = 0; assignmentIndex < currentClass.assignments.length; assignmentIndex++) {
 			const currentAssignment = currentClass.assignments[assignmentIndex];
 
-			if (currentAssignment.submission?.workflow_state === 'submitted' && debugMode.enableSubmissions)
+			if (currentAssignment.is_submitted && debugMode.enableSubmissions)
 				continue;
 
 			if (currentAssignment.due_at === null)
@@ -61,7 +61,7 @@ function getNextAssignment(upcomingAssignments: Assignment[], debugMode: DebugMo
 	for (let i = 0; i < upcomingAssignments.length; i++) {
 		const currentAssignment = upcomingAssignments[i];
 
-		if (currentAssignment.submission?.workflow_state === 'submitted' && debugMode.enableSubmissions)
+		if (currentAssignment.is_submitted && debugMode.enableSubmissions)
 			continue;
 
 		if (currentAssignment.due_at === null)
@@ -295,7 +295,7 @@ function getIndexOfAssignmentFromAssignmentSubmissionTypes(assignmentSubmissionT
 		if (assignmentSubmissionType.assignment.name !== assignment.name)
 			continue;
 		
-		if (is_submitted_filter !== assignmentSubmissionType.is_submitted)
+		if (is_submitted_filter !== assignmentSubmissionType.mark_as_submitted)
 			continue;
 
 		return i;
@@ -307,4 +307,4 @@ function getIndexOfAssignmentFromAssignmentSubmissionTypes(assignmentSubmissionT
 export { getUpcomingAssignments, getNextAssignment, filterUpcomingAssignmentsToRemoveRemindedAssignments, 
 	filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind, getTimeTillDueDate, 
 	getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds, getExactDueDate,
-	getAssignmentsWithoutSubmissionsRequired, getIndexOfAssignmentFromAssignmentSubmissionTypes }
+	getAssignmentsWithoutSubmissionsRequired, getIndexOfAssignmentFromAssignmentSubmissionTypes as getIndexOfAssignmentFromAssignmentSubmittedTypes }

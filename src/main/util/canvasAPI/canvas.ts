@@ -23,8 +23,12 @@ interface AssignmentData {
     readonly is_quiz_assignment: boolean;
     readonly html_url: string;
     
-    readonly submissions: object | null;
+    readonly submission: SubmissionData | null;
     readonly submission_types: string[];
+}
+
+interface SubmissionData {
+    readonly workflow_state: string;
 }
 
 class Canvas {

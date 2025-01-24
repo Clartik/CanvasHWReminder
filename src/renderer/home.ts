@@ -500,7 +500,7 @@ function populateClassItemWithData(classes: Array<Class>): void {
             const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
             assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 
-            if (assignment.submission?.workflow_state === 'submitted' && debugMode?.enableSubmissions) {
+            if (assignment.is_submitted && debugMode?.enableSubmissions) {
                 setAssignmentElementAsSubmitted(assignmentElementInfo);
             }
 
