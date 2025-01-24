@@ -157,36 +157,57 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     ipcMain.handle('getAssignmentsNotToRemind', () => appInfo.assignmentsToNotRemind)
     ipcMain.handle('getAssignmentsWithNoSubmissions', () => appInfo.assignmentsWithNoSubmissions)
 
-    ipcMain.on('mark-assignment-submit', (event, assignment: Assignment) => {
-        const index = CourseUtil.getIndexOfAssignmentFromAssignmentSubmissionTypes(appInfo.assignmentSubmissionTypes, assignment, false);
+    ipcMain.on('mark-assignment-submit', async (event, assignment: Assignment) => {
+        // is_submitted_filter is set to false because it needs to filter all assignments that aren't marked as submitted
+        const index = CourseUtil.getIndexOfAssignmentFromAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes, assignment, false);
         const does_assignment_exist = index !== -1;
 
         if (does_assignment_exist) {
-            appInfo.assignmentSubmissionTypes[index].is_submitted = true;
-            mainLog.debug('[Main]: Modifying Saved Assignment Submission Type to Be Submitted')
+            if (assignment.is_submitted) {
+                appInfo.assignmentSubmittedTypes.splice(index, 1);
+                mainLog.debug('[Main]: Deleting Saved Assignment Submitted Type')
+            }
+            else {
+                appInfo.assignmentSubmittedTypes[index].mark_as_submitted = true;
+                mainLog.debug('[Main]: Modifying Saved Assignment Submitted Type to Be Submitted')
+            }
         } else {
-            appInfo.assignmentSubmissionTypes.push({
-                assignment: assignment,
-                is_submitted: true
-            });
-            mainLog.debug('[Main]: Adding a New Assignment Submission Type as Submitted')
+            if (!assignment.is_submitted) {
+                appInfo.assignmentSubmittedTypes.push({
+                    assignment: assignment,
+                    mark_as_submitted: true
+                });
+                mainLog.debug('[Main]: Adding a New Assignment Submitted Type as Submitted')
+            }
         }
+
+        await DataUtil.saveAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
     });
 
-    ipcMain.on('mark-assignment-unsubmit', (event, assignment: Assignment) => {
-        const index = CourseUtil.getIndexOfAssignmentFromAssignmentSubmissionTypes(appInfo.assignmentSubmissionTypes, assignment, true);
+    ipcMain.on('mark-assignment-unsubmit', async (event, assignment: Assignment) => {
+        const index = CourseUtil.getIndexOfAssignmentFromAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes, assignment, true);
         const does_assignment_exist = index !== -1;
 
         if (does_assignment_exist) {
-            appInfo.assignmentSubmissionTypes[index].is_submitted = false;
-            mainLog.debug('[Main]: Modifying Saved Assignment Submission Type to Be Unsubmitted')
+            if (!assignment.is_submitted) {
+                appInfo.assignmentSubmittedTypes.splice(index, 1);
+                mainLog.debug('[Main]: Deleting Saved Assignment Submitted Type')
+            }
+            else {
+                appInfo.assignmentSubmittedTypes[index].mark_as_submitted = false;
+                mainLog.debug('[Main]: Modifying Saved Assignment Submitted Type to Be Unsubmitted')
+            }
         } else {
-            appInfo.assignmentSubmissionTypes.push({
-                assignment: assignment,
-                is_submitted: false
-            });
-            mainLog.debug('[Main]: Adding a New Assignment Submission Type as Unsubmitted')
+            if (assignment.is_submitted) {
+                appInfo.assignmentSubmittedTypes.push({
+                    assignment: assignment,
+                    mark_as_submitted: false
+                });
+                mainLog.debug('[Main]: Adding a New Assignment Submitted Type as Unsubmitted')
+            }
         }
+
+        await DataUtil.saveAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
     });
 }
 
