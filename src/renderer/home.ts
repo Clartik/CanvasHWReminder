@@ -4,7 +4,6 @@ import SettingsData from "../shared/interfaces/settingsData";
 import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../shared/interfaces/classData";
 import { ContextMenuParams, ContextMenuCommandParams } from "src/shared/interfaces/contextMenuParams";
 import DebugMode from "src/shared/interfaces/debugMode";
-import AppInfo from "src/main/interfaces/appInfo";
 import AssignmentSubmissionType from "src/main/interfaces/assignmentSubmittedType";
 
 //#region TEMPLATES
