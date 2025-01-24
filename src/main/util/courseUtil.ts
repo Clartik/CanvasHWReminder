@@ -2,6 +2,7 @@ import DebugMode from "src/shared/interfaces/debugMode";
 import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
 import * as mainLog from 'electron-log';
+import AssignmentSubmissionType from "../interfaces/assignmentSubmissionType";
 
 function getUpcomingAssignments(classData: ClassData, debugMode: DebugMode): Array<Assignment> {
 	if (classData.classes.length <= 0)
@@ -287,7 +288,23 @@ function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsD
 	return secondsToWait;
 }
 
+function getIndexOfAssignmentFromAssignmentSubmissionTypes(assignmentSubmissionTypes: AssignmentSubmissionType[], assignment: Assignment, is_submitted_filter: boolean): number {
+	for (let i = 0; i < assignmentSubmissionTypes.length; i++) {
+		const assignmentSubmissionType = assignmentSubmissionTypes[i];
+
+		if (assignmentSubmissionType.assignment.name !== assignment.name)
+			continue;
+		
+		if (is_submitted_filter !== assignmentSubmissionType.is_submitted)
+			continue;
+
+		return i;
+	}
+
+	return -1;
+}
+
 export { getUpcomingAssignments, getNextAssignment, filterUpcomingAssignmentsToRemoveRemindedAssignments, 
 	filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind, getTimeTillDueDate, 
 	getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds, getExactDueDate,
-	getAssignmentsWithoutSubmissionsRequired }
+	getAssignmentsWithoutSubmissionsRequired, getIndexOfAssignmentFromAssignmentSubmissionTypes }

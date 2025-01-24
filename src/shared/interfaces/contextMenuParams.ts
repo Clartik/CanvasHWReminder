@@ -4,6 +4,7 @@ interface ContextMenuParams {
     assignment: Assignment,
     isAssignmentValidForDontRemind: boolean;
     isAssignmentInDontRemind: boolean;
+    isAssignmentMarkedAsSubmitted: boolean;
 }
 
 interface ContextMenuCommandParams {

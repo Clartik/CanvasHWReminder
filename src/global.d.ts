@@ -25,7 +25,9 @@ export interface IElectronAPI {
     onRemoveProgressBarTextLink: (callback: () => void) => void,
     launchUpdaterDialog: (type: string) => void,
     onContextMenuCommand: (callback: (command: string, data: ContextMenuCommandParams) => void) => void,
-    showContextMenu: (type: string, data: ContextMenuParams) => void
+    showContextMenu: (type: string, data: ContextMenuParams) => void,
+    addAssignmentMarkedAsSubmitted: (assignment: Assignment) => void,
+    addAssignmentMarkedAsUnsubmitted: (assignment: Assignment) => void
 }
 
 declare global {

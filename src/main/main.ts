@@ -80,6 +80,8 @@ const appInfo: AppInfo = {
 	assignmentsThatHaveBeenReminded: [],
 	assignmentsToNotRemind: [],
 	assignmentsWithNoSubmissions: [],
+	
+	assignmentSubmissionTypes: [],
 
 	lastCanvasCheckTime: "Never"
 }

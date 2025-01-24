@@ -29,7 +29,9 @@ const API = {
     launchUpdaterDialog: (type: string) => ipcRenderer.send('launchUpdaterDialog', type),
     getAssignmentsWithNoSubmissions: () => ipcRenderer.invoke('getAssignmentsWithNoSubmissions'),
     onContextMenuCommand: (callback: (command: string, data: ContextMenuCommandParams) => void) => ipcRenderer.on('context-menu-command', (_event, command: string, data: ContextMenuCommandParams) => callback(command, data)),
-    showContextMenu: (type: string, data: ContextMenuParams) => ipcRenderer.send('show-context-menu', type, data)
+    showContextMenu: (type: string, data: ContextMenuParams) => ipcRenderer.send('show-context-menu', type, data),
+    addAssignmentMarkedAsSubmitted: (assignment: Assignment) => ipcRenderer.send('mark-assignment-submit', assignment),
+    addAssignmentMarkedAsUnsubmitted: (assignment: Assignment) => ipcRenderer.send('mark-assignment-unsubmit', assignment)
 }
 
 contextBridge.exposeInMainWorld("api", API);

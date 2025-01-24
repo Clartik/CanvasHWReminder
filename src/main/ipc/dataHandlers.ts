@@ -15,6 +15,7 @@ import { Canvas } from "../util/canvasAPI/canvas";
 
 import SaveManager from "../util/saveManager";
 import * as DataUtil from '../util/dataUtil';
+import * as CourseUtil from '../util/courseUtil';
 
 import { Assignment } from 'src/shared/interfaces/classData';
 import AppInfoSaveData from '../interfaces/appInfoData';
@@ -155,6 +156,38 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
     ipcMain.handle('getAssignmentsNotToRemind', () => appInfo.assignmentsToNotRemind)
     ipcMain.handle('getAssignmentsWithNoSubmissions', () => appInfo.assignmentsWithNoSubmissions)
+
+    ipcMain.on('mark-assignment-submit', (event, assignment: Assignment) => {
+        const index = CourseUtil.getIndexOfAssignmentFromAssignmentSubmissionTypes(appInfo.assignmentSubmissionTypes, assignment, false);
+        const does_assignment_exist = index !== -1;
+
+        if (does_assignment_exist) {
+            appInfo.assignmentSubmissionTypes[index].is_submitted = true;
+            mainLog.debug('[Main]: Modifying Saved Assignment Submission Type to Be Submitted')
+        } else {
+            appInfo.assignmentSubmissionTypes.push({
+                assignment: assignment,
+                is_submitted: true
+            });
+            mainLog.debug('[Main]: Adding a New Assignment Submission Type as Submitted')
+        }
+    });
+
+    ipcMain.on('mark-assignment-unsubmit', (event, assignment: Assignment) => {
+        const index = CourseUtil.getIndexOfAssignmentFromAssignmentSubmissionTypes(appInfo.assignmentSubmissionTypes, assignment, true);
+        const does_assignment_exist = index !== -1;
+
+        if (does_assignment_exist) {
+            appInfo.assignmentSubmissionTypes[index].is_submitted = false;
+            mainLog.debug('[Main]: Modifying Saved Assignment Submission Type to Be Unsubmitted')
+        } else {
+            appInfo.assignmentSubmissionTypes.push({
+                assignment: assignment,
+                is_submitted: false
+            });
+            mainLog.debug('[Main]: Adding a New Assignment Submission Type as Unsubmitted')
+        }
+    });
 }
 
 export default handleFileRequests;
