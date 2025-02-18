@@ -293,6 +293,15 @@ async function appMain() {
 		appInfo.assignmentsToNotRemind = DataUtil.cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(appInfo.assignmentsToNotRemind);
 
 		appInfo.assignmentSubmittedTypes = appInfoSaveData.assignmentSubmittedTypes;
+		appInfo.assignmentSubmittedTypes = DataUtil.cleanUpUnnecessarySavedAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
+
+		const cleanAppInfoSaveData: AppInfoSaveData = {
+			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
+			assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
+			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
+		}
+
+		await SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, cleanAppInfoSaveData);
 	}
 	
 	if (net.isOnline())

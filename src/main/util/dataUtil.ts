@@ -117,7 +117,7 @@ function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assig
 		if (assignmentDueDate > todayDate)
 			continue;
 
-		mainLog.log(`[Main]: Deleting Expired Assignment Not To Remind (${assignment.name})`);
+		mainLog.log(`[Main]: Deleting Expired Saved Assignment (${assignment.name})`);
 
 		assignmentIndexsToBeRemoved.push(i);
 	}
@@ -129,6 +129,35 @@ function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assig
 	}
 
 	return assignments;
+}
+
+function cleanUpUnnecessarySavedAssignmentSubmittedTypes(assignmentSubmittedTypes: AssignmentSubmittedType[]): AssignmentSubmittedType[] {
+	const assignmentIndexsToBeRemoved: number[] = [];
+
+	for (let i = 0; i < assignmentSubmittedTypes.length; i++) {
+		const assignment = assignmentSubmittedTypes[i].assignment;
+		
+		if (!assignment.due_at)
+			continue;
+
+		const assignmentDueDate = new Date(assignment.due_at);
+		const todayDate = new Date();
+
+		if (assignmentDueDate > todayDate)
+			continue;
+
+		mainLog.log(`[Main]: Deleting Expired Saved Assignment Submitted Type (${assignment.name})`);
+
+		assignmentIndexsToBeRemoved.push(i);
+	}
+
+	// Need for the double step because if assignments was purged in loop above, the location of each element would keep changing
+	// This way, it identifies all assignments and removes them accordingly
+	for (const assignmentIndex of assignmentIndexsToBeRemoved) {
+		assignmentSubmittedTypes.splice(assignmentIndex, 1);
+	}
+
+	return assignmentSubmittedTypes;
 }
 
 async function reloadSettingsData(appInfo: AppInfo, debugMode: DebugMode) {
@@ -191,5 +220,5 @@ async function saveAssignmentSubmittedTypes(assignmentSubmittedTypes: Assignment
 export { 
 	getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
 	configureAppSettings, getAppInfoSaveData, cleanUpUnnecessarySavedAssignmentsAccordingToDueDate,
-	saveAssignmentSubmittedTypes
+	saveAssignmentSubmittedTypes, cleanUpUnnecessarySavedAssignmentSubmittedTypes
  }
