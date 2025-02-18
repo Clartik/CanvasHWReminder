@@ -388,6 +388,7 @@ function findNextAssignmentAndStartWorker() {
 	if (!appInfo.settingsData)
 		return;
 
+	// TODO: Filter out assignments marked as submitted from next assignment list!
 	if (appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions)
 		appInfo.assignmentsWithNoSubmissions = CourseUtil.getAssignmentsWithoutSubmissionsRequired(appInfo.settingsData, appInfo.classData);
 
@@ -395,6 +396,7 @@ function findNextAssignmentAndStartWorker() {
 
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignments, appInfo.assignmentsToNotRemind);
+	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveSubmittedAssignments(upcomingAssignments, appInfo.assignmentSubmittedTypes);
 
 	const possibleNextAssignment: Assignment | null = CourseUtil.getNextAssignment(upcomingAssignments, debugMode);
 

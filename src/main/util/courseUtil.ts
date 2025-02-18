@@ -2,7 +2,7 @@ import DebugMode from "src/shared/interfaces/debugMode";
 import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
 import * as mainLog from 'electron-log';
-import AssignmentSubmissionType from "../interfaces/assignmentSubmittedType";
+import AssignmentSubmittedType from "../interfaces/assignmentSubmittedType";
 
 function getUpcomingAssignments(classData: ClassData, debugMode: DebugMode): Array<Assignment> {
 	if (classData.classes.length <= 0)
@@ -110,7 +110,7 @@ function filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignment
 			if (indexToRemove > -1)
 				upcomingAssignments.splice(indexToRemove, 1);
 			else
-			mainLog.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments That Have Been Reminded');
+				mainLog.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments That Have Been Reminded');
 		}	
 	}
 
@@ -129,6 +129,27 @@ function filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignm
 				upcomingAssignments.splice(indexToRemove, 1);
 			else
 				mainLog.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments Not To Remind');
+		}	
+	}
+
+	return upcomingAssignments;
+}
+
+function filterUpcomingAssignmentsToRemoveSubmittedAssignments(upcomingAssignments: Assignment[], assignmentSubmissionTypes: AssignmentSubmittedType[]): Assignment[] {
+	for (const assignmentSubmissionType of assignmentSubmissionTypes) {
+		for (const upcomingAssignment of upcomingAssignments) {
+			if (!assignmentSubmissionType.mark_as_submitted)
+				continue;
+
+			if (upcomingAssignment.id !== assignmentSubmissionType.assignment.id)
+				continue;
+
+			const indexToRemove: number = upcomingAssignments.indexOf(upcomingAssignment);
+
+			if (indexToRemove > -1)
+				upcomingAssignments.splice(indexToRemove, 1);
+			else
+				mainLog.warn('[Main]: Failed to Filter Upcoming Assigments From Submitted Assignments');
 		}	
 	}
 
@@ -288,7 +309,7 @@ function getSecondsToWaitTillNotification(nextAssignmentDueAt: string, settingsD
 	return secondsToWait;
 }
 
-function getIndexOfAssignmentFromAssignmentSubmissionTypes(assignmentSubmissionTypes: AssignmentSubmissionType[], assignment: Assignment, is_submitted_filter: boolean): number {
+function getIndexOfAssignmentFromAssignmentSubmittedTypes(assignmentSubmissionTypes: AssignmentSubmittedType[], assignment: Assignment, is_submitted_filter: boolean): number {
 	for (let i = 0; i < assignmentSubmissionTypes.length; i++) {
 		const assignmentSubmissionType = assignmentSubmissionTypes[i];
 
@@ -307,4 +328,5 @@ function getIndexOfAssignmentFromAssignmentSubmissionTypes(assignmentSubmissionT
 export { getUpcomingAssignments, getNextAssignment, filterUpcomingAssignmentsToRemoveRemindedAssignments, 
 	filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind, getTimeTillDueDate, 
 	getTimeTillDueDateFromSecondsDiff, getSecondsToWaitTillNotification, getTimeDiffInSeconds, getExactDueDate,
-	getAssignmentsWithoutSubmissionsRequired, getIndexOfAssignmentFromAssignmentSubmissionTypes as getIndexOfAssignmentFromAssignmentSubmittedTypes }
+	getAssignmentsWithoutSubmissionsRequired, getIndexOfAssignmentFromAssignmentSubmittedTypes,
+	filterUpcomingAssignmentsToRemoveSubmittedAssignments }

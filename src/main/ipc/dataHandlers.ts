@@ -182,6 +182,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         }
 
         await DataUtil.saveAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
+        findNextAssignmentAndStartWorker();
     });
 
     ipcMain.on('mark-assignment-unsubmit', async (event, assignment: Assignment) => {
@@ -208,6 +209,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         }
 
         await DataUtil.saveAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
+        findNextAssignmentAndStartWorker();
     });
 
     ipcMain.handle('get-assignment-submitted-types', () => appInfo.assignmentSubmittedTypes);

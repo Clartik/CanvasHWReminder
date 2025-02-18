@@ -1,10 +1,10 @@
 import { Assignment } from "src/shared/interfaces/classData";
-import AssignmentSubmissionType from "./assignmentSubmittedType";
+import AssignmentSubmittedType from "./assignmentSubmittedType";
 
 interface AppInfoSaveData {
     assignmentsThatHaveBeenReminded: Assignment[],
     assignmentsNotToRemind: Assignment[],
-    assignmentSubmittedTypes: AssignmentSubmissionType[]
+    assignmentSubmittedTypes: AssignmentSubmittedType[]
 }
 
 export default AppInfoSaveData;

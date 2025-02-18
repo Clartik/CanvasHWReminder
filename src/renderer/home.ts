@@ -4,7 +4,7 @@ import SettingsData from "../shared/interfaces/settingsData";
 import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../shared/interfaces/classData";
 import { ContextMenuParams, ContextMenuCommandParams } from "src/shared/interfaces/contextMenuParams";
 import DebugMode from "src/shared/interfaces/debugMode";
-import AssignmentSubmissionType from "src/main/interfaces/assignmentSubmittedType";
+import AssignmentSubmittedType from "src/main/interfaces/assignmentSubmittedType";
 
 //#region TEMPLATES
 
@@ -404,7 +404,7 @@ function generateAllClassItems(classAmount: number): void {
     }
 }
 
-function addRightClickToUnremind(assignment: Assignment, assignmentElement: HTMLLIElement) {
+function addContextMenu(assignment: Assignment, assignmentElement: HTMLLIElement, markAsSubmitted: boolean) {
     assignmentElement.addEventListener('contextmenu', (event) => {
         event.preventDefault();
 
@@ -412,7 +412,7 @@ function addRightClickToUnremind(assignment: Assignment, assignmentElement: HTML
     
         const isAssignmentValidForDontRemind: boolean = assignmentLabel.innerText !== 'No Assignments Due' || !assignmentLabel.innerText.includes('Overdue');
         const isAssignmentInDontRemind = assignmentElementsNotToRemind.includes(assignmentElement);
-        const isAssignmentMarkedAsSubmitted = assignmentLabel.innerHTML.includes('- Submitted');
+        const isAssignmentMarkedAsSubmitted = assignment.is_submitted || markAsSubmitted;
 
         const params: ContextMenuParams = {
             assignment: assignment,
@@ -457,17 +457,15 @@ interface AssignmentElementInfo {
     assignment: Assignment
 }
 
-function getMarkAsSubmitted(assignmentSubmittedTypes: AssignmentSubmissionType[], assignment: Assignment): boolean {
-    let mark_as_submitted = false;
-
+function getIsAssignmentMarkedAsSubmitted(assignmentSubmittedTypes: AssignmentSubmittedType[], assignment: Assignment): boolean {
     for (const assignmentSubmittedType of assignmentSubmittedTypes) {
         if (assignmentSubmittedType.assignment.id !== assignment.id)
             continue;
 
-        mark_as_submitted = assignmentSubmittedType.mark_as_submitted;
+        return assignmentSubmittedType.mark_as_submitted;
     }
 
-    return mark_as_submitted;
+    return false;
 }
 
 async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
@@ -487,9 +485,9 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
             continue;
         }
 
-        let hasAssignmentsDue = false;
+        let doesClassHaveAssignmentsDue = false;
 
-        const assignmentSubmittedTypes = await window.api.getAssignmentSubmittedTypes() as AssignmentSubmissionType[];
+        const assignmentSubmittedTypes = await window.api.getAssignmentSubmittedTypes() as AssignmentSubmittedType[];
 
         for (const assignment of currentClass.assignments) {
             if (assignment.due_at === null)
@@ -499,44 +497,45 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
             classBoxes[classIndex].append(assignmentElement);
 
             const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
+
+            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
+            assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
+
             const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
+            assignmentButton.addEventListener('click', () => window.api.openLink(assignment.html_url));
 
             const assignmentElementInfo: AssignmentElementInfo = {
                 element: assignmentElement, 
                 label: assignmentLabel, 
                 button: assignmentButton, 
-                assignment
-            }
-
-            assignmentButton.addEventListener('click', () => window.api.openLink(assignment.html_url));
-            
-            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
-            assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
-
-            const mark_as_submitted = getMarkAsSubmitted(assignmentSubmittedTypes, assignment);
-
-            if (assignment.is_submitted && debugMode?.enableSubmissions || mark_as_submitted) {
-                setAssignmentElementAsSubmitted(assignmentElementInfo);
+                assignment: assignment
             }
 
             const isAssignmentOverdue = timeTillDueDate === 'Overdue';
 
             if (!isAssignmentOverdue) {
+                const is_marked_as_submitted: boolean = getIsAssignmentMarkedAsSubmitted(assignmentSubmittedTypes, assignment);
+
+                addContextMenu(assignment, assignmentElement, is_marked_as_submitted);
+
+                if (assignment.is_submitted && debugMode?.enableSubmissions || is_marked_as_submitted) {
+                    setAssignmentElementAsSubmitted(assignmentElementInfo);
+                    continue;
+                }
+
                 const doesAssignmentHaveNoSubmissionsRequired: boolean = assignment.submission_types.includes('none');
 
                 if (settingsData?.dontRemindAssignmentsWithNoSubmissions && doesAssignmentHaveNoSubmissionsRequired) {
                     setAssignmentElementAsNoSubmissionsRequired(assignmentElementInfo);
                     continue;
-                } 
+                }
 
                 setAssignmentElementAsDue(assignmentElementInfo);
 
                 classHeaders[classIndex].classList.add('active');
                 classBoxes[classIndex].classList.remove('collapse');
-
-                addRightClickToUnremind(assignment, assignmentElement);
                 
-                hasAssignmentsDue = true;
+                doesClassHaveAssignmentsDue = true;
             }
             else
                 assignmentElement.title = `Assignment's due date has passed`;
@@ -546,7 +545,7 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
             }
         }
         
-        if (hasAssignmentsDue) {
+        if (doesClassHaveAssignmentsDue) {
             classHeadersLabels[classIndex].innerHTML += '*';
         }
     }
