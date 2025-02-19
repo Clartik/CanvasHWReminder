@@ -77,6 +77,7 @@ const checkForUpdatesTimeInSec: number = 60;                // Every Minute
 
 let assignmentElementsThatAreDue: AssignmentElementThatIsDue[] = [];
 let assignmentElementsNotToRemind: HTMLLIElement[] = [];
+let assignmentSubmittedTypes: AssignmentSubmittedType[] = [];
 
 let settingsData: SettingsData | null;
 let debugMode: DebugMode | null;
@@ -251,7 +252,7 @@ window.api.onRemoveProgressBarTextLink(() => {
     updateProgressBarLabel.classList.remove('active');
 })
 
-window.api.onContextMenuCommand((command: string, data: ContextMenuCommandParams) => {
+window.api.onContextMenuCommand(async (command: string, data: ContextMenuCommandParams) => {
     let assignmentElement: HTMLLIElement | null = null;
 
     for (const classBox of classBoxes) {
@@ -281,6 +282,7 @@ window.api.onContextMenuCommand((command: string, data: ContextMenuCommandParams
         case 'mark-submit':
         case 'mark-unsubmit':
             toggleAssignmentElementAsSubmitted(data.assignment, assignmentElement);
+            assignmentSubmittedTypes = await window.api.getAssignmentSubmittedTypes() as AssignmentSubmittedType[];
             break;
     
         default:
@@ -404,15 +406,24 @@ function generateAllClassItems(classAmount: number): void {
     }
 }
 
-function addContextMenu(assignment: Assignment, assignmentElement: HTMLLIElement, markAsSubmitted: boolean) {
+function addContextMenu(assignment: Assignment, assignmentElement: HTMLLIElement) {
     assignmentElement.addEventListener('contextmenu', (event) => {
         event.preventDefault();
 
         const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
-    
+        
+        let mark_as_submit = false;
+
+        for (const assignmentSubmissionType of assignmentSubmittedTypes) {
+            if (assignmentSubmissionType.assignment.id !== assignment.id)
+                continue;
+
+            mark_as_submit = assignmentSubmissionType.mark_as_submitted;
+        }
+
         const isAssignmentValidForDontRemind: boolean = assignmentLabel.innerText !== 'No Assignments Due' || !assignmentLabel.innerText.includes('Overdue');
         const isAssignmentInDontRemind = assignmentElementsNotToRemind.includes(assignmentElement);
-        const isAssignmentMarkedAsSubmitted = assignment.is_submitted || markAsSubmitted;
+        const isAssignmentMarkedAsSubmitted: boolean = assignment.is_submitted || mark_as_submit;
 
         const params: ContextMenuParams = {
             assignment: assignment,
@@ -487,7 +498,7 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
 
         let doesClassHaveAssignmentsDue = false;
 
-        const assignmentSubmittedTypes = await window.api.getAssignmentSubmittedTypes() as AssignmentSubmittedType[];
+        assignmentSubmittedTypes = await window.api.getAssignmentSubmittedTypes() as AssignmentSubmittedType[];
 
         for (const assignment of currentClass.assignments) {
             if (assignment.due_at === null)
@@ -516,7 +527,7 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
             if (!isAssignmentOverdue) {
                 const is_marked_as_submitted: boolean = getIsAssignmentMarkedAsSubmitted(assignmentSubmittedTypes, assignment);
 
-                addContextMenu(assignment, assignmentElement, is_marked_as_submitted);
+                addContextMenu(assignment, assignmentElement);
 
                 if (assignment.is_submitted && debugMode?.enableSubmissions || is_marked_as_submitted) {
                     setAssignmentElementAsSubmitted(assignmentElementInfo);
@@ -527,6 +538,10 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
 
                 if (settingsData?.dontRemindAssignmentsWithNoSubmissions && doesAssignmentHaveNoSubmissionsRequired) {
                     setAssignmentElementAsNoSubmissionsRequired(assignmentElementInfo);
+
+                    classHeaders[classIndex].classList.add('active');
+                    classBoxes[classIndex].classList.remove('collapse');
+
                     continue;
                 }
 
