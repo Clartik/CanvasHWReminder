@@ -7,7 +7,7 @@ import AppStatus from "../../shared/interfaces/appStatus";
 import * as DataUtil from '../util/dataUtil';
 import { openLink } from "../util/misc";
 
-import { appMain, outputAppLog, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse, showUpdateErrorDialogAndHandleResponse } from "../main";
+import { appMain, openSaveFolder, outputAppLog, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse, showUpdateErrorDialogAndHandleResponse } from "../main";
 import SettingsData from "src/shared/interfaces/settingsData";
 import { createAssignmentContextMenu } from "../menu";
 
@@ -33,6 +33,10 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 	
 			case 'F5':
 				await DataUtil.reloadClassData(appInfo, debugMode);
+				break;
+
+			case 'F11':
+				openSaveFolder();
 				break;
 
 			case 'F12':

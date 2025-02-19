@@ -712,6 +712,10 @@ function launchApp() {
 		launchMainWindowWithCorrectPage();
 }
 
+function openSaveFolder() {	
+	shell.openPath(SaveManager.saveDataPath);
+}
+
 // #endregion
 
 async function showUpdateAvailableDialogAndHandleResponse() {
@@ -760,4 +764,4 @@ async function showUpdateErrorDialogAndHandleResponse() {
 
 export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage,
 	findNextAssignmentAndStartWorker, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse,
-	showUpdateErrorDialogAndHandleResponse, openPage }
+	showUpdateErrorDialogAndHandleResponse, openPage, openSaveFolder }

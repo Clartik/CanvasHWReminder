@@ -47,6 +47,10 @@ document.addEventListener('keydown', (event: KeyboardEvent) => {
             API.keyPress('F5');
             break;
 
+        case 'F11':
+            API.keyPress('F11');
+            break;
+
         case 'F12':
             API.keyPress('F12');
             break;
