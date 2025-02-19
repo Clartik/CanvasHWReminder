@@ -27,7 +27,7 @@ import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
 import * as UpdaterUtil from './util/updaterUtil';
 
-import { FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
+import { APP_INFO_SAVE_DATA_VERSION, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
 
 import SaveManager from './util/saveManager';
 
@@ -200,6 +200,7 @@ function createElectronApp() {
 
 	app.on('before-quit', async () => {
 		const data: AppInfoSaveData = {
+			version: APP_INFO_SAVE_DATA_VERSION,
 			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
 			assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
@@ -296,6 +297,7 @@ async function appMain() {
 		appInfo.assignmentSubmittedTypes = DataUtil.cleanUpUnnecessarySavedAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
 
 		const cleanAppInfoSaveData: AppInfoSaveData = {
+			version: APP_INFO_SAVE_DATA_VERSION,
 			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
 			assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes

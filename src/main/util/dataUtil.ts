@@ -10,7 +10,7 @@ import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_SETTINGS_DATA_JSON
 import * as CanvasUtil from './canvasUtil'
 
 import { updateClassData } from '../main';
-import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION } from '../../shared/constants';
+import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION, APP_INFO_SAVE_DATA_VERSION } from '../../shared/constants';
 
 import SaveManager from './saveManager';
 import { app } from 'electron';
@@ -40,6 +40,16 @@ function getDefaultSettingsData(): SettingsData {
 
         silenceNotifications: false,
         keepNotificationsOnScreen: true
+	}
+}
+
+function getDefaultAppInfoSaveData(): AppInfoSaveData {
+	return {
+		version: APP_INFO_SAVE_DATA_VERSION,
+
+		assignmentsThatHaveBeenReminded: [],
+    	assignmentsNotToRemind: [],
+    	assignmentSubmittedTypes: []
 	}
 }
 
@@ -89,13 +99,32 @@ async function upgradeSettingsData(savedSettingsData: SettingsData): Promise<Set
 	return upgradedSettingsData;
 }
 
+async function upgradeAppInfoSaveData(savedAppInfoSaveData: AppInfoSaveData): Promise<AppInfoSaveData> {
+	const defaultAppInfoSaveData: AppInfoSaveData = getDefaultAppInfoSaveData();
+
+	const upgradedAppInfoSaveData: AppInfoSaveData = { ...defaultAppInfoSaveData, ...savedAppInfoSaveData };
+	upgradedAppInfoSaveData.version = APP_INFO_SAVE_DATA_VERSION;
+
+	mainLog.log(`[Main]: Upgraded Saved App Info Save Data to Latest Version! (${upgradedAppInfoSaveData.version})`);
+	await SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, upgradedAppInfoSaveData);
+
+	return upgradedAppInfoSaveData;
+}
+
 async function getAppInfoSaveData(): Promise<AppInfoSaveData | null> {
 	try {
-		const appInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
+		const savedAppInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
+
+		if (savedAppInfoSaveData.version < APP_INFO_SAVE_DATA_VERSION || !Object.prototype.hasOwnProperty.call(savedAppInfoSaveData, "version")) {
+			mainLog.warn(`[Main]: Saved App Info Save Data Has Old Version! (${savedAppInfoSaveData.version})`)
+
+			const upgradedAppInfoSaveData = await upgradeAppInfoSaveData(savedAppInfoSaveData);
+			return upgradedAppInfoSaveData;
+		}
 
 		mainLog.log('[Main]: App Info Save Data is Loaded!');
 		
-		return appInfoSaveData;
+		return savedAppInfoSaveData;
 	} catch (error) {
 		mainLog.error('[Main]: Could Not Retrieve Saved App Info Data: ' + error);
 		return null;
@@ -220,5 +249,5 @@ async function saveAssignmentSubmittedTypes(assignmentSubmittedTypes: Assignment
 export { 
 	getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
 	configureAppSettings, getAppInfoSaveData, cleanUpUnnecessarySavedAssignmentsAccordingToDueDate,
-	saveAssignmentSubmittedTypes, cleanUpUnnecessarySavedAssignmentSubmittedTypes
+	saveAssignmentSubmittedTypes, cleanUpUnnecessarySavedAssignmentSubmittedTypes, upgradeAppInfoSaveData
  }
