@@ -531,6 +531,10 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
 
                 if (assignment.is_submitted && debugMode?.enableSubmissions || is_marked_as_submitted) {
                     setAssignmentElementAsSubmitted(assignmentElementInfo);
+
+                    classHeaders[classIndex].classList.add('active');
+                    classBoxes[classIndex].classList.remove('collapse');
+                    
                     continue;
                 }
 
