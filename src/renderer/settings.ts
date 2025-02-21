@@ -65,8 +65,6 @@ launchOnStartCheckbox.addEventListener('click', async (event) => {
     if (launchOnStartCheckbox.checked)
         return;
 
-    event.preventDefault();
-
     const NO_BUTTON_RESPONSE: number = 1;
 
     const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
@@ -86,8 +84,6 @@ minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
     if (minimizeOnCloseCheckbox.checked)
         return;
 
-    event.preventDefault();
-
     const NO_BUTTON_RESPONSE: number = 1;
 
     const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
@@ -101,6 +97,25 @@ minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
         return;
 
     minimizeOnCloseCheckbox.checked = false;
+})
+
+autoMarkSubmissionsCheckbox.addEventListener('click', async (event) => {
+    if (!autoMarkSubmissionsCheckbox.checked)
+        return;
+
+    const NO_BUTTON_RESPONSE: number = 1;
+
+    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+        type: "warning",
+        title: "Are you sure? [BETA]",
+        message: `Are you sure you want to enable "Auto mark submitted assignments?"\nThis feature is in BETA and may not work as expected at all times.`,
+        buttons: ['Yes', 'No']
+    })
+
+    if (response.response === NO_BUTTON_RESPONSE)
+        return;
+
+    autoMarkSubmissionsCheckbox.checked = true;
 })
 
 creditsLinkBtn.addEventListener('click', async (event) => {
@@ -345,8 +360,13 @@ function addEventsToCheckIfSettingsChanged() {
         const element = changeableElements[i];
     
         element.addEventListener('change', () => {
+            console.log('a')
             if (!hasSettingsChanged)
+            {
+                console.log('b');
+                
                 hasSettingsChanged = true;
+            }
         });
     };
 }

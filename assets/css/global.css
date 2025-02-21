@@ -1276,6 +1276,7 @@ input:checked + .slider:before {
 
 #changes-container {
     margin-top: 15px;
+    margin-bottom: 100px;
 }
 
 .accent-color {

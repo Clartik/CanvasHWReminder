@@ -427,7 +427,7 @@ function addContextMenu(assignment: Assignment, assignmentElement: HTMLLIElement
 
         const isAssignmentValidForDontRemind: boolean = assignmentLabel.innerText !== 'No Assignments Due' || !assignmentLabel.innerText.includes('Overdue');
         const isAssignmentInDontRemind = assignmentElementsNotToRemind.includes(assignmentElement);
-        const isAssignmentMarkedAsSubmitted: boolean = assignment.is_submitted || mark_as_submit;
+        const isAssignmentMarkedAsSubmitted: boolean = assignment.is_submitted && settingsData?.autoMarkSubmissions || mark_as_submit;
 
         const params: ContextMenuParams = {
             assignment: assignment,
