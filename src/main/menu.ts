@@ -36,6 +36,11 @@ function createAppMenu() {
                     label: "Setup Configure",
                     click: () => openPage('setupConfigure')
                 },
+                { type: "separator" },
+                { 
+                    label: "What's New",
+                    click: () => openPage('whatsNew')
+                },
             ]
         },
         {

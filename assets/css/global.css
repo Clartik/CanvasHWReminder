@@ -1233,3 +1233,55 @@ input:checked + .slider:before {
 
     transition: background-color 0.1s ease;
 }
+
+.text-align-left {
+    text-align: left;
+}
+
+#whats-new-container {
+    padding: 15px;
+}
+
+#whats-new-button {
+    margin: 10px;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    text-decoration: none;
+
+    font-size: 18px;
+    font-family: "Poppins Bold";
+
+    transition: 0.1s ease scale;
+
+    cursor: pointer;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 5px 10px;
+    box-shadow: 1px 3px 10px var(--shadow-color);
+}
+
+#whats-new-button:hover {
+    scale: 1.1;
+}
+
+.whats-new-list {
+    display: grid;
+    list-style-type: initial;
+    gap: 10px;
+}
+
+.whats-new-list-bullet::marker {
+    color: var(--accent-color);
+}
+
+#changes-container {
+    margin-top: 15px;
+}
+
+.accent-color {
+    color: var(--accent-color);
+}
+
+.bold-text {
+    font-family: "Poppins Bold";
+}
