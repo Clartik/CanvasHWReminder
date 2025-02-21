@@ -52,15 +52,13 @@ const debugMode: DebugMode = {
 	active: process.env.DEBUG_MODE === 'true',
 	useLocalClassData: process.env.DEBUG_USE_LOCAL_CLASS_DATA === 'true',
 	devKeybinds: process.env.DEBUG_KEYBINDS === 'true',
-	saveFetchedClassData: process.env.DEBUG_SAVE_FETCHED_CLASS_DATA === 'true',
-	enableSubmissions: process.env.DEBUG_ENABLE_SUBMISSIONS === 'true'
+	saveFetchedClassData: process.env.DEBUG_SAVE_FETCHED_CLASS_DATA === 'true'
 };
 
 if (!debugMode.active) {
 	debugMode.useLocalClassData = false;
 	debugMode.devKeybinds = false;
 	debugMode.saveFetchedClassData = false;
-	debugMode.enableSubmissions = false;
 }
 
 const appInfo: AppInfo = {
@@ -403,13 +401,13 @@ function findNextAssignmentAndStartWorker() {
 	if (appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions)
 		appInfo.assignmentsWithNoSubmissions = CourseUtil.getAssignmentsWithoutSubmissionsRequired(appInfo.settingsData, appInfo.classData);
 
-	let upcomingAssignments = CourseUtil.getUpcomingAssignments(appInfo.classData, debugMode);
+	let upcomingAssignments = CourseUtil.getUpcomingAssignments(appInfo.classData, appInfo.settingsData);
 
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignments, appInfo.assignmentsThatHaveBeenReminded);
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignments, appInfo.assignmentsToNotRemind);
 	upcomingAssignments = CourseUtil.filterUpcomingAssignmentsToRemoveSubmittedAssignments(upcomingAssignments, appInfo.assignmentSubmittedTypes);
 
-	const possibleNextAssignment: Assignment | null = CourseUtil.getNextAssignment(upcomingAssignments, debugMode);
+	const possibleNextAssignment: Assignment | null = CourseUtil.getNextAssignment(upcomingAssignments, appInfo.settingsData);
 
 	if (possibleNextAssignment === null) {
 		mainLog.log('[Main]: There is No Next Assignment');

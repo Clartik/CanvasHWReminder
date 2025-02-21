@@ -17,6 +17,8 @@ interface SettingsData {
 
     readonly silenceNotifications: boolean;
     readonly keepNotificationsOnScreen: boolean;
+
+    readonly autoMarkSubmissions: boolean;
 }
 
 export default SettingsData;

@@ -4,7 +4,7 @@ import SettingsData from "../../shared/interfaces/settingsData";
 import * as mainLog from 'electron-log';
 import AssignmentSubmittedType from "../interfaces/assignmentSubmittedType";
 
-function getUpcomingAssignments(classData: ClassData, debugMode: DebugMode): Array<Assignment> {
+function getUpcomingAssignments(classData: ClassData, settingsData: SettingsData): Array<Assignment> {
 	if (classData.classes.length <= 0)
 		return [];
 
@@ -16,7 +16,7 @@ function getUpcomingAssignments(classData: ClassData, debugMode: DebugMode): Arr
 		for (let assignmentIndex = 0; assignmentIndex < currentClass.assignments.length; assignmentIndex++) {
 			const currentAssignment = currentClass.assignments[assignmentIndex];
 
-			if (currentAssignment.is_submitted && debugMode.enableSubmissions)
+			if (currentAssignment.is_submitted && settingsData.autoMarkSubmissions)
 				continue;
 
 			if (currentAssignment.due_at === null)
@@ -46,7 +46,7 @@ function getAssignmentWithDueDate(upcomingAssignments: Assignment[]): Assignment
 	return null;
 }
 
-function getNextAssignment(upcomingAssignments: Assignment[], debugMode: DebugMode): Assignment | null {
+function getNextAssignment(upcomingAssignments: Assignment[], settingsData: SettingsData): Assignment | null {
 	if (upcomingAssignments.length === 0)
 		return null;
 
@@ -61,7 +61,7 @@ function getNextAssignment(upcomingAssignments: Assignment[], debugMode: DebugMo
 	for (let i = 0; i < upcomingAssignments.length; i++) {
 		const currentAssignment = upcomingAssignments[i];
 
-		if (currentAssignment.is_submitted && debugMode.enableSubmissions)
+		if (currentAssignment.is_submitted && settingsData.autoMarkSubmissions)
 			continue;
 
 		if (currentAssignment.due_at === null)

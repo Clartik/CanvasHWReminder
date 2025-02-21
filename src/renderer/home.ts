@@ -3,7 +3,7 @@ import SettingsData from "../shared/interfaces/settingsData";
 
 import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../shared/interfaces/classData";
 import { ContextMenuParams, ContextMenuCommandParams } from "src/shared/interfaces/contextMenuParams";
-import DebugMode from "src/shared/interfaces/debugMode";
+// import DebugMode from "src/shared/interfaces/debugMode";
 import AssignmentSubmittedType from "src/main/interfaces/assignmentSubmittedType";
 
 //#region TEMPLATES
@@ -56,6 +56,10 @@ const LOADING_CIRCLE_TEMPLATE: string = `
     <img id="loading-circle" src="../assets/images/Loading.gif" alt="Loading GIF" width="200px" height="200px">
 `;
 
+const BETA_TEXT_TEMPLATE: string = `
+    <span class="accent-color bold-text">[</span><span class="bold-text">BETA</span><span class="accent-color bold-text">]</span>
+`
+
 //#endregion
 
 const classContainer = document.getElementById('class-container') as HTMLDivElement;
@@ -80,14 +84,14 @@ let assignmentElementsNotToRemind: HTMLLIElement[] = [];
 let assignmentSubmittedTypes: AssignmentSubmittedType[] = [];
 
 let settingsData: SettingsData | null;
-let debugMode: DebugMode | null;
+// let debugMode: DebugMode | null;
 
 homeMain();
 
 // Main Function
 async function homeMain() {
     settingsData = await homepageGetCachedSettingsData();
-    debugMode = await window.api.getDebugMode() as DebugMode;
+    // debugMode = await window.api.getDebugMode() as DebugMode;
 
     const classData: ClassData | null = await getCachedClassData();
     const appStatus: AppStatus = await window.api.getAppStatus() as AppStatus;
@@ -529,8 +533,8 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
 
                 addContextMenu(assignment, assignmentElement);
 
-                if (assignment.is_submitted && debugMode?.enableSubmissions || is_marked_as_submitted) {
-                    setAssignmentElementAsSubmitted(assignmentElementInfo);
+                if (assignment.is_submitted && settingsData?.autoMarkSubmissions || is_marked_as_submitted) {
+                    setAssignmentElementAsSubmitted(assignmentElementInfo, is_marked_as_submitted);
 
                     classHeaders[classIndex].classList.add('active');
                     classBoxes[classIndex].classList.remove('collapse');
@@ -580,8 +584,11 @@ function addNoAssignmentsElement(): HTMLLIElement {
     return noAssignmentsDueElement;    
 }
 
-function setAssignmentElementAsSubmitted(elementInfo: AssignmentElementInfo) {
-    elementInfo.label.innerHTML = elementInfo.assignment.name + ' - Submitted'
+function setAssignmentElementAsSubmitted(elementInfo: AssignmentElementInfo, is_manually_marked_as_submitted: boolean) {
+    if (is_manually_marked_as_submitted)
+        elementInfo.label.innerHTML = elementInfo.assignment.name + ' - Submitted'
+    else
+        elementInfo.label.innerHTML = elementInfo.assignment.name + ' - Submitted ' + BETA_TEXT_TEMPLATE
 
     elementInfo.button.classList.remove('hide');
     

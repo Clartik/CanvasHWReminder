@@ -18,6 +18,8 @@ const dontRemindAssignmentsWithNoSubmissionsCheckbox = document.getElementById('
 const silenceNotificationsCheckbox = document.getElementById('silence-notifications-checkbox')! as HTMLInputElement;
 const keepNotificationsOnScreenCheckbox = document.getElementById('keep-notifications-on-screen-checkbox')! as HTMLInputElement;
 
+const autoMarkSubmissionsCheckbox = document.getElementById('auto-mark-submissions-checkbox')! as HTMLInputElement;
+
 const doneBtn = document.getElementById('done-btn')! as HTMLButtonElement;
 
 const DAY_TIME_OPTIONS: Array<string> = [];
@@ -229,7 +231,9 @@ function getSettingsDataToSave(): SettingsData {
         dontRemindAssignmentsWithNoSubmissions: dontRemindAssignmentsWithNoSubmissionsCheckbox.checked,
 
         silenceNotifications: silenceNotificationsCheckbox.checked,
-        keepNotificationsOnScreen: keepNotificationsOnScreenCheckbox.checked
+        keepNotificationsOnScreen: keepNotificationsOnScreenCheckbox.checked,
+
+        autoMarkSubmissions: autoMarkSubmissionsCheckbox.checked
     };
 }
 

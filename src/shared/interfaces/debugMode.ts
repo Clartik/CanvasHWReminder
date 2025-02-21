@@ -3,7 +3,6 @@ interface DebugMode {
     devKeybinds: boolean;
     saveFetchedClassData: boolean;
     useLocalClassData: boolean;
-    enableSubmissions: boolean;
 }
 
 export default DebugMode;

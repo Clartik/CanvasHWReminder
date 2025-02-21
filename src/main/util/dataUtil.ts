@@ -39,7 +39,9 @@ function getDefaultSettingsData(): SettingsData {
 		dontRemindAssignmentsWithNoSubmissions: false,
 
         silenceNotifications: false,
-        keepNotificationsOnScreen: true
+        keepNotificationsOnScreen: true,
+
+		autoMarkSubmissions: false
 	}
 }
 

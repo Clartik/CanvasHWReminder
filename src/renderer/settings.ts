@@ -23,6 +23,8 @@ const dontRemindAssignmentsWithNoSubmissionsCheckbox = document.getElementById('
 const silenceNotificationsCheckbox = document.getElementById('silence-notifications-checkbox')! as HTMLInputElement;
 const keepNotificationsOnScreenCheckbox = document.getElementById('keep-notifications-on-screen-checkbox')! as HTMLInputElement;
 
+const autoMarkSubmissionsCheckbox = document.getElementById('auto-mark-submissions-checkbox')! as HTMLInputElement;
+
 const howLongPastDueTimeDropdown = document.getElementById('how-long-past-due-time-dropdown')! as HTMLSelectElement;
 const howLongPastDueFormatDropdown = document.getElementById('how-long-past-due-format-dropdown')! as HTMLSelectElement;
 
@@ -220,9 +222,6 @@ function populateElementsWithData(settingsData: SettingsData) {
     if (settingsData === null)
         return;
 
-
-    
-
     launchOnStartCheckbox.checked = settingsData.launchOnStart;
     minimizeOnLaunchCheckbox.checked = settingsData.minimizeOnLaunch;
     minimizeOnCloseCheckbox.checked = settingsData.minimizeOnClose;
@@ -234,6 +233,8 @@ function populateElementsWithData(settingsData: SettingsData) {
 
     silenceNotificationsCheckbox.checked = settingsData.silenceNotifications;
     keepNotificationsOnScreenCheckbox.checked = settingsData.keepNotificationsOnScreen;
+
+    autoMarkSubmissionsCheckbox.checked = settingsData.autoMarkSubmissions;
 
     whenToRemindFormatDropdown.value = settingsData.whenToRemindFormatValue;
     populateTimeDropdownWithCorrectOptions(whenToRemindTimeDropdown, whenToRemindFormatDropdown);
@@ -272,7 +273,9 @@ function getSettingsDataToSave(): SettingsData {
         dontRemindAssignmentsWithNoSubmissions: dontRemindAssignmentsWithNoSubmissionsCheckbox.checked,
 
         silenceNotifications: silenceNotificationsCheckbox.checked,
-        keepNotificationsOnScreen: keepNotificationsOnScreenCheckbox.checked
+        keepNotificationsOnScreen: keepNotificationsOnScreenCheckbox.checked,
+
+        autoMarkSubmissions: autoMarkSubmissionsCheckbox.checked
     };
 }
 
