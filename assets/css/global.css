@@ -1286,3 +1286,15 @@ input:checked + .slider:before {
 .bold-text {
     font-family: "Poppins Bold";
 }
+
+.drop-shadow {
+    box-shadow: 1px 3px 10px var(--shadow-color);
+}
+
+.whats-new-img {
+    box-shadow: 1px 3px 10px var(--shadow-color);
+    margin-bottom: 5px;
+    border-radius: var(--border-radius);
+
+    width: 500px;
+}
