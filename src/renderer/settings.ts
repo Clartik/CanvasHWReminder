@@ -61,7 +61,7 @@ async function settingsMain() {
 
 //#region Event Handlers
 
-launchOnStartCheckbox.addEventListener('click', async (event) => {
+launchOnStartCheckbox.addEventListener('click', async () => {
     if (launchOnStartCheckbox.checked)
         return;
 
@@ -80,7 +80,7 @@ launchOnStartCheckbox.addEventListener('click', async (event) => {
     launchOnStartCheckbox.checked = false;
 })
 
-minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
+minimizeOnCloseCheckbox.addEventListener('click', async () => {
     if (minimizeOnCloseCheckbox.checked)
         return;
 
@@ -99,7 +99,7 @@ minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
     minimizeOnCloseCheckbox.checked = false;
 })
 
-autoMarkSubmissionsCheckbox.addEventListener('click', async (event) => {
+autoMarkSubmissionsCheckbox.addEventListener('click', async () => {
     if (!autoMarkSubmissionsCheckbox.checked)
         return;
 

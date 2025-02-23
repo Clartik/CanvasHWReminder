@@ -1,4 +1,3 @@
-import DebugMode from "src/shared/interfaces/debugMode";
 import { ClassData, Assignment } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
 import * as mainLog from 'electron-log';
