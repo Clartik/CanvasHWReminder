@@ -27,7 +27,7 @@ import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
 import * as UpdaterUtil from './util/updaterUtil';
 
-import { APP_INFO_SAVE_DATA_VERSION, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON } from '../shared/constants';
+import { APP_INFO_SAVE_DATA_VERSION, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON, FILENAME_WHATS_NEW_JSON } from '../shared/constants';
 
 import SaveManager from './util/saveManager';
 
@@ -36,6 +36,7 @@ import { getIconPath, openLink } from "./util/misc";
 import * as MenuUtil from './menu';
 import AppInfoSaveData from './interfaces/appInfoData';
 import Logger from './logger';
+import WhatsNew from './interfaces/whatsNew';
 
 const sleep = promisify(setTimeout);
 
@@ -103,6 +104,8 @@ let systemTray: Electron.Tray;
 let checkCanvasWorker: Worker | null = null;
 let waitForNotificationWorker: Worker | null = null;
 
+let whatsNew: WhatsNew | null = null;
+
 createElectronApp();
 handleIPCRequests(appInfo, appStatus, debugMode);
 appMain();
@@ -168,6 +171,9 @@ function createElectronApp() {
 		
 		while (!appInfo.settingsData && !appStatus.isSetupNeeded)
 			await sleep(100);
+
+		whatsNew = await DataUtil.getSaveData(FILENAME_WHATS_NEW_JSON) as WhatsNew | null;
+		console.log('Whats New: ' + whatsNew);
 	
 		if (appInfo.settingsData?.minimizeOnLaunch) {
 			appInfo.isMainWindowHidden = true;
@@ -351,10 +357,27 @@ async function appMain() {
 };
 
 function launchMainWindowWithCorrectPage() {
-	if (appStatus.isSetupNeeded)
+	if (appStatus.isSetupNeeded) {
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
-	else
-		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+		return;
+	}
+	
+	if (whatsNew === null || semver.gt(app.getVersion(), whatsNew.version) || !whatsNew.shown) {
+		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/whatsNew.html');
+
+		whatsNew = { 
+			version: app.getVersion(),
+			shown: true
+		};
+
+		SaveManager.writeSavedData(FILENAME_WHATS_NEW_JSON, whatsNew);
+		mainLog.log('[Main]: Whats New Page Will Not Show Anymore');
+
+		return;
+	}
+
+	appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+
 }
 
 function openPage(pageName: string) {
@@ -516,7 +539,7 @@ function handleURLProtocol(url: string) {
 		case 'open-app': {
 			mainLog.log('[Notification]: Launching App');
 			
-			// launchApp();
+			launchApp();
 			break;
 		}
 

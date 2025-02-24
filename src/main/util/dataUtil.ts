@@ -133,6 +133,19 @@ async function getAppInfoSaveData(): Promise<AppInfoSaveData | null> {
 	}
 }
 
+async function getSaveData(filename: string): Promise<object | null> {
+	try {
+		const savedData: object = await SaveManager.getSavedData(filename);
+
+		mainLog.log(`[Main]: Loaded Saved Data (${filename})`)
+
+		return savedData;
+	} catch (error) {
+		mainLog.error(`[Main]: Could Not Retrieve Saved Data (${filename}): ` + error)
+		return null;
+	}
+}
+
 function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assignment[]): Assignment[] {
 	const assignmentIndexsToBeRemoved: number[] = [];
 
@@ -251,5 +264,6 @@ async function saveAssignmentSubmittedTypes(assignmentSubmittedTypes: Assignment
 export { 
 	getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
 	configureAppSettings, getAppInfoSaveData, cleanUpUnnecessarySavedAssignmentsAccordingToDueDate,
-	saveAssignmentSubmittedTypes, cleanUpUnnecessarySavedAssignmentSubmittedTypes, upgradeAppInfoSaveData
+	saveAssignmentSubmittedTypes, cleanUpUnnecessarySavedAssignmentSubmittedTypes, upgradeAppInfoSaveData,
+	getSaveData
  }
