@@ -341,7 +341,7 @@ function createClassItem(): HTMLDivElement {
 function createAssignmentElement(): HTMLLIElement {
     const assignmentElement = document.createElement('li');
     assignmentElement.classList.add('assignment-item');
-    assignmentElement.title = 'Right Click to Toggle Whether Assignment Should Remind You or Not'
+    assignmentElement.title = "Right click to see how to modify assignment's state"
     assignmentElement.innerHTML = ASSIGNMENT_TEMPLATE;
     return assignmentElement;
 }
@@ -590,7 +590,7 @@ function setAssignmentElementAsSubmitted(elementInfo: AssignmentElementInfo, is_
     else
         elementInfo.label.innerHTML = elementInfo.assignment.name + ' - Submitted ' + BETA_TEXT_TEMPLATE
 
-    elementInfo.button.classList.remove('hide');
+    elementInfo.button.classList.add('hide');
     
     elementInfo.element.classList.add('complete');
     elementInfo.button.classList.add('complete');
@@ -606,9 +606,9 @@ function toggleAssignmentElementAsSubmitted(assignment: Assignment, assignmentEl
         window.api.addAssignmentMarkedAsSubmitted(assignment);
         
         assignmentLabel.innerHTML = assignment.name + ' - Submitted';
-
-        assignmentButton.classList.remove('hide');
         
+        assignmentButton.classList.add('hide');
+
         assignmentElement.classList.add('complete');
         assignmentButton.classList.add('complete');
     } else {
@@ -622,6 +622,8 @@ function toggleAssignmentElementAsSubmitted(assignment: Assignment, assignmentEl
         }
 
         assignmentLabel.innerHTML = assignment.name;
+
+        assignmentButton.classList.add('hide');
         
         assignmentElement.classList.remove('complete');
         assignmentButton.classList.remove('complete');
