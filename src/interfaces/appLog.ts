@@ -1,6 +1,6 @@
-import AppStatus from "../../shared/interfaces/appStatus";
+import AppStatus from "./appStatus";
 import AppInfo from "./appInfo";
-import DebugMode from "../../shared/interfaces/debugMode";
+import DebugMode from "./debugMode";
 
 interface WorkerInfo {
     readonly checkCanvasWorker: string;

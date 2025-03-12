@@ -1,4 +1,4 @@
-import SettingsData from "../shared/interfaces/settingsData";
+import SettingsData from "../interfaces/settingsData";
 
 const whenToRemindTimeDropdown = document.getElementById('when-to-remind-time-dropdown')! as HTMLSelectElement;
 const whenToRemindFormatDropdown = document.getElementById('when-to-remind-format-dropdown')! as HTMLSelectElement;

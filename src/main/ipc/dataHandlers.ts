@@ -1,26 +1,24 @@
 import * as keytar from 'keytar';
 
 import { ipcMain } from "electron";
+import * as mainLog from 'electron-log';
 
-import AppInfo from '../interfaces/appInfo';
-import AppStatus from "../../shared/interfaces/appStatus";
-import DebugMode from "../../shared/interfaces/debugMode";
-import SettingsData from "../../shared/interfaces/settingsData";
-import IPCGetResult from "../../shared/interfaces/ipcGetResult";
+import AppInfo from '../../interfaces/appInfo';
+import AppStatus from "../../interfaces/appStatus";
+import DebugMode from "../../interfaces/debugMode";
+import SettingsData from "../../interfaces/settingsData";
+import IPCGetResult from "../../interfaces/ipcGetResult";
+import { Assignment } from '../..//interfaces/classData';
+import AppInfoSaveData from '../../interfaces/appInfoData';
+
 import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON } from "../../shared/constants";
 
-import { findNextAssignmentAndStartWorker, startCheckCanvasWorker } from "../main";
-
 import { Canvas } from "../util/canvasAPI/canvas";
-
 import SaveManager from "../util/saveManager";
 import * as DataUtil from '../util/dataUtil';
 import * as CourseUtil from '../util/courseUtil';
 
-import { Assignment } from 'src/shared/interfaces/classData';
-import AppInfoSaveData from '../interfaces/appInfoData';
-
-import * as mainLog from 'electron-log';
+import { findNextAssignmentAndStartWorker, startCheckCanvasWorker } from "../main";
 
 function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefined {
     const senderFileLocations = event.sender.getURL().split('/');

@@ -2,14 +2,13 @@ import { parentPort } from 'worker_threads'
 import { promisify } from 'util'
 import { FetchError } from 'node-fetch';
 
-import WorkerResult from '../interfaces/workerResult';
+import * as mainLog from 'electron-log';
 
-import { ClassData } from "../../shared/interfaces/classData";
+import WorkerResult from '../../interfaces/workerResult';
+import { ClassData } from "../../interfaces/classData";
+import CheckCanvasParams from '../../interfaces/checkCanvasParams';
 
 import * as CanvasUtil from '../util/canvasUtil';
-import CheckCanvasParams from '../interfaces/checkCanvasParams';
-
-import * as mainLog from 'electron-log';
 
 const sleep = promisify(setTimeout);
 

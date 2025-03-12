@@ -1,5 +1,5 @@
 import { Assignment } from "src/shared/interfaces/classData";
-import AssignmentSubmittedType from "./assignmentSubmittedType";
+import AssignmentSubmittedType from "../main/interfaces/assignmentSubmittedType";
 
 interface AppInfoSaveData {
     version: string;

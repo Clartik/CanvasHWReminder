@@ -1,7 +1,7 @@
-import { Assignment } from "src/shared/interfaces/classData";
-import { ContextMenuParams, ContextMenuCommandParams } from "src/shared/interfaces/contextMenuParams";
-
 import { contextBridge, ipcRenderer } from "electron";
+
+import { Assignment } from "../interfaces/classData";
+import { ContextMenuParams, ContextMenuCommandParams } from "../interfaces/contextMenuParams";
 
 type UpdateDataCallback = (type: string, data: object | null) => void;
 

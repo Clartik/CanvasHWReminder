@@ -1,6 +1,6 @@
-import AppInfo from "../interfaces/appInfo";
-import DebugMode from "../../shared/interfaces/debugMode";
-import AppStatus from "../../shared/interfaces/appStatus";
+import AppInfo from "../../interfaces/appInfo";
+import DebugMode from "../../interfaces/debugMode";
+import AppStatus from "../../interfaces/appStatus";
 
 import { ipcMain } from "electron";
 import { promisify } from 'util'

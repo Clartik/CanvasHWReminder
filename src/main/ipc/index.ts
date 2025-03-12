@@ -1,6 +1,6 @@
-import AppInfo from "../interfaces/appInfo"
-import AppStatus from "../../shared/interfaces/appStatus";
-import DebugMode from "../../shared/interfaces/debugMode";
+import AppInfo from "../../interfaces/appInfo"
+import AppStatus from "../../interfaces/appStatus";
+import DebugMode from "../../interfaces/debugMode";
 
 import handleFileRequests from "./dataHandlers";
 import handleUserRequests from "./userHandlers";

@@ -1,5 +1,5 @@
-import { ClassData, Assignment } from "../../shared/interfaces/classData";
-import SettingsData from "../../shared/interfaces/settingsData";
+import { ClassData, Assignment } from "./classData";
+import SettingsData from "./settingsData";
 import AssignmentSubmittedType from "./assignmentSubmittedType";
 
 interface AppInfo {

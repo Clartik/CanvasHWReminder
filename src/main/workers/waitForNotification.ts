@@ -1,8 +1,8 @@
 import { parentPort } from 'worker_threads'
 import { promisify } from 'util'
 
-import WaitOnNotificationParams from '../interfaces/waitForNotificationParams';
-import WorkerResult from '../interfaces/workerResult';
+import WaitOnNotificationParams from '../../interfaces/waitForNotificationParams';
+import WorkerResult from '../../interfaces/workerResult';
 
 import * as CourseUtil from '../util/courseUtil';
 

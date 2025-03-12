@@ -1,4 +1,4 @@
-import { ClassData, Class, Assignment } from "../../shared/interfaces/classData";
+import { ClassData, Class, Assignment } from "../../interfaces/classData";
 
 import * as CanvasAPI from '../util/canvasAPI/canvas'
 

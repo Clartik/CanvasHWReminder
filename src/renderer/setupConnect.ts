@@ -1,5 +1,5 @@
 import * as CanvasAPI from "src/main/util/canvasAPI/canvas";
-import IPCGetResult from "src/shared/interfaces/ipcGetResult";
+import IPCGetResult from "../interfaces/ipcGetResult";
 
 const setupLoginContainer = document.getElementById('setup-login-container')! as HTMLDivElement;
 const setupProfileContainer = document.getElementById('setup-profile-container')! as HTMLDivElement;

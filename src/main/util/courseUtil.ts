@@ -1,7 +1,8 @@
-import { ClassData, Assignment } from "../../shared/interfaces/classData";
-import SettingsData from "../../shared/interfaces/settingsData";
 import * as mainLog from 'electron-log';
-import AssignmentSubmittedType from "../interfaces/assignmentSubmittedType";
+
+import { ClassData, Assignment } from "../../interfaces/classData";
+import SettingsData from "../../interfaces/settingsData";
+import AssignmentSubmittedType from "../../interfaces/assignmentSubmittedType";
 
 function getUpcomingAssignments(classData: ClassData, settingsData: SettingsData): Array<Assignment> {
 	if (classData.classes.length <= 0)

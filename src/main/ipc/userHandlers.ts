@@ -1,14 +1,14 @@
 import { ipcMain, dialog, BrowserWindow } from "electron";
 
-import AppInfo from "../interfaces/appInfo";
-import DebugMode from "../../shared/interfaces/debugMode";
-import AppStatus from "../../shared/interfaces/appStatus";
+import AppInfo from "../../interfaces/appInfo";
+import DebugMode from "../../interfaces/debugMode";
+import AppStatus from "../../interfaces/appStatus";
 
 import * as DataUtil from '../util/dataUtil';
 import { openLink } from "../util/misc";
 
 import { appMain, openSaveFolder, outputAppLog, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse, showUpdateErrorDialogAndHandleResponse } from "../main";
-import SettingsData from "src/shared/interfaces/settingsData";
+import SettingsData from "../../interfaces/settingsData";
 import { createAssignmentContextMenu } from "../menu";
 
 import * as mainLog from 'electron-log';

@@ -1,4 +1,4 @@
-import SettingsData from "../shared/interfaces/settingsData";
+import SettingsData from "../interfaces/settingsData";
 
 const backBtnAnchor = document.getElementById('home-link')! as HTMLAnchorElement;
 
@@ -257,6 +257,7 @@ function populateElementsWithData(settingsData: SettingsData) {
 
     howLongPastDueFormatDropdown.value = settingsData.howLongPastDueFormatValue;
     populateTimeDropdownWithCorrectOptions(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
+    
     checkIfTimeDropdownShouldBeHidden(howLongPastDueTimeDropdown, howLongPastDueFormatDropdown);
     howLongPastDueTimeDropdown.value = settingsData.howLongPastDueTimeValue;
 };
@@ -360,11 +361,7 @@ function addEventsToCheckIfSettingsChanged() {
         const element = changeableElements[i];
     
         element.addEventListener('change', () => {
-            console.log('a')
-            if (!hasSettingsChanged)
-            {
-                console.log('b');
-                
+            if (!hasSettingsChanged) {                
                 hasSettingsChanged = true;
             }
         });

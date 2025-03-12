@@ -1,6 +1,6 @@
 import * as keytar from 'keytar';
 
-import AppInfo from '../interfaces/appInfo';
+import AppInfo from '../../interfaces/appInfo';
 import DebugMode from "../../shared/interfaces/debugMode";
 
 import { Assignment, ClassData } from "../../shared/interfaces/classData";
@@ -15,10 +15,10 @@ import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION, APP_INFO_SAVE_DATA_VER
 import SaveManager from './saveManager';
 import { app } from 'electron';
 
-import AppInfoSaveData from '../interfaces/appInfoData';
+import AppInfoSaveData from '../../interfaces/appInfoData';
 
 import * as mainLog from 'electron-log';
-import AssignmentSubmittedType from '../interfaces/assignmentSubmittedType';
+import AssignmentSubmittedType from '../../interfaces/assignmentSubmittedType';
 
 function getDefaultSettingsData(): SettingsData {
 	return {

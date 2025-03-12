@@ -5,7 +5,6 @@ import * as dotenv from 'dotenv';
 import * as semver from 'semver';
 
 import { app, shell, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
-
 import { autoUpdater, ProgressInfo, UpdateCheckResult, UpdateInfo } from 'electron-updater';
 
 import handleIPCRequests from './ipc/index';
@@ -13,14 +12,16 @@ import handleIPCRequests from './ipc/index';
 import createSystemTray from './tray'
 import createMainWindow from './window';
 
-import AppInfo from './interfaces/appInfo';
-import DebugMode from '../shared/interfaces/debugMode'
-import WaitOnNotificationParams from './interfaces/waitForNotificationParams';
-import WorkerResult from './interfaces/workerResult';
-import AppStatus from '../shared/interfaces/appStatus';
-import AppLog from './interfaces/appLog';
-
-import { ClassData, Assignment } from "../shared/interfaces/classData";
+// Interfaces
+import AppInfo from '../interfaces/appInfo';
+import DebugMode from '../interfaces/debugMode'
+import WaitOnNotificationParams from '../interfaces/waitForNotificationParams';
+import WorkerResult from '../interfaces/workerResult';
+import AppStatus from '../interfaces/appStatus';
+import AppLog from '../interfaces/appLog';
+import { ClassData, Assignment } from "../interfaces/classData";
+import AppInfoSaveData from '../interfaces/appInfoData';
+import WhatsNew from '../interfaces/whatsNew';
 
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
@@ -34,9 +35,7 @@ import SaveManager from './util/saveManager';
 import { getIconPath, openLink } from "./util/misc";
 
 import * as MenuUtil from './menu';
-import AppInfoSaveData from './interfaces/appInfoData';
 import Logger from './logger';
-import WhatsNew from './interfaces/whatsNew';
 
 const sleep = promisify(setTimeout);
 

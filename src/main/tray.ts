@@ -1,6 +1,6 @@
 import { app as electronApp, Tray, nativeImage, Menu } from 'electron';
 
-import AppInfo from './interfaces/appInfo';
+import AppInfo from '../interfaces/appInfo';
 import { launchMainWindowWithCorrectPage, outputAppLog } from './main';
 
 import { getIconPath } from './util/misc';

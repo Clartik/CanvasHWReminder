@@ -1,10 +1,8 @@
-import AppStatus from "../shared/interfaces/appStatus";
-import SettingsData from "../shared/interfaces/settingsData";
-
-import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../shared/interfaces/classData";
-import { ContextMenuParams, ContextMenuCommandParams } from "src/shared/interfaces/contextMenuParams";
-// import DebugMode from "src/shared/interfaces/debugMode";
-import AssignmentSubmittedType from "src/main/interfaces/assignmentSubmittedType";
+import AppStatus from "../interfaces/appStatus";
+import SettingsData from "../interfaces/settingsData";
+import AssignmentSubmittedType from "src/interfaces/assignmentSubmittedType";
+import { ClassData, Class, Assignment, AssignmentElementThatIsDue } from "../interfaces/classData";
+import { ContextMenuParams, ContextMenuCommandParams } from "../interfaces/contextMenuParams";
 
 //#region TEMPLATES
 
