@@ -1,10 +1,10 @@
 import * as keytar from 'keytar';
 
 import AppInfo from '../../interfaces/appInfo';
-import DebugMode from "../../shared/interfaces/debugMode";
+import DebugMode from "../../interfaces/debugMode";
 
-import { Assignment, ClassData } from "../../shared/interfaces/classData";
-import SettingsData from "../../shared/interfaces/settingsData";
+import { Assignment, ClassData } from "../../interfaces/classData";
+import SettingsData from "../../interfaces/settingsData";
 import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_SETTINGS_DATA_JSON } from "../../constants";
 
 import * as CanvasUtil from './canvasUtil'

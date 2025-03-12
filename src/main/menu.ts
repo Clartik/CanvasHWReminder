@@ -1,7 +1,7 @@
 import { BrowserWindow, Menu, MenuItemConstructorOptions, nativeImage } from 'electron'
 import { openPage } from './main';
 
-import { ContextMenuParams, ContextMenuCommandParams } from 'src/shared/interfaces/contextMenuParams';
+import { ContextMenuParams, ContextMenuCommandParams } from '../interfaces/contextMenuParams';
 import { getIconPath } from './util/misc';
 
 // const isMac = process.platform === 'darwin';

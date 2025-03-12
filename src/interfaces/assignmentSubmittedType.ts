@@ -1,4 +1,4 @@
-import { Assignment } from "src/shared/interfaces/classData";
+import { Assignment } from "./classData";
 
 interface AssignmentSubmittedType {
 	assignment: Assignment,

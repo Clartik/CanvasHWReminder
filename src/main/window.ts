@@ -4,7 +4,7 @@ import windowStateKeeper from 'electron-window-state';
 import { app, BrowserWindow } from "electron";
 
 import AppInfo from "../interfaces/appInfo";
-import DebugMode from 'src/shared/interfaces/debugMode';
+import DebugMode from '../interfaces/debugMode';
 import { getIconPath } from './util/misc';
 
 function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: string): BrowserWindow {

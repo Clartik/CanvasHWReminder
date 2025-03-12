@@ -2,7 +2,7 @@ import { parentPort } from 'worker_threads'
 import { promisify } from 'util'
 
 import WorkerResult from '../../interfaces/workerResult';
-import { ClassData } from "../../shared/interfaces/classData";
+import { ClassData } from "../../interfaces/classData";
 
 import SaveManager from "../util/saveManager"
 

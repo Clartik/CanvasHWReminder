@@ -1,5 +1,5 @@
-import { Assignment } from "../../shared/interfaces/classData";
-import SettingsData from "../../shared/interfaces/settingsData";
+import { Assignment } from "./classData";
+import SettingsData from "./settingsData";
 
 interface WaitOnNotificationParams {
     nextAssignment: Assignment,
