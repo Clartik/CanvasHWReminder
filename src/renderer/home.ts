@@ -151,7 +151,7 @@ async function homeMain() {
             if (assignment.due_at === null)
                 break;
 
-            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
+            const timeTillDueDate: string = await getTimeTillDueDateFromAssignment(assignment.due_at);
             assignmentElement.label.innerHTML = assignment.name + ' - ' + timeTillDueDate;   
         }
     }
@@ -283,7 +283,7 @@ window.api.onContextMenuCommand(async (command: string, data: ContextMenuCommand
 
         case 'mark-submit':
         case 'mark-unsubmit':
-            toggleAssignmentElementAsSubmitted(data.assignment, assignmentElement);
+            await toggleAssignmentElementAsSubmitted(data.assignment, assignmentElement);
             assignmentSubmittedTypes = await window.api.getAssignmentSubmittedTypes() as AssignmentSubmittedType[];
             break;
     
@@ -507,7 +507,7 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
 
             const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
 
-            const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
+            const timeTillDueDate: string = await getTimeTillDueDateFromAssignment(assignment.due_at);
             assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 
             const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
@@ -590,7 +590,7 @@ function setAssignmentElementAsSubmitted(elementInfo: AssignmentElementInfo, is_
     elementInfo.button.classList.add('complete');
 }
 
-function toggleAssignmentElementAsSubmitted(assignment: Assignment, assignmentElement: HTMLLIElement) {
+async function toggleAssignmentElementAsSubmitted(assignment: Assignment, assignmentElement: HTMLLIElement) {
     const assignmentLabel = assignmentElement.querySelector('.assignment-label')! as HTMLParagraphElement;
     const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
 
@@ -625,7 +625,7 @@ function toggleAssignmentElementAsSubmitted(assignment: Assignment, assignmentEl
         if (assignment.due_at === null)
             return;
             
-        const timeTillDueDate: string = getTimeTillDueDateFromAssignment(assignment.due_at);
+        const timeTillDueDate: string = await getTimeTillDueDateFromAssignment(assignment.due_at);
         assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 
         const isAssignmentOverdue = timeTillDueDate === 'Overdue';
@@ -708,14 +708,6 @@ function addClickEventsToClassItem(): void {
     }
 }
 
-// Date2 Must Be Larger than Date1!
-function getTimeDiffInSeconds(date1: Date, date2: Date): number {
-	if (date1 > date2)
-		return 0;
-
-    return (date2.getTime() - date1.getTime()) / 1000;
-}
-
 function showProgressBar(status: string, percent: number) {
     updateProgressBar.classList.remove('hide');
     
@@ -772,8 +764,8 @@ function getHowLongPastDueInSeconds(): number {
 	return 0;
 }
 
-function getTimeTillDueDate(date1: Date, date2: Date): string {
-    let secondsDiff = getTimeDiffInSeconds(date1, date2);
+async function getTimeTillDueDate(date1: Date, date2: Date): Promise<string> {
+    let secondsDiff = await window.api.getTimeDiffInSeconds(date1, date2);
 
 	let minuteDiff = secondsDiff / 60;
 	let hourDiff = minuteDiff / 60;
@@ -812,8 +804,8 @@ function getTimeTillDueDate(date1: Date, date2: Date): string {
     return 'Due Soon'
 }
 
-function getExactDueDate(date1: Date, date2: Date): string {
-    const secondsDiff = getTimeDiffInSeconds(date1, date2);
+async function getExactDueDate(date1: Date, date2: Date): Promise<string> {
+    const secondsDiff = await window.api.getTimeDiffInSeconds(date1, date2);
 	const minuteDiff = secondsDiff / 60;
 	const hourDiff = minuteDiff / 60;
 	let dateDiff = hourDiff / 24;
@@ -841,8 +833,8 @@ function getExactDueDate(date1: Date, date2: Date): string {
     return `Due Today at ${formattedTime}`;
 }
 
-function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): string {
-    const timeDiffInSec: number = getTimeDiffInSeconds(assignmentDueDate, currentDate);
+async function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): Promise<string> {
+    const timeDiffInSec: number = await window.api.getTimeDiffInSeconds(assignmentDueDate, currentDate);
     const howLongPastDueInSec: number | null = getHowLongPastDueInSeconds();
 
     const isHowLongPastDueNever: boolean = howLongPastDueInSec === -1;
@@ -876,19 +868,19 @@ function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): string 
     return 'Overdue';
 }
 
-function getTimeTillDueDateFromAssignment(dueDate: string): string {
+async function getTimeTillDueDateFromAssignment(dueDate: string): Promise<string> {
     const currentDate = new Date();
     const assignmentDueDate = new Date(dueDate);
     
     const isAssignmentPastDue = currentDate > assignmentDueDate;
 
     if (isAssignmentPastDue)
-        return getTimePastDueDate(currentDate, assignmentDueDate);
+        return await getTimePastDueDate(currentDate, assignmentDueDate);
     else {
         if (settingsData?.showExactDueDate)
-            return getExactDueDate(currentDate, assignmentDueDate);
+            return await getExactDueDate(currentDate, assignmentDueDate);
         
-        return getTimeTillDueDate(currentDate, assignmentDueDate);
+        return await getTimeTillDueDate(currentDate, assignmentDueDate);
     }
 }
 

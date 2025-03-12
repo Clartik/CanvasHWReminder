@@ -3,8 +3,9 @@ import { ContextMenuCommandParams, ContextMenuParams } from "./shared/interfaces
 
 export interface IElectronAPI {
     util: {
-        sleep: (time_in_ms: number) => Promise<void>
+        sleep: (time_in_ms: number) => Promise<void>,
     },
+    getTimeDiffInSeconds: (date1: Date, date2: Date) => Promise<number>,
     openLink: (url: string) => void,
     showMessageDialog: (options: Electron.MessageBoxOptions) => Promise<Electron.MessageBoxReturnValue>
     writeSavedData: (filename: string, data: object) => Promise<boolean>,
