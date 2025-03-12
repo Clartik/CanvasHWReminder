@@ -11,7 +11,7 @@ import IPCGetResult from "../../interfaces/ipcGetResult";
 import { Assignment } from '../..//interfaces/classData';
 import AppInfoSaveData from '../../interfaces/appInfoData';
 
-import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON } from "../../shared/constants";
+import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON } from "../../constants";
 
 import { Canvas } from "../util/canvasAPI/canvas";
 import SaveManager from "../util/saveManager";

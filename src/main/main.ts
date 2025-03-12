@@ -28,7 +28,7 @@ import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
 import * as UpdaterUtil from './util/updaterUtil';
 
-import { APP_INFO_SAVE_DATA_VERSION, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON, FILENAME_WHATS_NEW_JSON } from '../shared/constants';
+import { APP_INFO_SAVE_DATA_VERSION, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON, FILENAME_WHATS_NEW_JSON } from '../constants';
 
 import SaveManager from './util/saveManager';
 

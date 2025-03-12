@@ -6,7 +6,7 @@ import { ClassData } from "../../shared/interfaces/classData";
 
 import SaveManager from "../util/saveManager"
 
-import { FILENAME_CLASS_DATA_JSON } from '../../shared/constants';
+import { FILENAME_CLASS_DATA_JSON } from '../../constants';
 
 import * as mainLog from 'electron-log';
 

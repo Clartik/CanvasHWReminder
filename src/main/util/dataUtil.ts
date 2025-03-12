@@ -5,12 +5,12 @@ import DebugMode from "../../shared/interfaces/debugMode";
 
 import { Assignment, ClassData } from "../../shared/interfaces/classData";
 import SettingsData from "../../shared/interfaces/settingsData";
-import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_SETTINGS_DATA_JSON } from "../../shared/constants";
+import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_SETTINGS_DATA_JSON } from "../../constants";
 
 import * as CanvasUtil from './canvasUtil'
 
 import { updateClassData } from '../main';
-import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION, APP_INFO_SAVE_DATA_VERSION } from '../../shared/constants';
+import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION, APP_INFO_SAVE_DATA_VERSION } from '../../constants';
 
 import SaveManager from './saveManager';
 import { app } from 'electron';
