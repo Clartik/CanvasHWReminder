@@ -2,6 +2,9 @@ import { Assignment } from "./shared/interfaces/classData"
 import { ContextMenuCommandParams, ContextMenuParams } from "./shared/interfaces/contextMenuParams"
 
 export interface IElectronAPI {
+    util: {
+        sleep: (time_in_ms: number) => Promise<void>
+    },
     openLink: (url: string) => void,
     showMessageDialog: (options: Electron.MessageBoxOptions) => Promise<Electron.MessageBoxReturnValue>
     writeSavedData: (filename: string, data: object) => Promise<boolean>,

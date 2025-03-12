@@ -6,6 +6,9 @@ import { contextBridge, ipcRenderer } from "electron";
 type UpdateDataCallback = (type: string, data: object | null) => void;
 
 const API = {
+    util: {
+        sleep: (time_in_ms: number) => ipcRenderer.invoke('util:sleep', time_in_ms)
+    },
     openLink: (url: string) => ipcRenderer.send('openLink', url),
     showMessageDialog: (options: Electron.MessageBoxOptions) => ipcRenderer.invoke('showMessageDialog', options),
     writeSavedData: (filename: string, data: object) => ipcRenderer.invoke('writeSavedData', filename, data),

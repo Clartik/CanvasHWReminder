@@ -22,10 +22,6 @@ const infoWarnWidget = document.getElementById('information-warning-container')!
 canvasBaseURLInput.addEventListener('input', checkIfConnectBtnCanBeEnabled);
 canvasAPITokenInput.addEventListener('input', checkIfConnectBtnCanBeEnabled);
 
-async function sleep(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, ms));
-}
-
 let isConnectingToCanvas = false;
 
 connectMain();
@@ -161,7 +157,7 @@ function createInfoWidget(template: string): HTMLDivElement {
 }
 
 async function showInfoWidgetForNoInternet() {
-    await sleep(2 * 1000);
+    await window.api.util.sleep(2 * 1000);
 
     postConnectBtnClick();
 

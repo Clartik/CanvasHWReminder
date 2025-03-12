@@ -34,10 +34,6 @@ const LOADING_SPINNER_TEMPLATE = `
 
 const FAKE_WAIT_SEC_FOR_COMPLETING_SETUP: number = 1;
 
-async function sleep(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, ms));
-}
-
 setupSettingsMain();
 
 async function setupSettingsMain() {
@@ -118,7 +114,7 @@ doneBtn.addEventListener('click', async () => {
         return;
 
     doneBtn.innerHTML = LOADING_SPINNER_TEMPLATE;
-    await sleep(FAKE_WAIT_SEC_FOR_COMPLETING_SETUP * 1000);
+    await window.api.util.sleep(FAKE_WAIT_SEC_FOR_COMPLETING_SETUP * 1000);
 
     const settingsDataToSave = getSettingsDataToSave();
     

@@ -84,14 +84,12 @@ let assignmentElementsNotToRemind: HTMLLIElement[] = [];
 let assignmentSubmittedTypes: AssignmentSubmittedType[] = [];
 
 let settingsData: SettingsData | null;
-// let debugMode: DebugMode | null;
 
 homeMain();
 
 // Main Function
 async function homeMain() {
     settingsData = await homepageGetCachedSettingsData();
-    // debugMode = await window.api.getDebugMode() as DebugMode;
 
     const classData: ClassData | null = await getCachedClassData();
     const appStatus: AppStatus = await window.api.getAppStatus() as AppStatus;
@@ -143,7 +141,7 @@ async function homeMain() {
 
     while (isCheckingForUpdates) {
         const secondsLeftFromAMinute = checkForUpdatesTimeInSec - new Date().getSeconds();
-        await sleep(secondsLeftFromAMinute * 1000);
+        await window.api.util.sleep(secondsLeftFromAMinute * 1000);
         
         console.log('Checking For Any Updates!');
 
@@ -208,7 +206,7 @@ window.api.onSendAppStatus(async (status: string) => {
                 const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_INTERNET_BACK);
                 loadingOrErrorContainer.appendChild(infoWidget);
 
-                await sleep(2 * 1000);
+                await window.api.util.sleep(2 * 1000);
                 clearLoadingOrErrorContainer();
             }
             break;
@@ -233,7 +231,7 @@ window.api.onSendAppStatus(async (status: string) => {
             infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_CANVAS_LOGIN_SUCCESS);
             loadingOrErrorContainer.appendChild(infoWidget);
 
-            await sleep(2 * 1000);
+            await window.api.util.sleep(2 * 1000);
             clearLoadingOrErrorContainer();
 
             break;
@@ -319,10 +317,6 @@ updateProgressBarLabel.addEventListener('click', () => {
 //#endregion
 
 //#region Functions
-
-async function sleep(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, ms));
-}
 
 function createInfoWidget(template?: string): HTMLDivElement {
     const infoWidget = document.createElement('div');
