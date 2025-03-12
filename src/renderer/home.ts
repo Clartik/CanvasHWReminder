@@ -764,35 +764,6 @@ function getHowLongPastDueInSeconds(): number {
 	return 0;
 }
 
-async function getExactDueDate(date1: Date, date2: Date): Promise<string> {
-    const secondsDiff = await window.api.getTimeDiffInSeconds(date1, date2);
-	const minuteDiff = secondsDiff / 60;
-	const hourDiff = minuteDiff / 60;
-	let dateDiff = hourDiff / 24;
-
-    dateDiff = Math.floor(dateDiff);
-
-    const timeFormatter = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    });
-
-    const formattedTime: string = timeFormatter.format(date2);
-
-    if (dateDiff > 0) {
-        const dateFormatter = new Intl.DateTimeFormat('en-US', {
-            month: 'numeric',
-            day: "numeric"
-        });
-
-        const formattedDate: string = dateFormatter.format(date2);
-        return `Due on ${formattedDate} at ${formattedTime}`;
-    }
-    
-    return `Due Today at ${formattedTime}`;
-}
-
 async function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): Promise<string> {
     const timeDiffInSec: number = await window.api.getTimeDiffInSeconds(assignmentDueDate, currentDate);
     const howLongPastDueInSec: number | null = getHowLongPastDueInSeconds();
@@ -838,7 +809,7 @@ async function getTimeTillDueDateFromAssignment(dueDate: string): Promise<string
         return await getTimePastDueDate(currentDate, assignmentDueDate);
     else {
         if (settingsData?.showExactDueDate)
-            return await getExactDueDate(currentDate, assignmentDueDate);
+            return await window.api.getExactDueDate(currentDate, assignmentDueDate);
         
         return await window.api.getTimeTillDueDate(currentDate, assignmentDueDate);
     }
