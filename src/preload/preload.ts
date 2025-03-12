@@ -10,6 +10,7 @@ const API = {
         sleep: (time_in_ms: number) => ipcRenderer.invoke('util:sleep', time_in_ms),
     },
     getTimeDiffInSeconds: (date1: Date, date2: Date) => ipcRenderer.invoke('getTimeDiffInSeconds', date1, date2),
+    getTimeTillDueDate: (date1: Date, date2: Date) => ipcRenderer.invoke('getTimeTillDueDate', date1, date2),
     openLink: (url: string) => ipcRenderer.send('openLink', url),
     showMessageDialog: (options: Electron.MessageBoxOptions) => ipcRenderer.invoke('showMessageDialog', options),
     writeSavedData: (filename: string, data: object) => ipcRenderer.invoke('writeSavedData', filename, data),

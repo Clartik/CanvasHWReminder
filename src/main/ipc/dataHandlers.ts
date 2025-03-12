@@ -215,6 +215,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     ipcMain.handle('get-assignment-submitted-types', () => appInfo.assignmentSubmittedTypes);
 
     ipcMain.handle('getTimeDiffInSeconds', (event, date1: Date, date2: Date) => CourseUtil.getTimeDiffInSeconds(date1, date2));
+    ipcMain.handle('getTimeTillDueDate', (event, date1: Date, date2: Date) => CourseUtil.getTimeTillDueDate(date1, date2));
 }
 
 export default handleFileRequests;

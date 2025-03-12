@@ -6,6 +6,7 @@ export interface IElectronAPI {
         sleep: (time_in_ms: number) => Promise<void>,
     },
     getTimeDiffInSeconds: (date1: Date, date2: Date) => Promise<number>,
+    getTimeTillDueDate: (date1: Date, date2: Date) => Promise<string>,
     openLink: (url: string) => void,
     showMessageDialog: (options: Electron.MessageBoxOptions) => Promise<Electron.MessageBoxReturnValue>
     writeSavedData: (filename: string, data: object) => Promise<boolean>,

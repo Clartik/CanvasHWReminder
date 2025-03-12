@@ -764,46 +764,6 @@ function getHowLongPastDueInSeconds(): number {
 	return 0;
 }
 
-async function getTimeTillDueDate(date1: Date, date2: Date): Promise<string> {
-    let secondsDiff = await window.api.getTimeDiffInSeconds(date1, date2);
-
-	let minuteDiff = secondsDiff / 60;
-	let hourDiff = minuteDiff / 60;
-	let dateDiff = hourDiff / 24;
-
-    secondsDiff = Math.floor(secondsDiff);
-    minuteDiff = Math.floor(minuteDiff);
-    hourDiff = Math.floor(hourDiff);
-    dateDiff = Math.floor(dateDiff);
-
-    if (dateDiff > 0) {
-        if (dateDiff > 1)
-            return `Due in ${dateDiff} Days`
-        else
-            return `Due in 1 Day`
-    }
-
-    if (hourDiff > 0) {
-        if (hourDiff > 1)
-            return `Due in ${hourDiff} Hours`
-        else
-            return `Due in 1 Hour`
-    }
-
-    if (minuteDiff > 0) {
-        if (minuteDiff > 1)
-            return `Due in ${minuteDiff} Minutes`
-        else
-            return `Due in 1 Minute`
-    }
-
-    if (secondsDiff > 0) {
-        return `Due in < 1 Minute`
-    }
-
-    return 'Due Soon'
-}
-
 async function getExactDueDate(date1: Date, date2: Date): Promise<string> {
     const secondsDiff = await window.api.getTimeDiffInSeconds(date1, date2);
 	const minuteDiff = secondsDiff / 60;
@@ -880,7 +840,7 @@ async function getTimeTillDueDateFromAssignment(dueDate: string): Promise<string
         if (settingsData?.showExactDueDate)
             return await getExactDueDate(currentDate, assignmentDueDate);
         
-        return await getTimeTillDueDate(currentDate, assignmentDueDate);
+        return await window.api.getTimeTillDueDate(currentDate, assignmentDueDate);
     }
 }
 
