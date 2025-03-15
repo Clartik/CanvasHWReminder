@@ -1,16 +1,25 @@
+// Node
 import { Worker } from 'worker_threads'
 import { promisify } from 'util'
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import * as semver from 'semver';
 
+// Electron
 import { app, shell, BrowserWindow, net, Notification, Menu, dialog } from 'electron'
 import { autoUpdater, ProgressInfo, UpdateCheckResult, UpdateInfo } from 'electron-updater';
 
+// App Critical
 import handleIPCRequests from './ipc/index';
 
 import createSystemTray from './tray'
 import createMainWindow from './window';
+
+import * as MenuUtil from './menu';
+import Logger from './logger';
+
+// Constants
+import { APP_INFO_SAVE_DATA_VERSION, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON, FILENAME_WHATS_NEW_JSON } from '../constants';
 
 // Interfaces
 import AppInfo from '../interfaces/appInfo';
@@ -23,22 +32,18 @@ import { ClassData, Assignment } from "../interfaces/classData";
 import AppInfoSaveData from '../interfaces/appInfoData';
 import WhatsNew from '../interfaces/whatsNew';
 
+// Utils
 import * as CourseUtil from './util/courseUtil';
 import * as DataUtil from './util/dataUtil';
 import * as WorkerUtil from './util/workerUtil';
 import * as UpdaterUtil from './util/updaterUtil';
-
-import { APP_INFO_SAVE_DATA_VERSION, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON, FILENAME_WHATS_NEW_JSON } from '../constants';
-
 import SaveManager from './util/saveManager';
-
 import { getIconPath, openLink } from "./util/misc";
-
-import * as MenuUtil from './menu';
-import Logger from './logger';
 
 const sleep = promisify(setTimeout);
 
+// Sets Global Variable (BaseDir) to the Current Directory of this File
+// Needed to correctly specify path for imports
 global.__baseDir = __dirname;
 
 const mainLog = Logger.init();
@@ -127,6 +132,8 @@ function createElectronApp() {
 	else
 		app.setAsDefaultProtocolClient('canvas-hw-reminder');
 
+	// TODO: Separate Handler Logic to Their Own Functions?
+
 	// Listen for protocol URL when the app is already running (OS X Specific)
 	app.on('open-url', (event, url) => {
 		event.preventDefault(); // Prevent the default action
@@ -172,7 +179,6 @@ function createElectronApp() {
 			await sleep(100);
 
 		whatsNew = await DataUtil.getSaveData(FILENAME_WHATS_NEW_JSON) as WhatsNew | null;
-		console.log('Whats New: ' + whatsNew);
 	
 		if (appInfo.settingsData?.minimizeOnLaunch) {
 			appInfo.isMainWindowHidden = true;
@@ -186,7 +192,7 @@ function createElectronApp() {
 	// MACOS ONLY
 	app.on('activate', async () => {
 		if (BrowserWindow.getAllWindows().length === 0 && app.isReady())
-			appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
+			launchMainWindowWithCorrectPage();
 	});
 	
 	app.on('window-all-closed', () => {

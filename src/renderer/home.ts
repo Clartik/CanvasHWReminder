@@ -87,11 +87,13 @@ homeMain();
 
 // Main Function
 async function homeMain() {
-    settingsData = await homepageGetCachedSettingsData();
+    settingsData = await window.api.getCachedData('settingsData') as SettingsData | null;
 
-    const classData: ClassData | null = await getCachedClassData();
-    const appStatus: AppStatus = await window.api.getAppStatus() as AppStatus;
+    const classData = await window.api.getCachedData('classData') as ClassData | null;
+    const appStatus = await window.api.getAppStatus() as AppStatus;
 
+    // TODO: Check if App Status is Okay First and then Populate Data!
+    // TODO: Maybe Populate Data by Sending it Rather than fetching it?
     if (classData !== null) {
         clearLoadingOrErrorContainer();
 
@@ -100,7 +102,7 @@ async function homeMain() {
             loadingOrErrorContainer.append(infoWidget);
         }
     
-        loadElementsWithData(classData.classes);
+        loadClassElements(classData.classes);
     }
 
     if (!appStatus.isOnline) {
@@ -124,7 +126,7 @@ async function homeMain() {
 
         const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_CANVAS_INCORRECT_LOGIN);
         loadingOrErrorContainer.append(infoWidget);
-    }
+    }   
 
     if (appStatus.isUpdateAvailable) {
         let percent: number = 100;
@@ -173,7 +175,7 @@ window.api.onUpdateData((type: string, data: object | null) => {
             }
                 
             clearElementsFromData();
-            loadElementsWithData(classData.classes);
+            loadClassElements(classData.classes);
         }
         else
             console.warn('Received Updated ClassData that is NULL! Homepage Will Not Use it!')
@@ -338,29 +340,7 @@ function createAssignmentElement(): HTMLLIElement {
     return assignmentElement;
 }
 
-async function getCachedClassData(): Promise<ClassData | null> {
-    const classData: ClassData | null = await window.api.getCachedData('classData') as ClassData | null;
-
-    if (classData === null) {
-        console.error('Class Data is Null!')
-        return null;
-    }
-
-    return classData;
-}
-
-async function homepageGetCachedSettingsData(): Promise<SettingsData | null> {
-    const cachedSettingsData = await window.api.getCachedData('settingsData') as SettingsData | null;
-
-    if (cachedSettingsData === null) {
-        console.error('Cached SettingsData is Null!');
-        return null;
-    }
-
-    return cachedSettingsData;
-}
-
-async function loadElementsWithData(classes: Class[]): Promise<void> {    
+async function loadClassElements(classes: Class[]): Promise<void> {    
     generateAllClassItems(classes.length);
 
     // These Elements Are Not Generated Until After the Previous Function Runs

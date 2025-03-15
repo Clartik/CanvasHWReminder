@@ -50,7 +50,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         }
     
         if (filename === 'settingsData')
-            return appInfo.settingsData ?? null;
+            return appInfo.settingsData;
     
         return null;
     });
