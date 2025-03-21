@@ -19,6 +19,7 @@ import * as DataUtil from '../util/dataUtil';
 import * as CourseUtil from '../util/courseUtil';
 
 import { findNextAssignmentAndStartWorker, startCheckCanvasWorker } from "../main";
+import SaveData from 'src/interfaces/saveData';
 
 function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefined {
     const senderFileLocations = event.sender.getURL().split('/');
@@ -27,7 +28,7 @@ function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefin
 }
 
 function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
-    ipcMain.handle('writeSavedData', async (event, filename: string, data: object) => {
+    ipcMain.handle('writeSavedData', async (event, filename: string, data: SaveData) => {
         // const senderHTMLFilename = getSenderHTMLFile(event);
         // electronLog.log(`[Main]: (${senderHTMLFilename}) Write Saved Data (${filename}) Event Was Handled!`);
 

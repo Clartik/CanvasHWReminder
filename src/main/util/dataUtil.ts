@@ -10,7 +10,7 @@ import { APP_NAME, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_SETTINGS_DATA_JSON
 import * as CanvasUtil from './canvasUtil'
 
 import { updateClassData } from '../main';
-import { FILENAME_CLASS_DATA_JSON, SETTINGS_DATA_VERSION, APP_INFO_SAVE_DATA_VERSION } from '../../constants';
+import { FILENAME_CLASS_DATA_JSON } from '../../constants';
 
 import SaveManager from './saveManager';
 import { app } from 'electron';
@@ -22,7 +22,7 @@ import AssignmentSubmittedType from '../../interfaces/assignmentSubmittedType';
 
 function getDefaultSettingsData(): SettingsData {
 	return {
-		version: SETTINGS_DATA_VERSION,
+		version: '1.0',
 
         whenToRemindTimeValue: '6',
         whenToRemindFormatValue: 'hour',
@@ -47,7 +47,7 @@ function getDefaultSettingsData(): SettingsData {
 
 function getDefaultAppInfoSaveData(): AppInfoSaveData {
 	return {
-		version: APP_INFO_SAVE_DATA_VERSION,
+		version: '1.0',
 
 		assignmentsThatHaveBeenReminded: [],
     	assignmentsNotToRemind: [],
@@ -73,7 +73,7 @@ async function getSavedSettingsData(): Promise<SettingsData | null> {
 	try {
 		const savedSettingsData = await SaveManager.getData('settings-data.json') as SettingsData;
 
-		if (savedSettingsData.version < SETTINGS_DATA_VERSION) {
+		if (savedSettingsData.version < '1.0') {
 			mainLog.warn(`[Main]: Saved Settings Has Old Version! (${savedSettingsData.version})`)
 
 			const upgradedSettingsData = await upgradeSettingsData(savedSettingsData);
@@ -93,7 +93,7 @@ async function upgradeSettingsData(savedSettingsData: SettingsData): Promise<Set
 	const defaultSettingsData: SettingsData = getDefaultSettingsData();
 
 	const upgradedSettingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
-	upgradedSettingsData.version = SETTINGS_DATA_VERSION;
+	upgradedSettingsData.version = '1.0';
 
 	mainLog.log(`[Main]: Upgraded Saved Settings Data to Latest Version! (${upgradedSettingsData.version})`);
 	await SaveManager.saveData(FILENAME_SETTINGS_DATA_JSON, upgradedSettingsData);
@@ -105,7 +105,7 @@ async function upgradeAppInfoSaveData(savedAppInfoSaveData: AppInfoSaveData): Pr
 	const defaultAppInfoSaveData: AppInfoSaveData = getDefaultAppInfoSaveData();
 
 	const upgradedAppInfoSaveData: AppInfoSaveData = { ...defaultAppInfoSaveData, ...savedAppInfoSaveData };
-	upgradedAppInfoSaveData.version = APP_INFO_SAVE_DATA_VERSION;
+	upgradedAppInfoSaveData.version = '1.0';
 
 	mainLog.log(`[Main]: Upgraded Saved App Info Save Data to Latest Version! (${upgradedAppInfoSaveData.version})`);
 	await SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, upgradedAppInfoSaveData);
@@ -117,7 +117,7 @@ async function getAppInfoSaveData(): Promise<AppInfoSaveData | null> {
 	try {
 		const savedAppInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
-		if (savedAppInfoSaveData.version < APP_INFO_SAVE_DATA_VERSION) {
+		if (savedAppInfoSaveData.version < '1.0') {
 			mainLog.warn(`[Main]: Saved App Info Save Data Has Old Version! (${savedAppInfoSaveData.version})`)
 
 			const upgradedAppInfoSaveData = await upgradeAppInfoSaveData(savedAppInfoSaveData);
@@ -129,19 +129,6 @@ async function getAppInfoSaveData(): Promise<AppInfoSaveData | null> {
 		return savedAppInfoSaveData;
 	} catch (error) {
 		mainLog.error('[Main]: Could Not Retrieve Saved App Info Data: ' + error);
-		return null;
-	}
-}
-
-async function getSaveData(filename: string): Promise<object | null> {
-	try {
-		const savedData: object = await SaveManager.getData(filename);
-
-		mainLog.log(`[Main]: Loaded Saved Data (${filename})`)
-
-		return savedData;
-	} catch (error) {
-		mainLog.error(`[Main]: Could Not Retrieve Saved Data (${filename}): ` + error)
 		return null;
 	}
 }
@@ -264,6 +251,5 @@ async function saveAssignmentSubmittedTypes(assignmentSubmittedTypes: Assignment
 export { 
 	getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
 	configureAppSettings, getAppInfoSaveData, cleanUpUnnecessarySavedAssignmentsAccordingToDueDate,
-	saveAssignmentSubmittedTypes, cleanUpUnnecessarySavedAssignmentSubmittedTypes, upgradeAppInfoSaveData,
-	getSaveData
+	saveAssignmentSubmittedTypes, cleanUpUnnecessarySavedAssignmentSubmittedTypes, upgradeAppInfoSaveData
  }

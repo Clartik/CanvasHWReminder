@@ -59,6 +59,7 @@ async function convertToClassData(courses: CanvasAPI.Course[]): Promise<ClassDat
 	}
 
 	const data: ClassData = {
+		version: '1.0',
 		classes: courseClasses
 	};
 

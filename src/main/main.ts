@@ -19,7 +19,7 @@ import * as MenuUtil from './menu';
 import Logger from './logger';
 
 // Constants
-import { APP_INFO_SAVE_DATA_VERSION, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON, FILENAME_WHATS_NEW_JSON } from '../constants';
+import { FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON, FILENAME_SETTINGS_DATA_JSON, FILENAME_WHATS_NEW_JSON } from '../constants';
 
 // Interfaces
 import AppInfo from '../interfaces/appInfo';
@@ -39,6 +39,7 @@ import * as WorkerUtil from './util/workerUtil';
 import * as UpdaterUtil from './util/updaterUtil';
 import SaveManager from './util/saveManager';
 import { getIconPath, openLink } from "./util/misc";
+import SettingsData from 'src/interfaces/settingsData';
 
 const sleep = promisify(setTimeout);
 
@@ -125,7 +126,7 @@ function createElectronApp() {
 		process.exit();
 	}
 
-	SaveManager.init(app.getPath('userData'));
+	SaveManager.init(app.getPath('userData'), app.getVersion());
 
 	if (appInfo.isDevelopment && process.platform === 'win32')
 		app.setAsDefaultProtocolClient('canvas-hw-reminder', process.execPath, [path.resolve(process.argv[1])]);
@@ -178,7 +179,7 @@ function createElectronApp() {
 		while (!appInfo.settingsData && !appStatus.isSetupNeeded)
 			await sleep(100);
 
-		whatsNew = await DataUtil.getSaveData(FILENAME_WHATS_NEW_JSON) as WhatsNew | null;
+		whatsNew = await SaveManager.getData(FILENAME_WHATS_NEW_JSON) as WhatsNew | null;
 	
 		if (appInfo.settingsData?.minimizeOnLaunch) {
 			appInfo.isMainWindowHidden = true;
@@ -209,7 +210,7 @@ function createElectronApp() {
 
 	app.on('before-quit', async () => {
 		const data: AppInfoSaveData = {
-			version: APP_INFO_SAVE_DATA_VERSION,
+			version: '1.0',
 			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
 			assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
@@ -268,29 +269,18 @@ autoUpdater.on('error', async () => {
 //#region Functions
 
 async function appMain() {
-	appInfo.settingsData = await DataUtil.getSavedSettingsData();
+	appInfo.settingsData = await SaveManager.getData(FILENAME_SETTINGS_DATA_JSON) as SettingsData | null;
 	
-	if (!appInfo.settingsData) {
-		mainLog.error('[Main]: SettingsData is NULL!');
-
-		mainLog.log('[Main]: Setup is Needed!');
-		appStatus.isSetupNeeded = true;
-
-		appInfo.mainWindow?.webContents.loadFile('./pages/welcome.html');
-		return;
-	}
-
 	const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
 	const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
 
-
-	if (!canvasBaseURL || !canvasAPIToken) {
-		mainLog.error('[Main]: Canvas Credentials are NULL!');
+	if (!appInfo.settingsData || !canvasBaseURL || !canvasAPIToken) {
+		mainLog.error('[Main]: Missing Vitable Information!');
 
 		mainLog.log('[Main]: Setup is Needed!');
 		appStatus.isSetupNeeded = true;
 
-		appInfo.mainWindow?.webContents.loadFile('./pages/welcome.html');
+		launchMainWindowWithCorrectPage();
 		return;
 	}
 
@@ -307,7 +297,7 @@ async function appMain() {
 		appInfo.assignmentSubmittedTypes = DataUtil.cleanUpUnnecessarySavedAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
 
 		const cleanAppInfoSaveData: AppInfoSaveData = {
-			version: APP_INFO_SAVE_DATA_VERSION,
+			version: '1.0',
 			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
 			assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
@@ -383,7 +373,6 @@ function launchMainWindowWithCorrectPage() {
 	}
 
 	appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
-
 }
 
 function openPage(pageName: string) {
@@ -695,6 +684,7 @@ async function outputAppLog() {
 	mainLog.log('[Main]: Outputting App Log to File!');
 
 	const data: AppLog = {
+		version: '1.0',
 		appInfo: appInfo,
 		appStatus: appStatus,
 		debugMode: debugMode,

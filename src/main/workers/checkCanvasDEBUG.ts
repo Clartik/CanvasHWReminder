@@ -1,25 +1,22 @@
 import { parentPort } from 'worker_threads'
 import { promisify } from 'util'
+import * as fs from 'fs'
 
 import WorkerResult from '../../interfaces/workerResult';
 import { ClassData } from "../../interfaces/classData";
-
-import SaveManager from "../util/saveManager"
 
 import { FILENAME_CLASS_DATA_JSON } from '../../constants';
 
 import * as mainLog from 'electron-log';
 
 const sleep = promisify(setTimeout);
+const readFileAsync = promisify(fs.readFile);
 
 const checkCanvasTimeInSec: number = 60 * 60;				// Every Hour
 
 let isWorkerRunning: boolean = false;
 
 parentPort?.on('message', async (saveDataPath: string) => {
-    // Needs to Be Re-Initalized because it is in a different context from main thread?
-    SaveManager.init(saveDataPath);
-
     isWorkerRunning = true;
 
     while (isWorkerRunning) {
@@ -28,9 +25,11 @@ parentPort?.on('message', async (saveDataPath: string) => {
         let classData: ClassData | null = null;
 
         try {
-            classData = await SaveManager.getData(FILENAME_CLASS_DATA_JSON) as ClassData;
-        } catch (error) {
-            mainLog.error('[Worker (CheckCanvas DEBUG)]: Failed to Get Class Data From Local Canvas Save -', error);
+            const data = await readFileAsync(saveDataPath + '\\' + FILENAME_CLASS_DATA_JSON, 'utf-8');
+            classData = JSON.parse(data);
+        }
+        catch (error) {
+            mainLog.error('[Worker (CheckCanvas DEBUG)]: Failed to Get Class Data From Local Canvas Save - ', error);
         }
 
         const result: WorkerResult = {
