@@ -20,117 +20,8 @@ import AppInfoSaveData from '../../interfaces/appInfoData';
 import * as mainLog from 'electron-log';
 import AssignmentSubmittedType from '../../interfaces/assignmentSubmittedType';
 
-function getDefaultSettingsData(): SettingsData {
-	return {
-		version: '1.0',
-
-        whenToRemindTimeValue: '6',
-        whenToRemindFormatValue: 'hour',
-        howLongPastDueTimeValue: '1',
-        howLongPastDueFormatValue: 'hour',
-
-        launchOnStart: true,
-        minimizeOnLaunch: true,
-        minimizeOnClose: true,
-
-        showExactDueDate: false,
-        alwaysExpandAllCourseCards: false,
-
-		dontRemindAssignmentsWithNoSubmissions: false,
-
-        silenceNotifications: false,
-        keepNotificationsOnScreen: true,
-
-		autoMarkSubmissions: false
-	}
-}
-
-function getDefaultAppInfoSaveData(): AppInfoSaveData {
-	return {
-		version: '1.0',
-
-		assignmentsThatHaveBeenReminded: [],
-    	assignmentsNotToRemind: [],
-    	assignmentSubmittedTypes: []
-	}
-}
-
 async function getSecureText(key: string): Promise<string | null> {
 	return await keytar.getPassword(APP_NAME, key);
-}
-
-async function getSavedClassData(): Promise<ClassData | null> {
-	try {
-		const classData = await SaveManager.getData('classes-data.json') as ClassData;
-		return classData;
-	} catch (error) {
-		mainLog.error('Could Not Retrieve ClassData: ' + error)
-		return null;
-	}
-}
-
-async function getSavedSettingsData(): Promise<SettingsData | null> {
-	try {
-		const savedSettingsData = await SaveManager.getData('settings-data.json') as SettingsData;
-
-		if (savedSettingsData.version < '1.0') {
-			mainLog.warn(`[Main]: Saved Settings Has Old Version! (${savedSettingsData.version})`)
-
-			const upgradedSettingsData = await upgradeSettingsData(savedSettingsData);
-			return upgradedSettingsData;
-		}
-
-		mainLog.log('[Main]: Cached Settings Data is Updated!');
-		
-		return savedSettingsData;
-	} catch (error) {
-		mainLog.error('[Main]: Could Not Retrieve Saved SettingsData: ' + error);
-		return null;
-	}
-}
-
-async function upgradeSettingsData(savedSettingsData: SettingsData): Promise<SettingsData> {
-	const defaultSettingsData: SettingsData = getDefaultSettingsData();
-
-	const upgradedSettingsData: SettingsData = { ...defaultSettingsData, ...savedSettingsData };
-	upgradedSettingsData.version = '1.0';
-
-	mainLog.log(`[Main]: Upgraded Saved Settings Data to Latest Version! (${upgradedSettingsData.version})`);
-	await SaveManager.saveData(FILENAME_SETTINGS_DATA_JSON, upgradedSettingsData);
-
-	return upgradedSettingsData;
-}
-
-async function upgradeAppInfoSaveData(savedAppInfoSaveData: AppInfoSaveData): Promise<AppInfoSaveData> {
-	const defaultAppInfoSaveData: AppInfoSaveData = getDefaultAppInfoSaveData();
-
-	const upgradedAppInfoSaveData: AppInfoSaveData = { ...defaultAppInfoSaveData, ...savedAppInfoSaveData };
-	upgradedAppInfoSaveData.version = '1.0';
-
-	mainLog.log(`[Main]: Upgraded Saved App Info Save Data to Latest Version! (${upgradedAppInfoSaveData.version})`);
-	await SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, upgradedAppInfoSaveData);
-
-	return upgradedAppInfoSaveData;
-}
-
-async function getAppInfoSaveData(): Promise<AppInfoSaveData | null> {
-	try {
-		const savedAppInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
-
-		if (savedAppInfoSaveData.version < '1.0') {
-			mainLog.warn(`[Main]: Saved App Info Save Data Has Old Version! (${savedAppInfoSaveData.version})`)
-
-			const upgradedAppInfoSaveData = await upgradeAppInfoSaveData(savedAppInfoSaveData);
-			return upgradedAppInfoSaveData;
-		}
-
-		mainLog.log('[Main]: App Info Save Data is Loaded!');
-		
-		return savedAppInfoSaveData;
-	} catch (error) {
-		mainLog.error('[Main]: Could Not Retrieve Saved App Info Data: ' + error);
-		return null;
-	}
 }
 
 function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assignment[]): Assignment[] {
@@ -148,7 +39,7 @@ function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assig
 		if (assignmentDueDate > todayDate)
 			continue;
 
-		mainLog.log(`[Main]: Deleting Expired Saved Assignment (${assignment.name})`);
+		mainLog.log(`Deleting Expired Saved Assignment (${assignment.name})`);
 
 		assignmentIndicesToBeRemoved.push(i);
 	}
@@ -177,7 +68,7 @@ function cleanUpUnnecessarySavedAssignmentSubmittedTypes(assignmentSubmittedType
 		if (assignmentDueDate > todayDate)
 			continue;
 
-		mainLog.log(`[Main]: Deleting Expired Saved Assignment Submitted Type (${assignment.name})`);
+		mainLog.log(`Deleting Expired Saved Assignment Submitted Type (${assignment.name})`);
 
 		assignmentIndicesToBeRemoved.push(i);
 	}
@@ -196,7 +87,7 @@ async function reloadSettingsData(appInfo: AppInfo, debugMode: DebugMode) {
 		return;
 
 	mainLog.log('[DEBUG MODE]: Reloading Settings Data!');
-	appInfo.settingsData = await getSavedSettingsData();
+	appInfo.settingsData = await SaveManager.getData(FILENAME_SETTINGS_DATA_JSON) as SettingsData | null;
 }
 
 async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
@@ -208,7 +99,7 @@ async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
 	let classData: ClassData | null = null;
 
 	if (debugMode.useLocalClassData) {
-		classData = await SaveManager.getData(FILENAME_CLASS_DATA_JSON) as ClassData;
+		classData = await SaveManager.getData(FILENAME_CLASS_DATA_JSON) as ClassData | null;
 	}
 	else {
 		if (!appInfo.settingsData)
@@ -238,7 +129,7 @@ function configureAppSettings(settingsData: SettingsData) {
 		openAtLogin: settingsData.launchOnStart
 	});
 
-	mainLog.log('[Main]: Configured App to Launch on System Bootup');
+	mainLog.log('Configured App to Launch on System Bootup');
 }
 
 async function saveAssignmentSubmittedTypes(assignmentSubmittedTypes: AssignmentSubmittedType[]) {
@@ -248,8 +139,7 @@ async function saveAssignmentSubmittedTypes(assignmentSubmittedTypes: Assignment
 	SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
 }
 
-export { 
-	getSavedClassData, getSavedSettingsData, reloadClassData, reloadSettingsData, getSecureText, 
-	configureAppSettings, getAppInfoSaveData, cleanUpUnnecessarySavedAssignmentsAccordingToDueDate,
-	saveAssignmentSubmittedTypes, cleanUpUnnecessarySavedAssignmentSubmittedTypes, upgradeAppInfoSaveData
+export { reloadClassData, reloadSettingsData, getSecureText, 
+	configureAppSettings, cleanUpUnnecessarySavedAssignmentsAccordingToDueDate,
+	saveAssignmentSubmittedTypes, cleanUpUnnecessarySavedAssignmentSubmittedTypes
  }

@@ -2,7 +2,7 @@ import * as electronLog from 'electron-log';
 
 interface CreateLoggerParams {
     logId: string;
-    level?: electronLog.LevelOption;
+    fileLevel?: electronLog.LevelOption;
     writeToConsole?: boolean;
     writeToFile?: boolean;
 }
@@ -10,7 +10,8 @@ interface CreateLoggerParams {
 interface CreateLoggerOptions {
     logId: string;
     filename: string;
-    level: electronLog.LevelOption;
+    consoleLevel: electronLog.LevelOption,
+    fileLevel: electronLog.LevelOption;
     writeToConsole: boolean;
     writeToFile: boolean;
 }
@@ -18,10 +19,13 @@ interface CreateLoggerOptions {
 const DEFAULT_CREATE_LOGGER_OPTIONS: CreateLoggerOptions = {
     logId: '',
     filename: '',
-    level: 'debug',
+    consoleLevel: 'info',
+    fileLevel: 'debug',
     writeToConsole: true,
     writeToFile: true
 }
+
+const DEFAULT_CONSOLE_FORMAT = '[{label}] > {text}';
 
 class Logger {
     private static loggers: Map<string, electronLog.MainLogger> = new Map();
@@ -54,8 +58,13 @@ class Logger {
 
         const logger = electronLog.create({ logId: options.logId });
 
+        logger.variables.label = params.logId;
+
+        logger.transports.console.format = DEFAULT_CONSOLE_FORMAT;
+        logger.transports.console.level = options.consoleLevel;
+        
         logger.transports.file.fileName = options.filename;
-        logger.transports.file.level = options.level;
+        logger.transports.file.level = options.fileLevel;
 
         if (!options.writeToConsole)
             logger.transports.console.level = false;
@@ -64,12 +73,18 @@ class Logger {
     }
 
     private static initializeMainLogger(): electronLog.MainLogger {
-        electronLog.transports.file.fileName = 'Main.log';
+        const logId = 'Main';
+
+        electronLog.variables.label = logId;
+
+        electronLog.transports.console.format = DEFAULT_CONSOLE_FORMAT;
+        electronLog.transports.console.level = 'info';
+
+        electronLog.transports.file.fileName = logId + '.log';
         electronLog.transports.file.level = 'debug';
         
         electronLog.errorHandler.startCatching();
-
-        this.loggers.set('Main', electronLog);
+        this.loggers.set(logId, electronLog);
     
         return electronLog;
     }

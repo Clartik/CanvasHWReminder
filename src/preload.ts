@@ -9,6 +9,9 @@ const API = {
     util: {
         sleep: (time_in_ms: number) => ipcRenderer.invoke('util:sleep', time_in_ms),
     },
+    app: {
+        getVersion: () => ipcRenderer.invoke('app:getVersion')
+    },
     getTimeDiffInSeconds: (date1: Date, date2: Date) => ipcRenderer.invoke('getTimeDiffInSeconds', date1, date2),
     getTimeTillDueDate: (date1: Date, date2: Date) => ipcRenderer.invoke('getTimeTillDueDate', date1, date2),
     getExactDueDate: (date1: Date, date2: Date) => ipcRenderer.invoke('getExactDueDate', date1, date2),

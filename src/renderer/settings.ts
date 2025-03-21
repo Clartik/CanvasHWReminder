@@ -32,8 +32,6 @@ const changeableElements = document.getElementsByClassName('changeable');
 
 const creditsLinkBtn = document.getElementById('credits-link-btn') as HTMLButtonElement;
 
-const SETTINGS_DATA_VERSION: string = '0.5';
-
 const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
 const MINUTE_TIME_OPTIONS: Array<string> = [];
@@ -137,7 +135,7 @@ creditsLinkBtn.addEventListener('click', async (event) => {
         if (messageResponse.response === YES_BUTTON_RESPONSE) {
             saveSecureData();
 
-            const settingsData = getSettingsDataToSave();
+            const settingsData = await getSettingsDataToSave();
             const success = await window.api.writeSavedData('settings-data.json', settingsData);
 
             if (success)
@@ -206,7 +204,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
         if (messageResponse.response === YES_BUTTON_RESPONSE) {
             saveSecureData();
 
-            const settingsData = getSettingsDataToSave();
+            const settingsData = await getSettingsDataToSave();
             const success = await window.api.writeSavedData('settings-data.json', settingsData);
 
             if (success)
@@ -270,9 +268,9 @@ async function populateElemntsWithSecureData() {
     canvasAPITokenInput.value = canvasAPIToken ?? '';
 }
 
-function getSettingsDataToSave(): SettingsData {
+async function getSettingsDataToSave(): Promise<SettingsData> {
     return {
-        version: SETTINGS_DATA_VERSION,
+        version: await window.api.app.getVersion(),
 
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,

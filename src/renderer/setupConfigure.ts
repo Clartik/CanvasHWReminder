@@ -26,8 +26,6 @@ const DAY_TIME_OPTIONS: Array<string> = [];
 const HOUR_TIME_OPTIONS: Array<string> = [];
 const MINUTE_TIME_OPTIONS: Array<string> = [];
 
-const SETTINGS_DATA_VERSION: string = '0.5';
-
 const LOADING_SPINNER_TEMPLATE = `
     <img id="setup-spinner" src="../assets/svg/spinner.svg" width="25px">
 `;
@@ -116,7 +114,7 @@ doneBtn.addEventListener('click', async () => {
     doneBtn.innerHTML = LOADING_SPINNER_TEMPLATE;
     await window.api.util.sleep(FAKE_WAIT_SEC_FOR_COMPLETING_SETUP * 1000);
 
-    const settingsDataToSave = getSettingsDataToSave();
+    const settingsDataToSave = await getSettingsDataToSave();
     
     const success = await window.api.writeSavedData('settings-data.json', settingsDataToSave)
 
@@ -208,9 +206,9 @@ function setDefaultSettings() {
     keepNotificationsOnScreenCheckbox.checked = true;
 }
 
-function getSettingsDataToSave(): SettingsData {
+async function getSettingsDataToSave(): Promise<SettingsData> {
     return {
-        version: SETTINGS_DATA_VERSION,
+        version: await window.api.app.getVersion(),
 
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,

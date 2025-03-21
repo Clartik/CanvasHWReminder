@@ -121,7 +121,7 @@ function createElectronApp() {
 	const isLocked = app.requestSingleInstanceLock();
 
 	if (!isLocked) {
-		mainLog.log('[Main]: Another Instance of App Exists! Exiting this Instance!');
+		mainLog.log('Another Instance of App Exists! Exiting this Instance!');
 		app.quit();
 		process.exit();
 	}
@@ -154,9 +154,9 @@ function createElectronApp() {
 
 	app.whenReady().then(async () => {
 		for (const logger of Logger.getAll())
-			logger.log('-------------- New Session --------------');
+			logger.debug('-------------- New Session --------------\n');
 
-		mainLog.log(`Node Environment: ` + environment);
+		mainLog.debug(`Node Environment: ` + environment);
 
 		autoUpdater.autoDownload = false;
 		autoUpdater.channel = process.env.RELEASE_CHANNEL || 'latest';
@@ -183,7 +183,7 @@ function createElectronApp() {
 	
 		if (appInfo.settingsData?.minimizeOnLaunch) {
 			appInfo.isMainWindowHidden = true;
-			mainLog.log("[Main]: Main Window Didn't Show Due to 'Minimize on App Launch' Being On");
+			mainLog.log("Main Window Didn't Show Due to 'Minimize on App Launch' Being On");
 			return;
 		}
 
@@ -210,7 +210,7 @@ function createElectronApp() {
 
 	app.on('before-quit', async () => {
 		const data: AppInfoSaveData = {
-			version: '1.0',
+			version: app.getVersion(),
 			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
 			assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
@@ -275,18 +275,18 @@ async function appMain() {
 	const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
 
 	if (!appInfo.settingsData || !canvasBaseURL || !canvasAPIToken) {
-		mainLog.error('[Main]: Missing Vitable Information!');
+		mainLog.error('Missing Vitable Information!');
 
-		mainLog.log('[Main]: Setup is Needed!');
+		mainLog.log('Setup is Needed!');
 		appStatus.isSetupNeeded = true;
 
 		launchMainWindowWithCorrectPage();
 		return;
 	}
 
-	const appInfoSaveData: AppInfoSaveData | null = await DataUtil.getAppInfoSaveData();
+	const appInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData | null;
 
-	if (appInfoSaveData) {
+	if (appInfoSaveData !== null) {
 		appInfo.assignmentsThatHaveBeenReminded = appInfoSaveData.assignmentsThatHaveBeenReminded;
 		appInfo.assignmentsThatHaveBeenReminded = DataUtil.cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(appInfo.assignmentsThatHaveBeenReminded);
 		
@@ -297,7 +297,7 @@ async function appMain() {
 		appInfo.assignmentSubmittedTypes = DataUtil.cleanUpUnnecessarySavedAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
 
 		const cleanAppInfoSaveData: AppInfoSaveData = {
-			version: '1.0',
+			version: app.getVersion(),
 			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
 			assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
@@ -317,7 +317,7 @@ async function appMain() {
 		const loginItemSettings: Electron.LoginItemSettings = app.getLoginItemSettings();
 
 		if (!loginItemSettings.openAtLogin) {
-			mainLog.log('[Main]: Re-Configured App to Launch on System Bootup');
+			mainLog.log('Re-Configured App to Launch on System Bootup');
 			
 			app.setLoginItemSettings({
 				openAtLogin: true
@@ -327,7 +327,7 @@ async function appMain() {
 
 	while (appInfo.isRunning) {
 		if (!net.isOnline() && appStatus.isOnline) {
-			mainLog.log('[Main]: No Internet');
+			mainLog.log('No Internet');
 
 			appStatus.isOnline = false;
 			appInfo.mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
@@ -335,11 +335,11 @@ async function appMain() {
 			if (checkCanvasWorker !== null) {
 				checkCanvasWorker.terminate();
 				checkCanvasWorker = null;
-				mainLog.log('[Main]: Cancelled Worker (CheckCanvas) Due to No Internet!');
+				mainLog.log('Cancelled Worker (CheckCanvas) Due to No Internet!');
 			}
 		}
 		else if (net.isOnline() && !appStatus.isOnline) {
-			mainLog.log('[Main]: Internet Connection is Back');
+			mainLog.log('Internet Connection is Back');
 
 			appStatus.isOnline = true;
 			appInfo.mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
@@ -367,7 +367,7 @@ function launchMainWindowWithCorrectPage() {
 		};
 
 		SaveManager.saveData(FILENAME_WHATS_NEW_JSON, whatsNew);
-		mainLog.log('[Main]: Whats New Page Will Not Show Anymore');
+		mainLog.log('Whats New Page Will Not Show Anymore');
 
 		return;
 	}
@@ -393,11 +393,11 @@ async function updateClassData(classData: ClassData | null) {
 
 	// ClassData Is Different From Cached Classes
 	if (JSON.stringify(classData.classes) === JSON.stringify(appInfo.classData?.classes)) {
-		mainLog.log('[Main]: ClassData Has Not Updated!')
+		mainLog.log('ClassData Has Not Updated!')
 		return;
 	}
 
-	mainLog.log('[Main]: ClassData Has Updated!')
+	mainLog.log('ClassData Has Updated!')
 
 	if (debugMode.saveFetchedClassData)
 		await SaveManager.saveData(FILENAME_CLASS_DATA_JSON, classData);
@@ -427,20 +427,20 @@ function findNextAssignmentAndStartWorker() {
 	const possibleNextAssignment: Assignment | null = CourseUtil.getNextAssignment(upcomingAssignments, appInfo.settingsData);
 
 	if (possibleNextAssignment === null) {
-		mainLog.log('[Main]: There is No Next Assignment');
+		mainLog.log('There is No Next Assignment');
 		return
 	}
 
 	if (possibleNextAssignment.id === appInfo.nextAssignment?.id) {
-		mainLog.log('[Main]: Possible Next Assignment is the Same As the Current Next Assignment');	
+		mainLog.log('Possible Next Assignment is the Same As the Current Next Assignment');	
 		return;
 	}
 
-	mainLog.log('[Main]: Next Assignment is ' + possibleNextAssignment.name);
+	mainLog.log('Next Assignment is ' + possibleNextAssignment.name);
 	appInfo.nextAssignment = possibleNextAssignment;
 
 	if (waitForNotificationWorker !== null) {
-		mainLog.log('[Main]: Terminating Old Worker (WaitOnNotification)!');
+		mainLog.log('Terminating Old Worker (WaitOnNotification)!');
 		waitForNotificationWorker.terminate();
 		waitForNotificationWorker =  null;
 	}
@@ -572,10 +572,10 @@ async function showNotification(nextAssignment: Assignment) {
 	if (appInfo.notification)
 		appInfo.notification.show();
 	else
-		mainLog.error('[Main]: Failed to Show Notification!');
+		mainLog.error('Failed to Show Notification!');
 
 	appInfo.assignmentsThatHaveBeenReminded.push(nextAssignment);
-	mainLog.log(`[Main]: Adding ${nextAssignment.name} to Assignments That Have Been Reminded!`);
+	mainLog.log(`Adding ${nextAssignment.name} to Assignments That Have Been Reminded!`);
 
 	await sleep(NOTIFICATION_DISAPPER_TIME_IN_SEC * 1000);
 
@@ -589,7 +589,7 @@ async function createCanvasWorker(): Promise<Worker> {
 		_checkCanvasWorker = WorkerUtil.createWorker('./workers/checkCanvas.js');
 		_checkCanvasWorker.on('message', onCheckCanvasWorkerMessageCallback);
 
-		mainLog.log('[Main]: Starting Worker (CheckCanvas)!');
+		mainLog.log('Starting Worker (CheckCanvas)!');
 
 		const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
 		const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
@@ -600,7 +600,7 @@ async function createCanvasWorker(): Promise<Worker> {
 		_checkCanvasWorker = WorkerUtil.createWorker('./workers/checkCanvasDEBUG.js');
 		_checkCanvasWorker.on('message', onCheckCanvasWorkerMessageCallback);
 
-		mainLog.log('[Main]: Starting Worker (CheckCanvas DEBUG)!');
+		mainLog.log('Starting Worker (CheckCanvas DEBUG)!');
 
 		_checkCanvasWorker.postMessage(app.getPath('userData'));
 	}
@@ -648,7 +648,7 @@ async function onShowNotificationWorkerMessageCallback(result: WorkerResult) {
 
 async function startCheckCanvasWorker() {
 	if (checkCanvasWorker !== null) {
-		mainLog.log('[Main]: Settings Have Changed. Restarting Find Next Assignment Coroutine');
+		mainLog.log('Settings Have Changed. Restarting Find Next Assignment Coroutine');
 
 		appInfo.nextAssignment = null;				// Otherwise app will not restart worker because of it being the same assignment
 		findNextAssignmentAndStartWorker();
@@ -672,7 +672,7 @@ function startWaitOnNotificationWorker() {
 		settingsData: appInfo.settingsData
 	};
 
-	mainLog.log('[Main]: Starting Worker (WaitOnNotification)!');
+	mainLog.log('Starting Worker (WaitOnNotification)!');
 
 	waitForNotificationWorker = WorkerUtil.createWorker('./workers/waitForNotification.js');
 	waitForNotificationWorker.on('message', onShowNotificationWorkerMessageCallback);
@@ -681,10 +681,10 @@ function startWaitOnNotificationWorker() {
 }
 
 async function outputAppLog() {
-	mainLog.log('[Main]: Outputting App Log to File!');
+	mainLog.log('Outputting App Log to File!');
 
 	const data: AppLog = {
-		version: '1.0',
+		version: app.getVersion(),
 		appInfo: appInfo,
 		appStatus: appStatus,
 		debugMode: debugMode,

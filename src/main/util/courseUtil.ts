@@ -110,7 +110,7 @@ function filterUpcomingAssignmentsToRemoveRemindedAssignments(upcomingAssignment
 			if (indexToRemove > -1)
 				upcomingAssignments.splice(indexToRemove, 1);
 			else
-				mainLog.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments That Have Been Reminded');
+				mainLog.warn('Failed to Filter Upcoming Assigments From Assignments That Have Been Reminded');
 		}	
 	}
 
@@ -128,7 +128,7 @@ function filterUpcomingAssignmentsToRemoveAssignmentsToNotRemind(upcomingAssignm
 			if (indexToRemove > -1)
 				upcomingAssignments.splice(indexToRemove, 1);
 			else
-				mainLog.warn('[Main]: Failed to Filter Upcoming Assigments From Assignments Not To Remind');
+				mainLog.warn('Failed to Filter Upcoming Assigments From Assignments Not To Remind');
 		}	
 	}
 
@@ -149,7 +149,7 @@ function filterUpcomingAssignmentsToRemoveSubmittedAssignments(upcomingAssignmen
 			if (indexToRemove > -1)
 				upcomingAssignments.splice(indexToRemove, 1);
 			else
-				mainLog.warn('[Main]: Failed to Filter Upcoming Assigments From Submitted Assignments');
+				mainLog.warn('Failed to Filter Upcoming Assigments From Submitted Assignments');
 		}	
 	}
 

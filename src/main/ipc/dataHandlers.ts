@@ -1,6 +1,6 @@
 import * as keytar from 'keytar';
 
-import { ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 import * as mainLog from 'electron-log';
 
 import AppInfo from '../../interfaces/appInfo';
@@ -28,23 +28,27 @@ function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefin
 }
 
 function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
+    ipcMain.handle('app:getVersion', () => {
+        return app.getVersion();
+    })
+
     ipcMain.handle('writeSavedData', async (event, filename: string, data: SaveData) => {
         // const senderHTMLFilename = getSenderHTMLFile(event);
-        // electronLog.log(`[Main]: (${senderHTMLFilename}) Write Saved Data (${filename}) Event Was Handled!`);
+        // electronLog.log(`(${senderHTMLFilename}) Write Saved Data (${filename}) Event Was Handled!`);
 
         return await SaveManager.saveData(filename, data);
     })
     
     ipcMain.handle('getSavedData', async (event, filename: string) => {
         // const senderHTMLFilename = getSenderHTMLFile(event);
-        // electronLog.log(`[Main]: (${senderHTMLFilename}) Get Saved Data (${filename}) Event Was Handled!`)
+        // electronLog.log(`(${senderHTMLFilename}) Get Saved Data (${filename}) Event Was Handled!`)
 
         return await SaveManager.getData(filename);
     });
     
     ipcMain.handle('getCachedData', (event, filename: string): object | null => {
         // const senderHTMLFilename = getSenderHTMLFile(event);
-        // electronLog.log(`[Main]: (${senderHTMLFilename}) Get Cached Data (${filename}) Event Was Handled!`)
+        // electronLog.log(`(${senderHTMLFilename}) Get Cached Data (${filename}) Event Was Handled!`)
     
         if (filename === 'classData') {
             return appInfo.classData;
@@ -59,7 +63,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     ipcMain.on('updateData', async (event, type: string, data: object | null) => {
         const senderHTMLFilename = getSenderHTMLFile(event);
 
-        mainLog.log(`[Main]: (${senderHTMLFilename}) Update Data (${type}) Event Was Handled!`)
+        mainLog.log(`(${senderHTMLFilename}) Update Data (${type}) Event Was Handled!`)
         
         if (type === 'settingsData') {
             const oldSettingsData = appInfo.settingsData;
@@ -70,7 +74,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             if (oldSettingsData?.whenToRemindTimeValue != appInfo.settingsData.whenToRemindTimeValue ||
                 oldSettingsData?.whenToRemindFormatValue != appInfo.settingsData.whenToRemindFormatValue) 
             {
-                mainLog.log('[Main]: Resetting AssignmentsThatHaveBeenReminded and Saving It Due to Settings Change');
+                mainLog.log('Resetting AssignmentsThatHaveBeenReminded and Saving It Due to Settings Change');
 
                 const appInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
@@ -82,7 +86,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
             if (!appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions) {
                 appInfo.assignmentsWithNoSubmissions = [];
-                mainLog.log('[Main]: Cleared Any Assignments With No Submissions From Dont Remind List');
+                mainLog.log('Cleared Any Assignments With No Submissions From Dont Remind List');
             }
 
             await startCheckCanvasWorker();
@@ -99,13 +103,13 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             const self = await canvas.getSelf();
             return { data: self };
         } catch (error) {
-            mainLog.error('[Main]: Failed to Get Self From Canvas Due to Invalid Canvas Credentials - ', error);
+            mainLog.error('Failed to Get Self From Canvas Due to Invalid Canvas Credentials - ', error);
             return { data: null, error: 'INVALID CANVAS CREDENTIALS' };
         }
     });
 
     ipcMain.on('saveSecureText', async (event, key: string, text: string) => {
-        mainLog.log(`[Main]: Using Secure Text to Save (${key})`);
+        mainLog.log(`Using Secure Text to Save (${key})`);
 
         await keytar.setPassword(APP_NAME, key, text);
     });
@@ -121,14 +125,14 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             if (assignment.id !== assignmentToNotRemind.id)
                 continue;
 
-            mainLog.warn(`[Main]: Assignment (${assignment.name}) is Already in the Don't Remind List`);
+            mainLog.warn(`Assignment (${assignment.name}) is Already in the Don't Remind List`);
             return;
         }
 
         appInfo.assignmentsToNotRemind.push(assignment)
 
-        mainLog.log(`[Main]: Added Assignment (${assignment.name}) To Don't Remind List`);
-        mainLog.log(`[Main]: Restarting Find Next Assignment Coroutine`);
+        mainLog.log(`Added Assignment (${assignment.name}) To Don't Remind List`);
+        mainLog.log(`Restarting Find Next Assignment Coroutine`);
 
         appInfo.nextAssignment = null;
         findNextAssignmentAndStartWorker();
@@ -142,15 +146,15 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
                 continue;
 
             appInfo.assignmentsToNotRemind.splice(i, 1);
-            mainLog.log(`[Main]: Removed Assignment (${assignment.name}) From Don't Remind List `);
+            mainLog.log(`Removed Assignment (${assignment.name}) From Don't Remind List `);
 
-            mainLog.log(`[Main]: Restarting Find Next Assignment Coroutine`);
+            mainLog.log(`Restarting Find Next Assignment Coroutine`);
             findNextAssignmentAndStartWorker();
 
             return;
         }
 
-        mainLog.error(`[Main]: Could Not Remove Assignment (${assignment.name}) From Don't Remind List Because It Doesn't Exist!`);
+        mainLog.error(`Could Not Remove Assignment (${assignment.name}) From Don't Remind List Because It Doesn't Exist!`);
     });
 
     ipcMain.handle('getAssignmentsNotToRemind', () => appInfo.assignmentsToNotRemind)
@@ -164,11 +168,11 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         if (does_assignment_exist) {
             if (assignment.is_submitted) {
                 appInfo.assignmentSubmittedTypes.splice(index, 1);
-                mainLog.debug('[Main]: Deleting Saved Assignment Submitted Type')
+                mainLog.debug('Deleting Saved Assignment Submitted Type')
             }
             else {
                 appInfo.assignmentSubmittedTypes[index].mark_as_submitted = true;
-                mainLog.debug('[Main]: Modifying Saved Assignment Submitted Type to Be Submitted')
+                mainLog.debug('Modifying Saved Assignment Submitted Type to Be Submitted')
             }
         } else {
             if (!assignment.is_submitted) {
@@ -176,7 +180,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
                     assignment: assignment,
                     mark_as_submitted: true
                 });
-                mainLog.debug('[Main]: Adding a New Assignment Submitted Type as Submitted')
+                mainLog.debug('Adding a New Assignment Submitted Type as Submitted')
             }
         }
 
@@ -191,11 +195,11 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         if (does_assignment_exist) {
             if (!assignment.is_submitted) {
                 appInfo.assignmentSubmittedTypes.splice(index, 1);
-                mainLog.debug('[Main]: Deleting Saved Assignment Submitted Type')
+                mainLog.debug('Deleting Saved Assignment Submitted Type')
             }
             else {
                 appInfo.assignmentSubmittedTypes[index].mark_as_submitted = false;
-                mainLog.debug('[Main]: Modifying Saved Assignment Submitted Type to Be Unsubmitted')
+                mainLog.debug('Modifying Saved Assignment Submitted Type to Be Unsubmitted')
             }
         } else {
             if (assignment.is_submitted) {
@@ -203,7 +207,7 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
                     assignment: assignment,
                     mark_as_submitted: false
                 });
-                mainLog.debug('[Main]: Adding a New Assignment Submitted Type as Unsubmitted')
+                mainLog.debug('Adding a New Assignment Submitted Type as Unsubmitted')
             }
         }
 

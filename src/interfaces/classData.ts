@@ -1,7 +1,4 @@
-import SaveData from "./saveData";
-
-interface ClassData extends SaveData {
-    readonly version: string;
+interface ClassData {
     readonly classes: Array<Class>;
 }
 
