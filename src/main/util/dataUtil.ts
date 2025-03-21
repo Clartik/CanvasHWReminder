@@ -61,7 +61,7 @@ async function getSecureText(key: string): Promise<string | null> {
 
 async function getSavedClassData(): Promise<ClassData | null> {
 	try {
-		const classData = await SaveManager.getSavedData('classes-data.json') as ClassData;
+		const classData = await SaveManager.getData('classes-data.json') as ClassData;
 		return classData;
 	} catch (error) {
 		mainLog.error('Could Not Retrieve ClassData: ' + error)
@@ -71,7 +71,7 @@ async function getSavedClassData(): Promise<ClassData | null> {
 
 async function getSavedSettingsData(): Promise<SettingsData | null> {
 	try {
-		const savedSettingsData = await SaveManager.getSavedData('settings-data.json') as SettingsData;
+		const savedSettingsData = await SaveManager.getData('settings-data.json') as SettingsData;
 
 		if (savedSettingsData.version < SETTINGS_DATA_VERSION) {
 			mainLog.warn(`[Main]: Saved Settings Has Old Version! (${savedSettingsData.version})`)
@@ -96,7 +96,7 @@ async function upgradeSettingsData(savedSettingsData: SettingsData): Promise<Set
 	upgradedSettingsData.version = SETTINGS_DATA_VERSION;
 
 	mainLog.log(`[Main]: Upgraded Saved Settings Data to Latest Version! (${upgradedSettingsData.version})`);
-	await SaveManager.writeSavedData(FILENAME_SETTINGS_DATA_JSON, upgradedSettingsData);
+	await SaveManager.saveData(FILENAME_SETTINGS_DATA_JSON, upgradedSettingsData);
 
 	return upgradedSettingsData;
 }
@@ -108,16 +108,16 @@ async function upgradeAppInfoSaveData(savedAppInfoSaveData: AppInfoSaveData): Pr
 	upgradedAppInfoSaveData.version = APP_INFO_SAVE_DATA_VERSION;
 
 	mainLog.log(`[Main]: Upgraded Saved App Info Save Data to Latest Version! (${upgradedAppInfoSaveData.version})`);
-	await SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, upgradedAppInfoSaveData);
+	await SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, upgradedAppInfoSaveData);
 
 	return upgradedAppInfoSaveData;
 }
 
 async function getAppInfoSaveData(): Promise<AppInfoSaveData | null> {
 	try {
-		const savedAppInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
+		const savedAppInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
-		if (savedAppInfoSaveData.version < APP_INFO_SAVE_DATA_VERSION || !Object.prototype.hasOwnProperty.call(savedAppInfoSaveData, "version")) {
+		if (savedAppInfoSaveData.version < APP_INFO_SAVE_DATA_VERSION) {
 			mainLog.warn(`[Main]: Saved App Info Save Data Has Old Version! (${savedAppInfoSaveData.version})`)
 
 			const upgradedAppInfoSaveData = await upgradeAppInfoSaveData(savedAppInfoSaveData);
@@ -135,7 +135,7 @@ async function getAppInfoSaveData(): Promise<AppInfoSaveData | null> {
 
 async function getSaveData(filename: string): Promise<object | null> {
 	try {
-		const savedData: object = await SaveManager.getSavedData(filename);
+		const savedData: object = await SaveManager.getData(filename);
 
 		mainLog.log(`[Main]: Loaded Saved Data (${filename})`)
 
@@ -147,7 +147,7 @@ async function getSaveData(filename: string): Promise<object | null> {
 }
 
 function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assignment[]): Assignment[] {
-	const assignmentIndexsToBeRemoved: number[] = [];
+	const assignmentIndicesToBeRemoved: number[] = [];
 
 	for (let i = 0; i < assignments.length; i++) {
 		const assignment = assignments[i];
@@ -163,12 +163,12 @@ function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assig
 
 		mainLog.log(`[Main]: Deleting Expired Saved Assignment (${assignment.name})`);
 
-		assignmentIndexsToBeRemoved.push(i);
+		assignmentIndicesToBeRemoved.push(i);
 	}
 
 	// Need for the double step because if assignments was purged in loop above, the location of each element would keep changing
 	// This way, it identifies all assignments and removes them accordingly
-	for (const assignmentIndex of assignmentIndexsToBeRemoved) {
+	for (const assignmentIndex of assignmentIndicesToBeRemoved) {
 		assignments.splice(assignmentIndex, 1);
 	}
 
@@ -176,7 +176,7 @@ function cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(assignments: Assig
 }
 
 function cleanUpUnnecessarySavedAssignmentSubmittedTypes(assignmentSubmittedTypes: AssignmentSubmittedType[]): AssignmentSubmittedType[] {
-	const assignmentIndexsToBeRemoved: number[] = [];
+	const assignmentIndicesToBeRemoved: number[] = [];
 
 	for (let i = 0; i < assignmentSubmittedTypes.length; i++) {
 		const assignment = assignmentSubmittedTypes[i].assignment;
@@ -192,12 +192,12 @@ function cleanUpUnnecessarySavedAssignmentSubmittedTypes(assignmentSubmittedType
 
 		mainLog.log(`[Main]: Deleting Expired Saved Assignment Submitted Type (${assignment.name})`);
 
-		assignmentIndexsToBeRemoved.push(i);
+		assignmentIndicesToBeRemoved.push(i);
 	}
 
 	// Need for the double step because if assignments was purged in loop above, the location of each element would keep changing
 	// This way, it identifies all assignments and removes them accordingly
-	for (const assignmentIndex of assignmentIndexsToBeRemoved) {
+	for (const assignmentIndex of assignmentIndicesToBeRemoved) {
 		assignmentSubmittedTypes.splice(assignmentIndex, 1);
 	}
 
@@ -221,7 +221,7 @@ async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
 	let classData: ClassData | null = null;
 
 	if (debugMode.useLocalClassData) {
-		classData = await SaveManager.getSavedData(FILENAME_CLASS_DATA_JSON) as ClassData;
+		classData = await SaveManager.getData(FILENAME_CLASS_DATA_JSON) as ClassData;
 	}
 	else {
 		if (!appInfo.settingsData)
@@ -255,10 +255,10 @@ function configureAppSettings(settingsData: SettingsData) {
 }
 
 async function saveAssignmentSubmittedTypes(assignmentSubmittedTypes: AssignmentSubmittedType[]) {
-	const appInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
+	const appInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
 	appInfoSaveData.assignmentSubmittedTypes = assignmentSubmittedTypes;
-	SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
+	SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
 }
 
 export { 

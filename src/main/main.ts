@@ -215,7 +215,7 @@ function createElectronApp() {
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
 		}
 
-		await SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, data);
+		await SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, data);
 
 		checkCanvasWorker?.terminate();
 		waitForNotificationWorker?.terminate();
@@ -269,10 +269,7 @@ autoUpdater.on('error', async () => {
 
 async function appMain() {
 	appInfo.settingsData = await DataUtil.getSavedSettingsData();
-
-	const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
-	const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
-
+	
 	if (!appInfo.settingsData) {
 		mainLog.error('[Main]: SettingsData is NULL!');
 
@@ -282,6 +279,10 @@ async function appMain() {
 		appInfo.mainWindow?.webContents.loadFile('./pages/welcome.html');
 		return;
 	}
+
+	const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
+	const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
+
 
 	if (!canvasBaseURL || !canvasAPIToken) {
 		mainLog.error('[Main]: Canvas Credentials are NULL!');
@@ -312,7 +313,7 @@ async function appMain() {
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
 		}
 
-		await SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, cleanAppInfoSaveData);
+		await SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, cleanAppInfoSaveData);
 	}
 	
 	if (net.isOnline())
@@ -375,7 +376,7 @@ function launchMainWindowWithCorrectPage() {
 			shown: true
 		};
 
-		SaveManager.writeSavedData(FILENAME_WHATS_NEW_JSON, whatsNew);
+		SaveManager.saveData(FILENAME_WHATS_NEW_JSON, whatsNew);
 		mainLog.log('[Main]: Whats New Page Will Not Show Anymore');
 
 		return;
@@ -410,7 +411,7 @@ async function updateClassData(classData: ClassData | null) {
 	mainLog.log('[Main]: ClassData Has Updated!')
 
 	if (debugMode.saveFetchedClassData)
-		await SaveManager.writeSavedData(FILENAME_CLASS_DATA_JSON, classData);
+		await SaveManager.saveData(FILENAME_CLASS_DATA_JSON, classData);
 
 	appInfo.classData = classData;
 	appInfo.mainWindow?.webContents.send('updateData', 'classes', classData);
@@ -425,7 +426,6 @@ function findNextAssignmentAndStartWorker() {
 	if (!appInfo.settingsData)
 		return;
 
-	// TODO: Filter out assignments marked as submitted from next assignment list!
 	if (appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions)
 		appInfo.assignmentsWithNoSubmissions = CourseUtil.getAssignmentsWithoutSubmissionsRequired(appInfo.settingsData, appInfo.classData);
 
@@ -627,7 +627,7 @@ async function onCheckCanvasWorkerMessageCallback(result: WorkerResult) {
 			case 'INTERNET OFFLINE':
 				checkCanvasWorker?.terminate();
 				checkCanvasWorker = null;
-				break;
+				return;
 
 			case 'INVALID CANVAS CREDENTIALS':
 				appStatus.isConnectedToCanvas = false;
@@ -635,13 +635,11 @@ async function onCheckCanvasWorkerMessageCallback(result: WorkerResult) {
 
 				checkCanvasWorker?.terminate();
 				checkCanvasWorker = null;
-				break;
+				return;
 		
 			default:
-				break;
+				return;
 		}
-		
-		return;
 	}
 
 	updateClassData(result.data as ClassData | null);
@@ -706,7 +704,7 @@ async function outputAppLog() {
 		}
 	};
 
-	await SaveManager.writeSavedData('app-log.json', data);
+	await SaveManager.saveData('app-log.json', data);
 
 	if (!appInfo.mainWindow)
 		return;
@@ -741,10 +739,8 @@ function launchApp() {
 }
 
 function openSaveFolder() {	
-	shell.openPath(SaveManager.saveDataPath);
+	shell.openPath(SaveManager.savePath);
 }
-
-// #endregion
 
 async function showUpdateAvailableDialogAndHandleResponse() {
 	const response = await UpdaterUtil.showDownloadAvailableDialog();
@@ -789,6 +785,8 @@ async function showUpdateErrorDialogAndHandleResponse() {
 
 	autoUpdater.downloadUpdate();
 }
+
+// #endregion
 
 export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage,
 	findNextAssignmentAndStartWorker, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse,

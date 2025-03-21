@@ -16,7 +16,10 @@ const checkCanvasTimeInSec: number = 60 * 60;				// Every Hour
 
 let isWorkerRunning: boolean = false;
 
-parentPort?.on('message', async (userDataFilepath: string) => {
+parentPort?.on('message', async (saveDataPath: string) => {
+    // Needs to Be Re-Initalized because it is in a different context from main thread?
+    SaveManager.init(saveDataPath);
+
     isWorkerRunning = true;
 
     while (isWorkerRunning) {
@@ -25,7 +28,7 @@ parentPort?.on('message', async (userDataFilepath: string) => {
         let classData: ClassData | null = null;
 
         try {
-            classData = await SaveManager.getData(userDataFilepath + '\\' + FILENAME_CLASS_DATA_JSON) as ClassData;
+            classData = await SaveManager.getData(FILENAME_CLASS_DATA_JSON) as ClassData;
         } catch (error) {
             mainLog.error('[Worker (CheckCanvas DEBUG)]: Failed to Get Class Data From Local Canvas Save -', error);
         }

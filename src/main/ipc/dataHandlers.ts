@@ -31,14 +31,14 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         // const senderHTMLFilename = getSenderHTMLFile(event);
         // electronLog.log(`[Main]: (${senderHTMLFilename}) Write Saved Data (${filename}) Event Was Handled!`);
 
-        return await SaveManager.writeSavedData(filename, data);
+        return await SaveManager.saveData(filename, data);
     })
     
     ipcMain.handle('getSavedData', async (event, filename: string) => {
         // const senderHTMLFilename = getSenderHTMLFile(event);
         // electronLog.log(`[Main]: (${senderHTMLFilename}) Get Saved Data (${filename}) Event Was Handled!`)
 
-        return await SaveManager.getSavedData(filename);
+        return await SaveManager.getData(filename);
     });
     
     ipcMain.handle('getCachedData', (event, filename: string): object | null => {
@@ -71,12 +71,12 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             {
                 mainLog.log('[Main]: Resetting AssignmentsThatHaveBeenReminded and Saving It Due to Settings Change');
 
-                const appInfoSaveData = await SaveManager.getSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
+                const appInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
                 appInfoSaveData.assignmentsThatHaveBeenReminded = [];
                 appInfo.assignmentsThatHaveBeenReminded = [];
 
-                SaveManager.writeSavedData(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
+                SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
             }
 
             if (!appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions) {
