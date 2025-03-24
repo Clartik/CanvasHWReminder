@@ -24,7 +24,8 @@ function quitApp(appInfo: AppInfo) {
 }
 
 function createSystemTray(appInfo: AppInfo): Tray {
-	const iconPath: string = getIconPath('icon.ico');
+	const iconPath: string = getIconPath('icon');
+	console.log(iconPath);
 	const trayTitle: string = electronApp.name;
 
 	const icon = nativeImage.createFromPath(iconPath);

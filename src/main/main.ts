@@ -465,7 +465,7 @@ function getNotification(nextAssignment: Assignment): Electron.Notification | nu
 
 	const exactDueDate: string = CourseUtil.getExactDueDate(currentDate, nextAssignmentDueDate);
 
-	const iconRelativePath: string = getIconPath('icon.ico');
+	const iconRelativePath: string = getIconPath('icon');
 
 	let iconAbsPath: string;
 
