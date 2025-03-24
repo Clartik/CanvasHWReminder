@@ -7,3 +7,4 @@ assets/fonts/
 assets/videos
 assets/images/
 .env.*
+.DS_Store

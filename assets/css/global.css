@@ -1298,3 +1298,15 @@ input:checked + .slider:before {
 
     width: 500px;
 }
+
+#terms-link {
+    color: lightblue;
+    text-decoration: underline;
+    cursor: pointer;
+
+    transition: color 0.1s ease;
+}
+
+#terms-link:active {
+    color: blue;
+}
