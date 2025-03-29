@@ -16,13 +16,18 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 	const mainWindow = new BrowserWindow({
 		x: mainWindowState.x,
 		y: mainWindowState.y,
+
 		width: mainWindowState.width,
 		height: mainWindowState.height,
+
 		minWidth: 710,
+		
 		autoHideMenuBar: true,
+
 		title: app.name,
 		show: true,
 		icon: getIconPath('icon.ico'),
+
 		webPreferences: {
 			preload: path.join(__baseDir, '../preload/preload.js'),
 			nodeIntegration: true,
@@ -31,13 +36,9 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 	});
 
 	mainWindowState.manage(mainWindow);
-
+	
 	mainWindow.loadFile(htmlPath);
 	appInfo.isMainWindowHidden = false;
-
-	mainWindow.webContents.once('did-finish-load', () => {
-		appInfo.isMainWindowLoaded = true;
-	})
 
 	mainWindow.on('close', () => {
 		if (!appInfo.isRunning)

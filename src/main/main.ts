@@ -72,7 +72,6 @@ const appInfo: AppInfo = {
 	isDevelopment: process.env.NODE_ENV === 'dev',
 
 	isRunning: true,
-	isMainWindowLoaded: false,
 	isMainWindowHidden: false,
 
 	mainWindow: null,
@@ -118,6 +117,11 @@ handleIPCRequests(appInfo, appStatus, debugMode);
 //#region App Setup
 
 function createElectronApp() {
+	for (const logger of Logger.getAll())
+		logger.info('-------------- New Session --------------\n');
+
+	mainLog.debug(`Node Environment: ` + environment);
+
 	const isLocked = app.requestSingleInstanceLock();
 
 	if (!isLocked) {
@@ -153,11 +157,6 @@ function createElectronApp() {
 	})
 
 	app.whenReady().then(async () => {
-		for (const logger of Logger.getAll())
-			logger.info('-------------- New Session --------------\n');
-
-		mainLog.debug(`Node Environment: ` + environment);
-
 		autoUpdater.autoDownload = false;
 		autoUpdater.channel = process.env.RELEASE_CHANNEL || 'latest';
 
@@ -370,7 +369,6 @@ async function createMainWindowWithCorrectPage() {
 
 		return;
 	}
-
 	
 	appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 }

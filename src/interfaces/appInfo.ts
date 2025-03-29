@@ -6,7 +6,6 @@ interface AppInfo {
 	isDevelopment: boolean,
 
 	isRunning: boolean,
-	isMainWindowLoaded: boolean,
 	isMainWindowHidden: boolean,
 
 	mainWindow: Electron.BrowserWindow | null,
