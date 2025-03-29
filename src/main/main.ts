@@ -19,7 +19,7 @@ import * as MenuUtil from './menu';
 import Logger from './logger';
 
 // Constants
-import { FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON, FILENAME_SETTINGS_DATA_JSON, FILENAME_WHATS_NEW_JSON } from '../constants';
+import { APP_INFO_SAVE_DATA_VERSION, FILENAME_APP_INFO_SAVE_DATA_JSON, FILENAME_CLASS_DATA_JSON, FILENAME_SETTINGS_DATA_JSON, FILENAME_WHATS_NEW_JSON } from '../constants';
 
 // Interfaces
 import AppInfo from '../interfaces/appInfo';
@@ -117,11 +117,6 @@ handleIPCRequests(appInfo, appStatus, debugMode);
 //#region App Setup
 
 function createElectronApp() {
-	for (const logger of Logger.getAll())
-		logger.info('-------------- New Session --------------\n');
-
-	mainLog.debug(`Node Environment: ` + environment);
-
 	const isLocked = app.requestSingleInstanceLock();
 
 	if (!isLocked) {
@@ -130,15 +125,19 @@ function createElectronApp() {
 		process.exit();
 	}
 
+	// Moved After Request App Lock because createElectronApp is called many times and...
+	// ...I don't want to see a bunch of new session logs when it is still one session
+	for (const logger of Logger.getAll())
+		logger.info('-------------- New Session --------------\n');
+
+	mainLog.debug(`Node Environment: ` + environment);
+
 	SaveManager.init(app.getPath('userData'));
 
-	if (appInfo.isDevelopment && process.platform === 'win32')
-		app.setAsDefaultProtocolClient('canvas-hw-reminder', process.execPath, [path.resolve(process.argv[1])]);
-	else
-		app.setAsDefaultProtocolClient('canvas-hw-reminder');
+	setupURLProtocolClient();
+	setupAutoUpdater();
 
 	// TODO: Separate Handler Logic to Their Own Functions?
-
 	// Listen for protocol URL when the app is already running (OS X Specific)
 	app.on('open-url', (event, url) => {
 		event.preventDefault(); // Prevent the default action
@@ -155,58 +154,6 @@ function createElectronApp() {
 
 		launchApp();
 	})
-
-	app.whenReady().then(async () => {
-		autoUpdater.autoDownload = false;
-		autoUpdater.channel = process.env.RELEASE_CHANNEL || 'latest';
-
-		autoUpdater.logger = updaterLog;
-		autoUpdater.checkForUpdatesAndNotify();
-
-		// Windows Specific Command to Show the App Name in Notification
-		if (process.platform === 'win32') {
-			app.setAppUserModelId(app.name);
-		}
-
-		if (!debugMode.active)
-			Menu.setApplicationMenu(null);
-		else
-			MenuUtil.createDebugAppMenu();
-
-		systemTray = createSystemTray(appInfo);
-
-		appInfo.settingsData = await SaveManager.load(FILENAME_SETTINGS_DATA_JSON) as SettingsData | null;
-
-		const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
-		const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
-		
-		if (!appInfo.settingsData || !canvasBaseURL || !canvasAPIToken) {
-			if (!appInfo.settingsData)
-				mainLog.error('Missing Settings Data!');
-			else if (!canvasBaseURL)
-				mainLog.error('Missing Canvas Base URL!');
-			else if (!canvasAPIToken)
-				mainLog.error('Missing Canvas API Token!');
-	
-			mainLog.log('Setup is Needed!');
-			appStatus.isSetupNeeded = true;
-	
-			createMainWindowWithCorrectPage();
-			return;
-		}
-
-		whatsNew = await SaveManager.load(FILENAME_WHATS_NEW_JSON) as WhatsNew | null;
-		
-		if (appInfo.settingsData?.minimizeOnLaunch) {
-			appInfo.isMainWindowHidden = true;
-			mainLog.log("(Minimize on App Launch) Enabled: Main Window Won't Show");
-			return;
-		}
-
-		createMainWindowWithCorrectPage();
-
-		appMain();
-	});
 
 	// MACOS ONLY
 	app.on('activate', async () => {
@@ -241,6 +188,46 @@ function createElectronApp() {
 
 		systemTray.destroy();
 	})
+
+	app.whenReady().then(async () => {
+		// Windows Specific Command to Show the App Name in Notification
+		if (process.platform === 'win32') {
+			app.setAppUserModelId(app.name);
+		}
+
+		setupAppMenu();
+		systemTray = createSystemTray(appInfo);
+
+		appInfo.settingsData = await SaveManager.load(FILENAME_SETTINGS_DATA_JSON) as SettingsData | null;
+		appStatus.isSetupNeeded = await checkIfSetupIsNeeded();
+
+		if (appStatus.isSetupNeeded) {
+			createMainWindowWithCorrectPage();
+			return;
+		}
+		
+		setupLaunchOnStartIfNeeded();
+
+		// Whats New neeeds to be loaded before the next statement because there should be no missing state..
+		// ...in case main window isn't launched.
+		whatsNew = await SaveManager.load(FILENAME_WHATS_NEW_JSON) as WhatsNew | null;
+
+		setupAppInfoSaveData();
+		cleanAppInfoSaveData();
+
+		if (net.isOnline())
+			checkCanvasWorker = await createCanvasWorker();
+
+		if (appInfo.settingsData?.minimizeOnLaunch) {
+			appInfo.isMainWindowHidden = true;
+			mainLog.log("(Minimize on App Launch) Enabled: Main Window Won't Show");
+			return;
+		}
+		
+		// TODO: Switch Network Status checking to renderer!
+
+		createMainWindowWithCorrectPage();
+	});
 }
 
 //#endregion
@@ -285,70 +272,89 @@ autoUpdater.on('error', async () => {
 //#endregion
 
 //#region Functions
-async function appMain() {
+
+function setupAutoUpdater() {
+	autoUpdater.autoDownload = false;
+	autoUpdater.channel = process.env.RELEASE_CHANNEL || 'latest';
+
+	autoUpdater.logger = updaterLog;
+	autoUpdater.checkForUpdatesAndNotify();
+}
+
+function setupURLProtocolClient() {
+	if (appInfo.isDevelopment && process.platform === 'win32')
+		app.setAsDefaultProtocolClient('canvas-hw-reminder', process.execPath, [path.resolve(process.argv[1])]);
+	else
+		app.setAsDefaultProtocolClient('canvas-hw-reminder');
+}
+
+function setupAppMenu() {
+	if (!debugMode.active)
+		Menu.setApplicationMenu(null);
+	else
+		MenuUtil.createDebugAppMenu();
+}
+
+async function checkIfSetupIsNeeded(): Promise<boolean> {
+	const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
+	const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
+	
+	if (!appInfo.settingsData || !canvasBaseURL || !canvasAPIToken) {
+		if (!appInfo.settingsData)
+			mainLog.error('Missing Settings Data!');
+		else if (!canvasBaseURL)
+			mainLog.error('Missing Canvas Base URL!');
+		else if (!canvasAPIToken)
+			mainLog.error('Missing Canvas API Token!');
+
+		mainLog.log('Setup is Needed!');
+		return true;
+	}
+
+	return false;
+}
+
+function setupLaunchOnStartIfNeeded() {
+	if (appInfo.isDevelopment)
+		return;
+
+	if (!appInfo.settingsData?.launchOnStart)
+		return;
+
+	const loginItemSettings: Electron.LoginItemSettings = app.getLoginItemSettings();
+	
+	if (loginItemSettings.openAtLogin)
+		return;
+	
+	app.setLoginItemSettings({openAtLogin: true});
+	mainLog.log('(Launch On Start) Enabled: Re-Configured App to Launch on System Bootup');
+}
+
+async function setupAppInfoSaveData() {
 	const appInfoSaveData = await SaveManager.load(FILENAME_APP_INFO_SAVE_DATA_JSON, false) as AppInfoSaveData | null;
 
-	if (appInfoSaveData !== null) {
-		appInfo.assignmentsThatHaveBeenReminded = appInfoSaveData.assignmentsThatHaveBeenReminded;
-		appInfo.assignmentsThatHaveBeenReminded = DataUtil.cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(appInfo.assignmentsThatHaveBeenReminded);
-		
-		appInfo.assignmentsToNotRemind = appInfoSaveData.assignmentsNotToRemind;
-		appInfo.assignmentsToNotRemind = DataUtil.cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(appInfo.assignmentsToNotRemind);
-
-		appInfo.assignmentSubmittedTypes = appInfoSaveData.assignmentSubmittedTypes;
-		appInfo.assignmentSubmittedTypes = DataUtil.cleanUpUnnecessarySavedAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
-
-		const cleanAppInfoSaveData: AppInfoSaveData = {
-			version: app.getVersion(),
-			assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
-			assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
-			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
-		}
-
-		await SaveManager.save(FILENAME_APP_INFO_SAVE_DATA_JSON, cleanAppInfoSaveData);
-	}
+	if (appInfoSaveData === null)
+		return;
 	
-	if (net.isOnline())
-		checkCanvasWorker = await createCanvasWorker();
+	appInfo.assignmentsThatHaveBeenReminded = appInfoSaveData.assignmentsThatHaveBeenReminded;
+	appInfo.assignmentsToNotRemind = appInfoSaveData.assignmentsNotToRemind;
+	appInfo.assignmentSubmittedTypes = appInfoSaveData.assignmentSubmittedTypes;
+}
 
-	if (appInfo.settingsData?.launchOnStart && !appInfo.isDevelopment) {
-		const loginItemSettings: Electron.LoginItemSettings = app.getLoginItemSettings();
+async function cleanAppInfoSaveData() {
+	appInfo.assignmentsThatHaveBeenReminded = DataUtil.cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(appInfo.assignmentsThatHaveBeenReminded);
+	appInfo.assignmentsToNotRemind = DataUtil.cleanUpUnnecessarySavedAssignmentsAccordingToDueDate(appInfo.assignmentsToNotRemind);
+	appInfo.assignmentSubmittedTypes = DataUtil.cleanUpUnnecessarySavedAssignmentSubmittedTypes(appInfo.assignmentSubmittedTypes);
 
-		if (!loginItemSettings.openAtLogin) {
-			mainLog.log('Re-Configured App to Launch on System Bootup');
-			
-			app.setLoginItemSettings({
-				openAtLogin: true
-			})
-		}
+	const cleanAppInfoSaveData: AppInfoSaveData = {
+		version: APP_INFO_SAVE_DATA_VERSION,
+		assignmentsThatHaveBeenReminded: appInfo.assignmentsThatHaveBeenReminded,
+		assignmentsNotToRemind: appInfo.assignmentsToNotRemind,
+		assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
 	}
 
-	while (appInfo.isRunning) {
-		if (!net.isOnline() && appStatus.isOnline) {
-			mainLog.log('No Internet');
-
-			appStatus.isOnline = false;
-			appInfo.mainWindow?.webContents.send('sendAppStatus', 'INTERNET OFFLINE');
-
-			if (checkCanvasWorker !== null) {
-				checkCanvasWorker.terminate();
-				checkCanvasWorker = null;
-				mainLog.log('Cancelled Worker (CheckCanvas) Due to No Internet!');
-			}
-		}
-		else if (net.isOnline() && !appStatus.isOnline) {
-			mainLog.log('Internet Connection is Back');
-
-			appStatus.isOnline = true;
-			appInfo.mainWindow?.webContents.send('sendAppStatus', 'INTERNET ONLINE');
-
-			if (checkCanvasWorker === null)
-				checkCanvasWorker = await createCanvasWorker();
-		}
-
-		await sleep(CHECK_FOR_UPDATES_TIME_IN_SEC * 1000);
-	}
-};
+	await SaveManager.save(FILENAME_APP_INFO_SAVE_DATA_JSON, cleanAppInfoSaveData);
+}
 
 async function createMainWindowWithCorrectPage() {
 	if (appStatus.isSetupNeeded) {
