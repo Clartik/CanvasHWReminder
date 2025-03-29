@@ -1,6 +1,5 @@
-import AppInfoSaveData from "src/interfaces/appInfoData"
-import SettingsData from "src/interfaces/settingsData"
-import WhatsNew from "src/interfaces/whatsNew"
+import AppInfoSaveData from "src/interfaces/appInfoData";
+import SettingsData from "src/interfaces/settingsData";
 
 export function getDefaultSettingsData(dataVersion: string): SettingsData {
 	return {
@@ -35,11 +34,4 @@ export function getDefaultAppInfoSaveData(dataVersion: string): AppInfoSaveData 
     	assignmentsNotToRemind: [],
     	assignmentSubmittedTypes: []
 	}
-}
-
-export function getDefaultWhatsNew(dataVersion: string): WhatsNew {
-    return {
-        version: dataVersion,
-        shown: true
-    }
 }

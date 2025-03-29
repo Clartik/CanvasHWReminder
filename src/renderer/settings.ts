@@ -270,7 +270,7 @@ async function populateElemntsWithSecureData() {
 
 async function getSettingsDataToSave(): Promise<SettingsData> {
     return {
-        version: await window.api.app.getVersion(),
+        version: await window.api.getSaveVersion('settings-data.json'),
 
         whenToRemindTimeValue: whenToRemindTimeDropdown.value,
         whenToRemindFormatValue: whenToRemindFormatDropdown.value,

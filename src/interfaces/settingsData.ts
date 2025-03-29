@@ -1,4 +1,6 @@
-interface SettingsData {
+import SaveData from "./saveData";
+
+interface SettingsData extends SaveData {
     version: string;
 
     readonly whenToRemindTimeValue: string;

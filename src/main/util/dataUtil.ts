@@ -87,7 +87,7 @@ async function reloadSettingsData(appInfo: AppInfo, debugMode: DebugMode) {
 		return;
 
 	mainLog.log('[DEBUG MODE]: Reloading Settings Data!');
-	appInfo.settingsData = await SaveManager.getData(FILENAME_SETTINGS_DATA_JSON) as SettingsData | null;
+	appInfo.settingsData = await SaveManager.load(FILENAME_SETTINGS_DATA_JSON) as SettingsData | null;
 }
 
 async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
@@ -99,7 +99,7 @@ async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
 	let classData: ClassData | null = null;
 
 	if (debugMode.useLocalClassData) {
-		classData = await SaveManager.getData(FILENAME_CLASS_DATA_JSON) as ClassData | null;
+		classData = await SaveManager.load(FILENAME_CLASS_DATA_JSON) as ClassData | null;
 	}
 	else {
 		if (!appInfo.settingsData)
@@ -133,10 +133,10 @@ function configureAppSettings(settingsData: SettingsData) {
 }
 
 async function saveAssignmentSubmittedTypes(assignmentSubmittedTypes: AssignmentSubmittedType[]) {
-	const appInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
+	const appInfoSaveData = await SaveManager.load(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
 	appInfoSaveData.assignmentSubmittedTypes = assignmentSubmittedTypes;
-	SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
+	SaveManager.save(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
 }
 
 export { reloadClassData, reloadSettingsData, getSecureText, 

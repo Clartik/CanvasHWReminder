@@ -6,7 +6,7 @@ import { getIconPath } from './util/misc';
 
 // const isMac = process.platform === 'darwin';
 
-function createAppMenu() {
+function createDebugAppMenu() {
     const template: MenuItemConstructorOptions[] = [
         {
             label: "Open",
@@ -115,4 +115,4 @@ function createAssignmentContextMenu(webContents: Electron.WebContents, data: Co
     menu.popup({ window: mainWindow })
 }
 
-export { createAppMenu, createAssignmentContextMenu };
+export { createDebugAppMenu, createAssignmentContextMenu };

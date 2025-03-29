@@ -40,6 +40,7 @@ import * as UpdaterUtil from './util/updaterUtil';
 import SaveManager from './util/saveManager';
 import { getIconPath, openLink } from "./util/misc";
 import SettingsData from 'src/interfaces/settingsData';
+import FileManager from './util/fileManager';
 
 const sleep = promisify(setTimeout);
 
@@ -113,7 +114,6 @@ let whatsNew: WhatsNew | null = null;
 
 createElectronApp();
 handleIPCRequests(appInfo, appStatus, debugMode);
-appMain();
 
 //#region App Setup
 
@@ -126,7 +126,7 @@ function createElectronApp() {
 		process.exit();
 	}
 
-	SaveManager.init(app.getPath('userData'), app.getVersion());
+	SaveManager.init(app.getPath('userData'));
 
 	if (appInfo.isDevelopment && process.platform === 'win32')
 		app.setAsDefaultProtocolClient('canvas-hw-reminder', process.execPath, [path.resolve(process.argv[1])]);
@@ -154,7 +154,7 @@ function createElectronApp() {
 
 	app.whenReady().then(async () => {
 		for (const logger of Logger.getAll())
-			logger.debug('-------------- New Session --------------\n');
+			logger.info('-------------- New Session --------------\n');
 
 		mainLog.debug(`Node Environment: ` + environment);
 
@@ -164,36 +164,55 @@ function createElectronApp() {
 		autoUpdater.logger = updaterLog;
 		autoUpdater.checkForUpdatesAndNotify();
 
+		// Windows Specific Command to Show the App Name in Notification
 		if (process.platform === 'win32') {
-			app.setAppUserModelId(app.name);		// Windows Specific Command to Show the App Name in Notification
+			app.setAppUserModelId(app.name);
 		}
 
-		if (!debugMode.active) {
+		if (!debugMode.active)
 			Menu.setApplicationMenu(null);
-		}
 		else
-			MenuUtil.createAppMenu();
+			MenuUtil.createDebugAppMenu();
 
 		systemTray = createSystemTray(appInfo);
-		
-		while (!appInfo.settingsData && !appStatus.isSetupNeeded)
-			await sleep(100);
 
-		whatsNew = await SaveManager.getData(FILENAME_WHATS_NEW_JSON) as WhatsNew | null;
+		appInfo.settingsData = await SaveManager.load(FILENAME_SETTINGS_DATA_JSON) as SettingsData | null;
+
+		const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
+		const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
+		
+		if (!appInfo.settingsData || !canvasBaseURL || !canvasAPIToken) {
+			if (!appInfo.settingsData)
+				mainLog.error('Missing Settings Data!');
+			else if (!canvasBaseURL)
+				mainLog.error('Missing Canvas Base URL!');
+			else if (!canvasAPIToken)
+				mainLog.error('Missing Canvas API Token!');
 	
-		if (appInfo.settingsData?.minimizeOnLaunch) {
-			appInfo.isMainWindowHidden = true;
-			mainLog.log("Main Window Didn't Show Due to 'Minimize on App Launch' Being On");
+			mainLog.log('Setup is Needed!');
+			appStatus.isSetupNeeded = true;
+	
+			createMainWindowWithCorrectPage();
 			return;
 		}
 
-		launchMainWindowWithCorrectPage();
+		whatsNew = await SaveManager.load(FILENAME_WHATS_NEW_JSON) as WhatsNew | null;
+		
+		if (appInfo.settingsData?.minimizeOnLaunch) {
+			appInfo.isMainWindowHidden = true;
+			mainLog.log("(Minimize on App Launch) Enabled: Main Window Won't Show");
+			return;
+		}
+
+		createMainWindowWithCorrectPage();
+
+		appMain();
 	});
 
 	// MACOS ONLY
 	app.on('activate', async () => {
 		if (BrowserWindow.getAllWindows().length === 0 && app.isReady())
-			launchMainWindowWithCorrectPage();
+			createMainWindowWithCorrectPage();
 	});
 	
 	app.on('window-all-closed', () => {
@@ -216,7 +235,7 @@ function createElectronApp() {
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
 		}
 
-		await SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, data);
+		await SaveManager.save(FILENAME_APP_INFO_SAVE_DATA_JSON, data);
 
 		checkCanvasWorker?.terminate();
 		waitForNotificationWorker?.terminate();
@@ -267,24 +286,8 @@ autoUpdater.on('error', async () => {
 //#endregion
 
 //#region Functions
-
 async function appMain() {
-	appInfo.settingsData = await SaveManager.getData(FILENAME_SETTINGS_DATA_JSON) as SettingsData | null;
-	
-	const canvasBaseURL = await DataUtil.getSecureText('CanvasBaseURL');
-	const canvasAPIToken = await DataUtil.getSecureText('CanvasAPIToken');
-
-	if (!appInfo.settingsData || !canvasBaseURL || !canvasAPIToken) {
-		mainLog.error('Missing Vitable Information!');
-
-		mainLog.log('Setup is Needed!');
-		appStatus.isSetupNeeded = true;
-
-		launchMainWindowWithCorrectPage();
-		return;
-	}
-
-	const appInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData | null;
+	const appInfoSaveData = await SaveManager.load(FILENAME_APP_INFO_SAVE_DATA_JSON, false) as AppInfoSaveData | null;
 
 	if (appInfoSaveData !== null) {
 		appInfo.assignmentsThatHaveBeenReminded = appInfoSaveData.assignmentsThatHaveBeenReminded;
@@ -303,17 +306,13 @@ async function appMain() {
 			assignmentSubmittedTypes: appInfo.assignmentSubmittedTypes
 		}
 
-		await SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, cleanAppInfoSaveData);
+		await SaveManager.save(FILENAME_APP_INFO_SAVE_DATA_JSON, cleanAppInfoSaveData);
 	}
 	
 	if (net.isOnline())
 		checkCanvasWorker = await createCanvasWorker();
-	
-	while (!app.isReady()) {
-		await sleep(100);
-	}
 
-	if (appInfo.settingsData.launchOnStart && !appInfo.isDevelopment) {
+	if (appInfo.settingsData?.launchOnStart && !appInfo.isDevelopment) {
 		const loginItemSettings: Electron.LoginItemSettings = app.getLoginItemSettings();
 
 		if (!loginItemSettings.openAtLogin) {
@@ -352,12 +351,12 @@ async function appMain() {
 	}
 };
 
-function launchMainWindowWithCorrectPage() {
+async function createMainWindowWithCorrectPage() {
 	if (appStatus.isSetupNeeded) {
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 		return;
 	}
-	
+
 	if (whatsNew === null || semver.gt(app.getVersion(), whatsNew.version) || !whatsNew.shown) {
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/whatsNew.html');
 
@@ -366,12 +365,13 @@ function launchMainWindowWithCorrectPage() {
 			shown: true
 		};
 
-		SaveManager.saveData(FILENAME_WHATS_NEW_JSON, whatsNew);
+		SaveManager.save(FILENAME_WHATS_NEW_JSON, whatsNew);
 		mainLog.log('Whats New Page Will Not Show Anymore');
 
 		return;
 	}
 
+	
 	appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/home.html');
 }
 
@@ -399,8 +399,10 @@ async function updateClassData(classData: ClassData | null) {
 
 	mainLog.log('ClassData Has Updated!')
 
-	if (debugMode.saveFetchedClassData)
-		await SaveManager.saveData(FILENAME_CLASS_DATA_JSON, classData);
+	if (debugMode.saveFetchedClassData) {
+		const filepath: string = SaveManager.getSavePath(FILENAME_CLASS_DATA_JSON);
+		await FileManager.writeData(filepath, classData);
+	}
 
 	appInfo.classData = classData;
 	appInfo.mainWindow?.webContents.send('updateData', 'classes', classData);
@@ -694,7 +696,7 @@ async function outputAppLog() {
 		}
 	};
 
-	await SaveManager.saveData('app-log.json', data);
+	await SaveManager.save('app-log.json', data);
 
 	if (!appInfo.mainWindow)
 		return;
@@ -725,7 +727,7 @@ function launchApp() {
 		appInfo.mainWindow.focus();
 	}
 	else
-		launchMainWindowWithCorrectPage();
+		createMainWindowWithCorrectPage();
 }
 
 function openSaveFolder() {	
@@ -778,6 +780,6 @@ async function showUpdateErrorDialogAndHandleResponse() {
 
 // #endregion
 
-export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, launchMainWindowWithCorrectPage,
+export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, createMainWindowWithCorrectPage as launchMainWindowWithCorrectPage,
 	findNextAssignmentAndStartWorker, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse,
 	showUpdateErrorDialogAndHandleResponse, openPage, openSaveFolder }

@@ -28,22 +28,22 @@ function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefin
 }
 
 function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
-    ipcMain.handle('app:getVersion', () => {
-        return app.getVersion();
+    ipcMain.handle('getSaveVersion', (event, filename: string): string => {
+        return SaveManager.getSaveVersion(filename);
     })
 
     ipcMain.handle('writeSavedData', async (event, filename: string, data: SaveData) => {
         // const senderHTMLFilename = getSenderHTMLFile(event);
         // electronLog.log(`(${senderHTMLFilename}) Write Saved Data (${filename}) Event Was Handled!`);
 
-        return await SaveManager.saveData(filename, data);
+        return await SaveManager.save(filename, data);
     })
     
     ipcMain.handle('getSavedData', async (event, filename: string) => {
         // const senderHTMLFilename = getSenderHTMLFile(event);
         // electronLog.log(`(${senderHTMLFilename}) Get Saved Data (${filename}) Event Was Handled!`)
 
-        return await SaveManager.getData(filename);
+        return await SaveManager.load(filename);
     });
     
     ipcMain.handle('getCachedData', (event, filename: string): object | null => {
@@ -76,12 +76,12 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
             {
                 mainLog.log('Resetting AssignmentsThatHaveBeenReminded and Saving It Due to Settings Change');
 
-                const appInfoSaveData = await SaveManager.getData(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
+                const appInfoSaveData = await SaveManager.load(FILENAME_APP_INFO_SAVE_DATA_JSON) as AppInfoSaveData;
 
                 appInfoSaveData.assignmentsThatHaveBeenReminded = [];
                 appInfo.assignmentsThatHaveBeenReminded = [];
 
-                SaveManager.saveData(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
+                SaveManager.save(FILENAME_APP_INFO_SAVE_DATA_JSON, appInfoSaveData);
             }
 
             if (!appInfo.settingsData.dontRemindAssignmentsWithNoSubmissions) {
