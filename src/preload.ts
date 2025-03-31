@@ -39,7 +39,7 @@ const API = {
     addAssignmentMarkedAsSubmitted: (assignment: Assignment) => ipcRenderer.send('mark-assignment-submit', assignment),
     addAssignmentMarkedAsUnsubmitted: (assignment: Assignment) => ipcRenderer.send('mark-assignment-unsubmit', assignment),
     getAssignmentSubmittedTypes: () => ipcRenderer.invoke('get-assignment-submitted-types'),
-    getSaveVersion: (filename: string) => ipcRenderer.invoke('get-save-version', filename)
+    getSaveVersion: (filename: string) => ipcRenderer.invoke('get-save-version', filename),
 }
 
 contextBridge.exposeInMainWorld("api", API);

@@ -1,5 +1,8 @@
 import * as path from 'path';
+import * as fs from 'fs';
 import windowStateKeeper from 'electron-window-state';
+
+import * as mainLog from 'electron-log';
 
 import { app, BrowserWindow } from "electron";
 
@@ -12,6 +15,15 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 		defaultWidth: 800,
 		defaultHeight: 600
 	});
+
+	const preloadPath: string = path.join(__baseDir, '../preload.js');
+	const iconPath = getIconPath('icon.ico');
+
+	if (!fs.existsSync(preloadPath))
+		mainLog.error(`Filepath for Preload Doesn't Exist! (${preloadPath})`)
+
+	if (!fs.existsSync(iconPath))
+		mainLog.error(`Filepath for Icon Doesn't Exist! (${iconPath})`)
 
 	const mainWindow = new BrowserWindow({
 		x: mainWindowState.x,
@@ -26,10 +38,10 @@ function createMainWindow(appInfo: AppInfo, debugMode: DebugMode, htmlPath: stri
 
 		title: app.name,
 		show: true,
-		icon: getIconPath('icon.ico'),
+		icon: iconPath,
 
 		webPreferences: {
-			preload: path.join(__baseDir, '../preload/preload.js'),
+			preload: preloadPath,
 			nodeIntegration: true,
 			devTools: debugMode.active
 		}
