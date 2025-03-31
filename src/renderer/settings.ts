@@ -269,7 +269,7 @@ async function populateElemntsWithSecureData() {
 }
 
 async function getSettingsDataToSave(): Promise<SettingsData> {
-    const v = await window.api.getSaveVersion('settings-data.json');
+    const v = await window.api.invoke('getSaveVersion', 'settings-data.json');
 
     return {
         version: v,

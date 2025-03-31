@@ -2,6 +2,13 @@ import { Assignment } from "./shared/interfaces/classData"
 import { ContextMenuCommandParams, ContextMenuParams } from "./shared/interfaces/contextMenuParams"
 
 export interface IElectronAPI {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    send: (channel: string, args: any) => void,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    receive: (channel: string, listener: (...args: any) => unknown) => void,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    invoke: (channel: string, args) => any,
+
     util: {
         sleep: (time_in_ms: number) => Promise<void>
     },
@@ -35,7 +42,7 @@ export interface IElectronAPI {
     addAssignmentMarkedAsSubmitted: (assignment: Assignment) => void,
     addAssignmentMarkedAsUnsubmitted: (assignment: Assignment) => void,
     getAssignmentSubmittedTypes: () => Promise<object[]>,
-    getSaveVersion: (filename: string) => Promise<string>
+    // getSaveVersion: (filename: string) => Promise<string>
 }
 
 declare global {

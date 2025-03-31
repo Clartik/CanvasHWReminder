@@ -5,7 +5,48 @@ import { ContextMenuParams, ContextMenuCommandParams } from "./interfaces/contex
 
 type UpdateDataCallback = (type: string, data: object | null) => void;
 
+type Channels = {
+    send: string[],
+    receive: string[],
+    invoke: string[],
+}
+
+const channels: Channels = {
+    // From render to main
+    send: [],
+    // From main to render
+    receive: [],
+    // From render to main and back again
+    invoke: [
+        'getSaveVersion'
+    ],
+}
+
 const API = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    send: (channel: string, args: any) => {
+        const validChannels = channels.send;
+        if (validChannels.includes(channel)) {
+            ipcRenderer.send(channel, args);
+        }
+    },
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    receive: (channel: string, listener: (...args: any) => unknown) => {
+        const validChannels = channels.receive;
+        if (validChannels.includes(channel)) {
+            ipcRenderer.on(channel, (event, ...args) => listener(...args));
+        }
+    },
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    invoke: (channel: string, args: any) => {
+        const validChannels = channels.invoke;
+        if (validChannels.includes(channel)) {
+            return ipcRenderer.invoke(channel, args);
+        }
+    },
+
     util: {
         sleep: (time_in_ms: number) => ipcRenderer.invoke('util:sleep', time_in_ms)
     },
@@ -39,7 +80,7 @@ const API = {
     addAssignmentMarkedAsSubmitted: (assignment: Assignment) => ipcRenderer.send('mark-assignment-submit', assignment),
     addAssignmentMarkedAsUnsubmitted: (assignment: Assignment) => ipcRenderer.send('mark-assignment-unsubmit', assignment),
     getAssignmentSubmittedTypes: () => ipcRenderer.invoke('get-assignment-submitted-types'),
-    getSaveVersion: (filename: string) => ipcRenderer.invoke('get-save-version', filename),
+    // getSaveVersion: (filename: string) => ipcRenderer.invoke('get-save-version', filename),
 }
 
 contextBridge.exposeInMainWorld("api", API);
