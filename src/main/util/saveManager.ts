@@ -46,7 +46,7 @@ export default class SaveManager {
 
         const saveVersion: string = SaveManager.getSaveVersion(filename);
 
-        if (semver.gt(saveVersion, data.version) && can_upgrade) {
+        if (!semver.eq(saveVersion, data.version) && semver.gt(saveVersion, data.version) && can_upgrade) {
             logger.warn(`Data (${filename}) Needs to Be Upgraded! (${data.version} -> ${saveVersion})`);
             return await SaveManager.upgradeData(filename, data);
         }

@@ -7,9 +7,8 @@ type UpdateDataCallback = (type: string, data: object | null) => void;
 
 const API = {
     util: {
-        sleep: (time_in_ms: number) => ipcRenderer.invoke('util:sleep', time_in_ms),
+        sleep: (time_in_ms: number) => ipcRenderer.invoke('util:sleep', time_in_ms)
     },
-    getSaveVersion: (filename: string) => ipcRenderer.invoke('getSaveVersion', filename),
     getTimeDiffInSeconds: (date1: Date, date2: Date) => ipcRenderer.invoke('getTimeDiffInSeconds', date1, date2),
     getTimeTillDueDate: (date1: Date, date2: Date) => ipcRenderer.invoke('getTimeTillDueDate', date1, date2),
     getExactDueDate: (date1: Date, date2: Date) => ipcRenderer.invoke('getExactDueDate', date1, date2),
@@ -39,7 +38,8 @@ const API = {
     showContextMenu: (type: string, data: ContextMenuParams) => ipcRenderer.send('show-context-menu', type, data),
     addAssignmentMarkedAsSubmitted: (assignment: Assignment) => ipcRenderer.send('mark-assignment-submit', assignment),
     addAssignmentMarkedAsUnsubmitted: (assignment: Assignment) => ipcRenderer.send('mark-assignment-unsubmit', assignment),
-    getAssignmentSubmittedTypes: () => ipcRenderer.invoke('get-assignment-submitted-types')
+    getAssignmentSubmittedTypes: () => ipcRenderer.invoke('get-assignment-submitted-types'),
+    getSaveVersion: (filename: string) => ipcRenderer.invoke('get-save-version', filename)
 }
 
 contextBridge.exposeInMainWorld("api", API);

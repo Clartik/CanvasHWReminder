@@ -3,9 +3,8 @@ import { ContextMenuCommandParams, ContextMenuParams } from "./shared/interfaces
 
 export interface IElectronAPI {
     util: {
-        sleep: (time_in_ms: number) => Promise<void>,
+        sleep: (time_in_ms: number) => Promise<void>
     },
-    getSaveVersion: (filename: string) => Promise<string>,
     getTimeDiffInSeconds: (date1: Date, date2: Date) => Promise<number>,
     getTimeTillDueDate: (date1: Date, date2: Date) => Promise<string>,
     getExactDueDate: (date1: Date, date2: Date) => Promise<string>,
@@ -35,7 +34,8 @@ export interface IElectronAPI {
     showContextMenu: (type: string, data: ContextMenuParams) => void,
     addAssignmentMarkedAsSubmitted: (assignment: Assignment) => void,
     addAssignmentMarkedAsUnsubmitted: (assignment: Assignment) => void,
-    getAssignmentSubmittedTypes: () => Promise<object[]>
+    getAssignmentSubmittedTypes: () => Promise<object[]>,
+    getSaveVersion: (filename: string) => Promise<string>
 }
 
 declare global {

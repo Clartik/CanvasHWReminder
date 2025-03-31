@@ -101,7 +101,6 @@ const appStatus: AppStatus = {
 	isConnectedToCanvas: true
 }
 
-const CHECK_FOR_UPDATES_TIME_IN_SEC = 10;						// Every Minute
 const NOTIFICATION_DISAPPER_TIME_IN_SEC: number = 6;			// Every 6 Seconds
 
 let systemTray: Electron.Tray;
@@ -153,12 +152,14 @@ function createElectronApp() {
 		}
 
 		launchApp();
-	})
+	});
 
 	// MACOS ONLY
-	app.on('activate', async () => {
-		if (BrowserWindow.getAllWindows().length === 0 && app.isReady())
-			createMainWindowWithCorrectPage();
+	app.on('activate', () => {
+		if (BrowserWindow.getAllWindows().length !== 0 || app.isReady())
+			return;
+
+		createMainWindowWithCorrectPage();
 	});
 	
 	app.on('window-all-closed', () => {
@@ -187,7 +188,7 @@ function createElectronApp() {
 		waitForNotificationWorker?.terminate();
 
 		systemTray.destroy();
-	})
+	});
 
 	app.whenReady().then(async () => {
 		// Windows Specific Command to Show the App Name in Notification
@@ -210,7 +211,8 @@ function createElectronApp() {
 
 		// Whats New neeeds to be loaded before the next statement because there should be no missing state..
 		// ...in case main window isn't launched.
-		whatsNew = await SaveManager.load(FILENAME_WHATS_NEW_JSON) as WhatsNew | null;
+		const whatsNewPath: string = SaveManager.getSavePath(FILENAME_WHATS_NEW_JSON);
+		whatsNew = await FileManager.loadData(whatsNewPath) as WhatsNew | null;
 
 		setupAppInfoSaveData();
 		cleanAppInfoSaveData();
@@ -356,7 +358,7 @@ async function cleanAppInfoSaveData() {
 	await SaveManager.save(FILENAME_APP_INFO_SAVE_DATA_JSON, cleanAppInfoSaveData);
 }
 
-async function createMainWindowWithCorrectPage() {
+function createMainWindowWithCorrectPage() {
 	if (appStatus.isSetupNeeded) {
 		appInfo.mainWindow = createMainWindow(appInfo, debugMode, './pages/welcome.html');
 		return;
@@ -784,6 +786,6 @@ async function showUpdateErrorDialogAndHandleResponse() {
 
 // #endregion
 
-export { updateClassData, startCheckCanvasWorker, outputAppLog, appMain, createMainWindowWithCorrectPage as launchMainWindowWithCorrectPage,
+export { updateClassData, startCheckCanvasWorker, outputAppLog, createMainWindowWithCorrectPage as launchMainWindowWithCorrectPage,
 	findNextAssignmentAndStartWorker, showUpdateAvailableDialogAndHandleResponse, showUpdateCompleteDialogAndHandleResponse,
 	showUpdateErrorDialogAndHandleResponse, openPage, openSaveFolder }

@@ -1,6 +1,6 @@
 import * as keytar from 'keytar';
 
-import { app, ipcMain } from "electron";
+import { ipcMain } from "electron";
 import * as mainLog from 'electron-log';
 
 import AppInfo from '../../interfaces/appInfo';
@@ -28,10 +28,6 @@ function getSenderHTMLFile(event: Electron.IpcMainInvokeEvent): string | undefin
 }
 
 function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: DebugMode) {
-    ipcMain.handle('getSaveVersion', (event, filename: string): string => {
-        return SaveManager.getSaveVersion(filename);
-    })
-
     ipcMain.handle('writeSavedData', async (event, filename: string, data: SaveData) => {
         // const senderHTMLFilename = getSenderHTMLFile(event);
         // electronLog.log(`(${senderHTMLFilename}) Write Saved Data (${filename}) Event Was Handled!`);
@@ -62,7 +58,6 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 
     ipcMain.on('updateData', async (event, type: string, data: object | null) => {
         const senderHTMLFilename = getSenderHTMLFile(event);
-
         mainLog.log(`(${senderHTMLFilename}) Update Data (${type}) Event Was Handled!`)
         
         if (type === 'settingsData') {
@@ -220,6 +215,11 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
     ipcMain.handle('getTimeDiffInSeconds', (event, date1: Date, date2: Date) => CourseUtil.getTimeDiffInSeconds(date1, date2));
     ipcMain.handle('getTimeTillDueDate', (event, date1: Date, date2: Date) => CourseUtil.getTimeTillDueDate(date1, date2));
     ipcMain.handle('getExactDueDate', (event, date1: Date, date2: Date) => CourseUtil.getExactDueDate(date1, date2));
+
+    ipcMain.handle('get-save-version', (event, filename: string): string => {
+        return SaveManager.getSaveVersion(filename);
+    });
+
 }
 
 export default handleFileRequests;

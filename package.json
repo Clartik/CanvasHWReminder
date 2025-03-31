@@ -37,7 +37,8 @@
     "electron-updater": "^6.3.9",
     "electron-window-state": "^5.0.3",
     "keytar": "^7.9.0",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "semver": "^7.7.1"
   },
   "build": {
     "extraMetadata": {
