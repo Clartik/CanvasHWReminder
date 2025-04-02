@@ -1,7 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
 
-import { ContextMenuCommandParams } from "./interfaces/contextMenuParams";
-
 type Channels = {
     send: string[],
     receive: string[],
@@ -32,6 +30,11 @@ const channels: Channels = {
     receive: [
         'updateData',
 
+        'sendDownloadProgress',
+        'context-menu-command',
+        
+        'removeProgressBarTextLink',
+        'sendAppStatus'
     ],
     // From render to main and back again
     invoke: [
@@ -85,12 +88,7 @@ const API = {
         if (validChannels.includes(channel)) {
             return ipcRenderer.invoke(channel, ...args);
         }
-    },
-    
-    onSendDownloadProgress: (callback: (status: string, percent: number) => void) => ipcRenderer.on('sendDownloadProgress', (_event, status: string, percent: number) => callback(status, percent)),
-    onContextMenuCommand: (callback: (command: string, data: ContextMenuCommandParams) => void) => ipcRenderer.on('context-menu-command', (_event, command: string, data: ContextMenuCommandParams) => callback(command, data)),
-    onRemoveProgressBarTextLink: (callback: () => void) => ipcRenderer.on('removeProgressBarTextLink', () => callback()),
-    onSendAppStatus: (callback: (status: string) => void) => ipcRenderer.on('sendAppStatus', (_event, status: string) => callback(status)),
+    }
 }
 
 contextBridge.exposeInMainWorld("api", API);

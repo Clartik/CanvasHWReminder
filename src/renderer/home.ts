@@ -189,7 +189,7 @@ window.api.receive('updateData', (type: string, data: object | null) => {
     }
 });
 
-window.api.onSendAppStatus(async (status: string) => {
+window.api.receive('sendAppStatus', async (status: string) => {
     console.log('Received App Status - ' + status);
 
     let infoWidget: HTMLDivElement;
@@ -248,13 +248,13 @@ window.api.onSendAppStatus(async (status: string) => {
     }
 });
 
-window.api.onSendDownloadProgress((status: string, percent: number) => showProgressBar(status, percent))
+window.api.receive('sendDownloadProgress', (status: string, percent: number) => showProgressBar(status, percent))
 
-window.api.onRemoveProgressBarTextLink(() => {
+window.api.receive('removeProgressBarTextLink', () => {
     updateProgressBarLabel.classList.remove('active');
 })
 
-window.api.onContextMenuCommand(async (command: string, data: ContextMenuCommandParams) => {
+window.api.receive('contextMenuCommand', async (command: string, data: ContextMenuCommandParams) => {
     let assignmentElement: HTMLLIElement | null = null;
 
     for (const classBox of classBoxes) {
