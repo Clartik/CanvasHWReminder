@@ -19,6 +19,7 @@ import AppInfoSaveData from '../../interfaces/appInfoData';
 
 import * as mainLog from 'electron-log';
 import AssignmentSubmittedType from '../../interfaces/assignmentSubmittedType';
+import FileManager from './fileManager';
 
 async function getSecureText(key: string): Promise<string | null> {
 	return await keytar.getPassword(APP_NAME, key);
@@ -99,7 +100,8 @@ async function reloadClassData(appInfo: AppInfo, debugMode: DebugMode) {
 	let classData: ClassData | null = null;
 
 	if (debugMode.useLocalClassData) {
-		classData = await SaveManager.load(FILENAME_CLASS_DATA_JSON) as ClassData | null;
+		const path = SaveManager.getSavePath(FILENAME_CLASS_DATA_JSON);
+		classData = await FileManager.loadData(path) as ClassData | null;
 	}
 	else {
 		if (!appInfo.settingsData)

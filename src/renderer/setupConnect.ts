@@ -157,7 +157,7 @@ function createInfoWidget(template: string): HTMLDivElement {
 }
 
 async function showInfoWidgetForNoInternet() {
-    await window.api.util.sleep(2 * 1000);
+    await window.api.invoke('util:sleep', 2 * 1000);
 
     postConnectBtnClick();
 
@@ -194,8 +194,8 @@ function showProfileIconAndName(profile: CanvasAPI.User) {
 }
 
 function saveSecureData() {
-    window.api.saveSecureText('CanvasBaseURL', canvasBaseURLInput.value);
-    window.api.saveSecureText('CanvasAPIToken', canvasAPITokenInput.value);
+    window.api.send('saveSecureText', 'CanvasBaseURL', canvasBaseURLInput.value);
+    window.api.send('saveSecureText', 'CanvasAPIToken', canvasAPITokenInput.value);
 }
 
 //#endregion

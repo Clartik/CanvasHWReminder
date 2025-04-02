@@ -139,7 +139,7 @@ creditsLinkBtn.addEventListener('click', async (event) => {
             const success = await window.api.invoke('writeSavedData', 'settings-data.json', settingsData);
 
             if (success)
-                window.api.updateData('settingsData', settingsData);
+                window.api.send('updateData', 'settingsData', settingsData);
         }
     }
 
@@ -208,7 +208,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
             const success = await window.api.invoke('writeSavedData', 'settings-data.json', settingsData);
 
             if (success)
-                window.api.updateData('settingsData', settingsData);
+                window.api.send('updateData', 'settingsData', settingsData);
         }
     }
 
@@ -296,8 +296,8 @@ async function getSettingsDataToSave(): Promise<SettingsData> {
 }
 
 function saveSecureData() {
-    window.api.saveSecureText('CanvasBaseURL', canvasBaseURLInput.value);
-    window.api.saveSecureText('CanvasAPIToken', canvasAPITokenInput.value);
+    window.api.send('saveSecureText', 'CanvasBaseURL', canvasBaseURLInput.value);
+    window.api.send('saveSecureText', 'CanvasAPIToken', canvasAPITokenInput.value);
 }
 
 function populateTimeOptions() {

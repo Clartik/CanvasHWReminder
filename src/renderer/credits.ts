@@ -4,13 +4,13 @@ const termsLinkCredits = document.getElementById('terms-link')! as HTMLSpanEleme
 const privacyLinkCredits = document.getElementById('privacy-link')! as HTMLSpanElement;
 
 websiteLinkBtn.addEventListener('click', () => {
-    window.api.openLink('https://canvashwreminder.com/');
+    window.api.send('openLink', 'https://canvashwreminder.com/');
 });
 
 termsLinkCredits.addEventListener('click', () => {
-    window.api.openLink('https://canvashwreminder.com/tos');
+    window.api.send('openLink', 'https://canvashwreminder.com/tos');
 })
 
 privacyLinkCredits.addEventListener('click', () => {
-    window.api.openLink('https://canvashwreminder.com/privacy');
+    window.api.send('openLink', 'https://canvashwreminder.com/privacy');
 })

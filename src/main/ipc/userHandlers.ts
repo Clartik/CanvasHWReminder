@@ -85,7 +85,7 @@ function handleUserRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
 		}
 	})
 
-	ipcMain.on('show-context-menu', (event, type: string, data) => {
+	ipcMain.on('showContextMenu', (event, type: string, data) => {
 		if (type === 'assignment') {
 			createAssignmentContextMenu(event.sender, data);
 		}

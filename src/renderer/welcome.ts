@@ -13,5 +13,5 @@ termsCheckbox.addEventListener('change', () => {
 })
 
 termsLink.addEventListener('click', () => {
-    window.api.openLink('https://clartik.github.io/CanvasHWReminder-Website/tos.html');
+    window.api.send('openLink', 'https://clartik.github.io/CanvasHWReminder-Website/tos.html');
 })

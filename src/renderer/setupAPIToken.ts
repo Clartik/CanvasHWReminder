@@ -9,7 +9,7 @@ setupAPITokenMain();
 canvasAPITokenInput.addEventListener('input', checkIfTokenNextBtnCanBeEnabled)
 
 apiNextBtn.addEventListener('click', () => {
-    window.api.saveSecureText('CanvasAPIToken', canvasAPITokenInput.value);
+    window.api.send('saveSecureText', 'CanvasAPIToken', canvasAPITokenInput.value);
     
     window.location.href = '../pages/setupConnect.html';
 })

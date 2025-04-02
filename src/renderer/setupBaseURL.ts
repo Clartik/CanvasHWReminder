@@ -9,7 +9,7 @@ setupBaseURLMain();
 canvasBaseURLInput.addEventListener('input', checkIfURLNextBtnCanBeEnabled)
 
 urlNextBtn.addEventListener('click', () => {
-    window.api.saveSecureText('CanvasBaseURL', canvasBaseURLInput.value);
+    window.api.send('saveSecureText', 'CanvasBaseURL', canvasBaseURLInput.value);
 
     window.location.href = '../pages/setupAPIToken.html';
 })

@@ -1,12 +1,14 @@
 import * as path from 'path';
 
 import { app, shell, dialog } from 'electron';
+import * as mainLog from 'electron-log';
 
 function openLink(url: string) {
 	try {
 		shell.openExternal(url);
-	} catch {
-		dialog.showErrorBox('Could Not Open Assignment Post!', 'An Error Occured While Trying to Open the Assignment Post')
+	} catch (err) {
+		mainLog.error(`Error occured while trying to Open Link (${url}): `, err)
+		dialog.showErrorBox('Could Not Open Link!', 'An Error Occured While Trying to Open Link!')
 	}
 }
 

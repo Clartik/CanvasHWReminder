@@ -141,7 +141,7 @@ async function homeMain() {
 
     while (isCheckingForUpdates) {
         const secondsLeftFromAMinute = checkForUpdatesTimeInSec - new Date().getSeconds();
-        await window.api.util.sleep(secondsLeftFromAMinute * 1000);
+        await window.api.invoke('util:sleep', secondsLeftFromAMinute * 1000);
         
         console.log('Checking For Any Updates!');
 
@@ -159,7 +159,7 @@ async function homeMain() {
 
 //#region Event Handlers
 
-window.api.onUpdateData((type: string, data: object | null) => {
+window.api.receive('updateData', (type: string, data: object | null) => {
     if (type === 'classes') {
         const classData = data as ClassData | null;
         
@@ -206,7 +206,7 @@ window.api.onSendAppStatus(async (status: string) => {
                 const infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_INTERNET_BACK);
                 loadingOrErrorContainer.appendChild(infoWidget);
 
-                await window.api.util.sleep(2 * 1000);
+                await window.api.invoke('util:sleep', 2 * 1000);
                 clearLoadingOrErrorContainer();
             }
             break;
@@ -231,7 +231,7 @@ window.api.onSendAppStatus(async (status: string) => {
             infoWidget = createInfoWidget(INFO_WIDGET_TEMPLATE_CANVAS_LOGIN_SUCCESS);
             loadingOrErrorContainer.appendChild(infoWidget);
 
-            await window.api.util.sleep(2 * 1000);
+            await window.api.invoke('util:sleep', 2 * 1000);
             clearLoadingOrErrorContainer();
 
             break;
@@ -298,15 +298,15 @@ updateProgressBarLabel.addEventListener('click', () => {
 
     switch (downloadStatus) {
         case 'available':
-            window.api.launchUpdaterDialog('available');
+            window.api.send('launchUpdaterDialog', 'available');
             return;
 
         case 'complete':
-            window.api.launchUpdaterDialog('complete');
+            window.api.send('launchUpdaterDialog', 'complete');
             return;
 
         case 'error':
-            window.api.launchUpdaterDialog('error');
+            window.api.send('launchUpdaterDialog', 'error');
             return;
     
         default:
@@ -408,7 +408,7 @@ function addContextMenu(assignment: Assignment, assignmentElement: HTMLLIElement
             isAssignmentMarkedAsSubmitted
         };
 
-        window.api.showContextMenu('assignment', params);
+        window.api.send('showContextMenu', 'assignment', params);
     });
 }
 
@@ -421,7 +421,7 @@ function toggleRemind(assignment: Assignment, assignmentElement: HTMLLIElement) 
         assignmentElementsNotToRemind.push(assignmentElement);
         console.log(`Assignment (${assignment.name}) Will Not Remind`);
 
-        window.api.disableAssignmentReminder(assignment);
+        window.api.send('disableAssignmentReminder', assignment);
     }
     else {
         const index = assignmentElementsNotToRemind.indexOf(assignmentElement);
@@ -433,7 +433,7 @@ function toggleRemind(assignment: Assignment, assignmentElement: HTMLLIElement) 
         assignmentElementsNotToRemind.splice(index, 1);
         console.log(`Assignment (${assignment.name}) Will Remind`);
 
-        window.api.enableAssignmentReminder(assignment);
+        window.api.send('enableAssignmentReminder', assignment);
     }
 }
 
@@ -489,7 +489,7 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
             assignmentLabel.innerHTML = assignment.name + ' - ' + timeTillDueDate;
 
             const assignmentButton = assignmentElement.querySelector('.assignment-btn')! as HTMLButtonElement;
-            assignmentButton.addEventListener('click', () => window.api.openLink(assignment.html_url));
+            assignmentButton.addEventListener('click', () => window.api.send('openLink', assignment.html_url));
 
             const assignmentElementInfo: AssignmentElementInfo = {
                 element: assignmentElement, 
@@ -575,7 +575,7 @@ async function toggleAssignmentElementAsSubmitted(assignment: Assignment, assign
     const isAssignmentMarkedAsSubmitted = assignmentLabel.innerHTML.includes('- Submitted');
 
     if (!isAssignmentMarkedAsSubmitted) {
-        window.api.addAssignmentMarkedAsSubmitted(assignment);
+        window.api.send('addAssignmentMarkedAsSubmitted', assignment);
         
         assignmentLabel.innerHTML = assignment.name + ' - Submitted';
         
@@ -584,7 +584,7 @@ async function toggleAssignmentElementAsSubmitted(assignment: Assignment, assign
         assignmentElement.classList.add('complete');
         assignmentButton.classList.add('complete');
     } else {
-        window.api.addAssignmentMarkedAsUnsubmitted(assignment);
+        window.api.send('addAssignmentMarkedAsUnsubmitted', assignment);
 
         const assignmentElementInfo: AssignmentElementInfo = {
             element: assignmentElement, 

@@ -112,7 +112,7 @@ doneBtn.addEventListener('click', async () => {
         return;
 
     doneBtn.innerHTML = LOADING_SPINNER_TEMPLATE;
-    await window.api.util.sleep(FAKE_WAIT_SEC_FOR_COMPLETING_SETUP * 1000);
+    await window.api.invoke('util:sleep', FAKE_WAIT_SEC_FOR_COMPLETING_SETUP * 1000);
 
     const settingsDataToSave = await getSettingsDataToSave();
     const success = await window.api.invoke('writeSavedData', 'settings-data.json', settingsDataToSave);
@@ -122,7 +122,7 @@ doneBtn.addEventListener('click', async () => {
         return;
     }
 
-    window.api.sendAppStatus('SETUP COMPLETE', settingsDataToSave);
+    window.api.send('sendAppStatus', 'SETUP COMPLETE', settingsDataToSave);
 
     window.location.href = '../pages/home.html';
 });
