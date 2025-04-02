@@ -210,15 +210,14 @@ function handleFileRequests(appInfo: AppInfo, appStatus: AppStatus, debugMode: D
         findNextAssignmentAndStartWorker();
     });
 
-    ipcMain.handle('get-assignment-submitted-types', () => appInfo.assignmentSubmittedTypes);
+    ipcMain.handle('getAssignmentSubmittedTypes', () => appInfo.assignmentSubmittedTypes);
 
-    ipcMain.handle('getTimeDiffInSeconds', (event, date1: Date, date2: Date) => CourseUtil.getTimeDiffInSeconds(date1, date2));
+    ipcMain.handle('getTimeDiffInSeconds', (event, date1: Date, date2: Date) => {
+        return CourseUtil.getTimeDiffInSeconds(date1, date2)
+    });
     ipcMain.handle('getTimeTillDueDate', (event, date1: Date, date2: Date) => CourseUtil.getTimeTillDueDate(date1, date2));
     ipcMain.handle('getExactDueDate', (event, date1: Date, date2: Date) => CourseUtil.getExactDueDate(date1, date2));
-
-    ipcMain.handle('getSaveVersion', (event, filename: string): string => {
-        return SaveManager.getSaveVersion(filename);
-    });
+    ipcMain.handle('getSaveVersion', (event, filename: string): string => SaveManager.getSaveVersion(filename));
 
 }
 

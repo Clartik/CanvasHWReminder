@@ -52,12 +52,12 @@ launchOnStartCheckbox.addEventListener('click', async (event) => {
 
     const NO_BUTTON_RESPONSE: number = 1;
 
-    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+    const response: Electron.MessageBoxReturnValue = await window.api.invoke('showMessageDialog', {
         type: "warning",
         title: "Are you sure?",
         message: `Are you sure you want to disable "Launch on system bootup"?\nThis prevents Canvas HW Reminder from reminding you until you launch the app.`,
         buttons: ['Yes', 'No']
-    })
+    });
 
     if (response.response === NO_BUTTON_RESPONSE)
         return;
@@ -73,12 +73,12 @@ minimizeOnCloseCheckbox.addEventListener('click', async (event) => {
 
     const NO_BUTTON_RESPONSE: number = 1;
 
-    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+    const response: Electron.MessageBoxReturnValue = await window.api.invoke('showMessageDialog', {
         type: "warning",
         title: "Are you sure?",
         message: `Are you sure you want to disable "Minimize on app close"?\nThis prevents Canvas HW Reminder from reminding you until you re-launch the app.`,
         buttons: ['Yes', 'No']
-    })
+    });
 
     if (response.response === NO_BUTTON_RESPONSE)
         return;
@@ -104,7 +104,7 @@ doneBtn.addEventListener('click', async () => {
         defaultId: 0
     }
 
-    const messageResponse: Electron.MessageBoxReturnValue = await window.api.showMessageDialog(options);
+    const messageResponse: Electron.MessageBoxReturnValue = await window.api.invoke('showMessageDialog', options);
     
     const YES_BUTTON_RESPONSE = 0;
 
@@ -115,8 +115,7 @@ doneBtn.addEventListener('click', async () => {
     await window.api.util.sleep(FAKE_WAIT_SEC_FOR_COMPLETING_SETUP * 1000);
 
     const settingsDataToSave = await getSettingsDataToSave();
-    
-    const success = await window.api.writeSavedData('settings-data.json', settingsDataToSave)
+    const success = await window.api.invoke('writeSavedData', 'settings-data.json', settingsDataToSave);
 
     if (!success) {
         console.warn('Failed to Save Settings Data!');

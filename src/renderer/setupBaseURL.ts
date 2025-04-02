@@ -19,7 +19,7 @@ urlNextBtn.addEventListener('click', () => {
 //#region Functions
 
 async function setupBaseURLMain() {
-    const canvasBaseUrl: string | null = await window.api.getSecureText('CanvasBaseURL');
+    const canvasBaseUrl: string | null = await window.api.invoke('getSecureText', 'CanvasBaseURL');
 
     if (!canvasBaseUrl)
         return;

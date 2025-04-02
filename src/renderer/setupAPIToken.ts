@@ -19,7 +19,7 @@ apiNextBtn.addEventListener('click', () => {
 //#region Functions
 
 async function setupAPITokenMain() {
-    const canvasAPIToken: string | null = await window.api.getSecureText('CanvasAPIToken');
+    const canvasAPIToken: string | null = await window.api.invoke('getSecureText', 'CanvasAPIToken');
 
     if (!canvasAPIToken)
         return;

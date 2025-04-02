@@ -87,10 +87,10 @@ homeMain();
 
 // Main Function
 async function homeMain() {
-    settingsData = await window.api.getCachedData('settingsData') as SettingsData | null;
+    settingsData = await window.api.invoke('getCachedData', 'settingsData') as SettingsData | null;
 
-    const classData = await window.api.getCachedData('classData') as ClassData | null;
-    const appStatus = await window.api.getAppStatus() as AppStatus;
+    const classData = await window.api.invoke('getCachedData', 'classData') as ClassData | null;
+    const appStatus = await window.api.invoke('getAppStatus') as AppStatus;
 
     // TODO: Check if App Status is Okay First and then Populate Data!
     // TODO: Maybe Populate Data by Sending it Rather than fetching it?
@@ -284,7 +284,7 @@ window.api.onContextMenuCommand(async (command: string, data: ContextMenuCommand
         case 'mark-submit':
         case 'mark-unsubmit':
             await toggleAssignmentElementAsSubmitted(data.assignment, assignmentElement);
-            assignmentSubmittedTypes = await window.api.getAssignmentSubmittedTypes() as AssignmentSubmittedType[];
+            assignmentSubmittedTypes = await window.api.invoke('getAssignmentSubmittedTypes') as AssignmentSubmittedType[];
             break;
     
         default:
@@ -350,8 +350,8 @@ async function loadClassElements(classes: Class[]): Promise<void> {
 
     await populateClassItemWithData(classes);
 
-    const assignmentsNotToRemind = await window.api.getAssignmentsNotToRemind();
-    const assignmentsWithNoSubmissions = await window.api.getAssignmentsWithNoSubmissions();
+    const assignmentsNotToRemind = await window.api.invoke('getAssignmentsNotToRemind');
+    const assignmentsWithNoSubmissions = await window.api.invoke('getAssignmentsWithNoSubmissions');
 
     // Treat Assignments With No Submissions the Same Way as Assignments Not To Remind
     configureAssignmentsRemindStatus(assignmentsNotToRemind);
@@ -474,7 +474,7 @@ async function populateClassItemWithData(classes: Array<Class>): Promise<void> {
 
         let doesClassHaveAssignmentsDue = false;
 
-        assignmentSubmittedTypes = await window.api.getAssignmentSubmittedTypes() as AssignmentSubmittedType[];
+        assignmentSubmittedTypes = await window.api.invoke('getAssignmentSubmittedTypes') as AssignmentSubmittedType[];
 
         for (const assignment of currentClass.assignments) {
             if (assignment.due_at === null)
@@ -743,7 +743,7 @@ function getHowLongPastDueInSeconds(): number {
 }
 
 async function getTimePastDueDate(currentDate: Date, assignmentDueDate: Date): Promise<string> {
-    const timeDiffInSec: number = await window.api.getTimeDiffInSeconds(assignmentDueDate, currentDate);
+    const timeDiffInSec: number = await window.api.invoke('getTimeDiffInSeconds', assignmentDueDate, currentDate);
     const howLongPastDueInSec: number | null = getHowLongPastDueInSeconds();
 
     const isHowLongPastDueNever: boolean = howLongPastDueInSec === -1;
@@ -787,9 +787,9 @@ async function getTimeTillDueDateFromAssignment(dueDate: string): Promise<string
         return await getTimePastDueDate(currentDate, assignmentDueDate);
     else {
         if (settingsData?.showExactDueDate)
-            return await window.api.getExactDueDate(currentDate, assignmentDueDate);
+            return await window.api.invoke('getExactDueDate', currentDate, assignmentDueDate);
         
-        return await window.api.getTimeTillDueDate(currentDate, assignmentDueDate);
+        return await window.api.invoke('getTimeTillDueDate', currentDate, assignmentDueDate);
     }
 }
 

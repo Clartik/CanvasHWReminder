@@ -65,7 +65,7 @@ connectBtn.addEventListener('click', async () => {
         return;
     }
     
-    const result: IPCGetResult = await window.api.getSelfFromCanvas(canvasBaseURLInput.value, canvasAPITokenInput.value) as IPCGetResult;
+    const result: IPCGetResult = await window.api.invoke('getSelfFromCanvas' ,canvasBaseURLInput.value, canvasAPITokenInput.value) as IPCGetResult;
 
     if (result.error) {
         postConnectBtnClick();
@@ -113,8 +113,8 @@ yesBtn.addEventListener('click', async () => {
 //#region Functions
 
 async function connectMain() {
-    const canvasBaseUrl: string | null = await window.api.getSecureText('CanvasBaseURL');
-    const canvasAPIToken: string | null = await window.api.getSecureText('CanvasAPIToken');
+    const canvasBaseUrl: string | null = await window.api.invoke('getSecureText', 'CanvasBaseURL');
+    const canvasAPIToken: string | null = await window.api.invoke('getSecureText', 'CanvasAPIToken');
 
     if (!canvasBaseUrl || !canvasAPIToken)
         return;

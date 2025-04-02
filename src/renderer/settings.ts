@@ -65,7 +65,7 @@ launchOnStartCheckbox.addEventListener('click', async () => {
 
     const NO_BUTTON_RESPONSE: number = 1;
 
-    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+    const response: Electron.MessageBoxReturnValue = await window.api.invoke('showMessageDialog', {
         type: "warning",
         title: "Are you sure?",
         message: `Are you sure you want to disable "Launch on system bootup"?\nThis prevents Canvas HW Reminder from reminding you until you launch the app.`,
@@ -84,12 +84,12 @@ minimizeOnCloseCheckbox.addEventListener('click', async () => {
 
     const NO_BUTTON_RESPONSE: number = 1;
 
-    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+    const response: Electron.MessageBoxReturnValue = await window.api.invoke('showMessageDialog', {
         type: "warning",
         title: "Are you sure?",
         message: `Are you sure you want to disable "Minimize on app close"?\nThis prevents Canvas HW Reminder from reminding you until you re-launch the app.`,
         buttons: ['Yes', 'No']
-    })
+    });
 
     if (response.response === NO_BUTTON_RESPONSE)
         return;
@@ -103,7 +103,7 @@ autoMarkSubmissionsCheckbox.addEventListener('click', async () => {
 
     const NO_BUTTON_RESPONSE: number = 1;
 
-    const response: Electron.MessageBoxReturnValue = await window.api.showMessageDialog({
+    const response: Electron.MessageBoxReturnValue = await window.api.invoke('showMessageDialog', {
         type: "warning",
         title: "Are you sure? [BETA]",
         message: `Are you sure you want to enable "Auto mark submitted assignments?"\nThis feature is in BETA and may not work as expected at all times.`,
@@ -128,7 +128,7 @@ creditsLinkBtn.addEventListener('click', async (event) => {
             defaultId: 0
         }
 
-        const messageResponse: Electron.MessageBoxReturnValue = await window.api.showMessageDialog(options);
+        const messageResponse: Electron.MessageBoxReturnValue = await window.api.invoke('showMessageDialog', options);
 
         const YES_BUTTON_RESPONSE = 0;
 
@@ -136,7 +136,7 @@ creditsLinkBtn.addEventListener('click', async (event) => {
             saveSecureData();
 
             const settingsData = await getSettingsDataToSave();
-            const success = await window.api.writeSavedData('settings-data.json', settingsData);
+            const success = await window.api.invoke('writeSavedData', 'settings-data.json', settingsData);
 
             if (success)
                 window.api.updateData('settingsData', settingsData);
@@ -197,7 +197,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
             defaultId: 0
         }
 
-        const messageResponse: Electron.MessageBoxReturnValue = await window.api.showMessageDialog(options);
+        const messageResponse: Electron.MessageBoxReturnValue = await window.api.invoke('showMessageDialog' ,options);
 
         const YES_BUTTON_RESPONSE = 0;
 
@@ -205,7 +205,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
             saveSecureData();
 
             const settingsData = await getSettingsDataToSave();
-            const success = await window.api.writeSavedData('settings-data.json', settingsData);
+            const success = await window.api.invoke('writeSavedData', 'settings-data.json', settingsData);
 
             if (success)
                 window.api.updateData('settingsData', settingsData);
@@ -221,7 +221,7 @@ backBtnAnchor.addEventListener('click', async (event: MouseEvent) => {
 //#region Functions
 
 async function settingsPageGetCachedSettingsData(): Promise<SettingsData | null> {
-    const cachedSettingsData = await window.api.getCachedData('settingsData') as SettingsData | null;
+    const cachedSettingsData = await window.api.invoke('getCachedData', 'settingsData') as SettingsData | null;
 
     if (cachedSettingsData === null) {
         console.error('Cached SettingsData is Null!');
@@ -261,8 +261,8 @@ function populateElementsWithData(settingsData: SettingsData) {
 };
 
 async function populateElemntsWithSecureData() {
-    const canvasBaseURL: string | null = await window.api.getSecureText('CanvasBaseURL');
-    const canvasAPIToken: string | null = await window.api.getSecureText('CanvasAPIToken');
+    const canvasBaseURL: string | null = await window.api.invoke('getSecureText', 'CanvasBaseURL');
+    const canvasAPIToken: string | null = await window.api.invoke('getSecureText', 'CanvasAPIToken');
 
     canvasBaseURLInput.value = canvasBaseURL ?? '';
     canvasAPITokenInput.value = canvasAPIToken ?? '';
