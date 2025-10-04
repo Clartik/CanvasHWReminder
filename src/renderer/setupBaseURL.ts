@@ -30,7 +30,7 @@ async function setupBaseURLMain() {
 }
 
 function isValidCanvasUrl(url: string): boolean {
-    return url.includes('instructure');
+    return url.includes('instructure') || url.includes('canvas');
 }
 
 function isValidUrl(url: string) {
